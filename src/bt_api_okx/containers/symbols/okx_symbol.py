@@ -5,7 +5,11 @@ import time
 from typing import Any
 
 from bt_api_base.containers.symbols.symbol import SymbolData
-from bt_api_base.functions.utils import from_dict_get_bool, from_dict_get_float, from_dict_get_string
+from bt_api_base.functions.utils import (
+    from_dict_get_bool,
+    from_dict_get_float,
+    from_dict_get_string,
+)
 
 
 class OkxSymbolData(SymbolData):
