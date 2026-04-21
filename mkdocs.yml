@@ -43,6 +43,11 @@ theme:
 
 nav:
   - Home: index.md
+  - API Reference:
+    - Gateway: api/gateway.md
+    - Feeds: api/feeds.md
+    - Containers: api/containers.md
+    - Exchange Data: api/exchange_data.md
 
 markdown_extensions:
   - pymdownx.highlight
