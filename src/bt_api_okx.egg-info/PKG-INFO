@@ -1,0 +1,27 @@
+Metadata-Version: 2.4
+Name: bt_api_okx
+Version: 0.15.0
+Summary: OKX exchange plugin for bt_api
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: bt_api_base<1.0,>=0.15
+Requires-Dist: requests>=2.28
+Requires-Dist: websocket-client>=1.5
+Requires-Dist: aiohttp>=3.9
+
+# bt_api_okx
+
+OKX exchange package for `bt_api`.
+
+- The plugin entrypoint is `bt_api_okx.plugin:register_plugin`.
+- Core exchange registration and gateway adapter are delegated to existing `bt_api_py` implementations during transition.
+- Exchange runtime adapter is `bt_api_py.gateway.adapters.okx_adapter.OkxGatewayAdapter`.
+
+Install and run:
+
+```bash
+pip install -e packages/bt_api_okx
+```
+
+`bt_api_py` will auto-discover this plugin on startup through the
+`bt_api_py.plugins` entry-point group.

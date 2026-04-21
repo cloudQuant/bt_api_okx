@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=65", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bt_api_okx"
+version = "0.15.0"
+description = "OKX exchange plugin for bt_api"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "bt_api_base>=0.15,<1.0",
+    "requests>=2.28",
+    "websocket-client>=1.5",
+    "aiohttp>=3.9",
+]
+
+[project.entry-points."bt_api.plugins"]
+okx = "bt_api_okx.plugin:register_plugin"
+
+[tool.setuptools.packages.find]
+where = ["src"]

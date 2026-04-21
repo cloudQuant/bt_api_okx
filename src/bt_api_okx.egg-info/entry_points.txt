@@ -1,0 +1,2 @@
+[bt_api.plugins]
+okx = bt_api_okx.plugin:register_plugin
