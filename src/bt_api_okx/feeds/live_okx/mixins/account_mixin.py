@@ -67,35 +67,51 @@ class AccountMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _get_account_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _get_account_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         status = input_data["code"] == "0"
         if "data" not in input_data or not input_data["data"]:
             return [], status
         data = input_data["data"][0]
         if len(data) > 0:
             data_list = [
-                OkxAccountData(data, extra_data["symbol_name"], extra_data["asset_type"], True)
+                OkxAccountData(
+                    data, extra_data["symbol_name"], extra_data["asset_type"], True
+                )
             ]
             target_data = data_list
         else:
             target_data = []
         return target_data, status
 
-    def get_account(self, symbol: Any = None, extra_data: Any = None, **kwargs: Any) -> Any:
+    def get_account(
+        self, symbol: Any = None, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         path, params, extra_data = self._get_account(symbol, extra_data, **kwargs)
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
-    def get_balance(self, symbol: Any = None, extra_data: Any = None, **kwargs: Any) -> Any:
+    def get_balance(
+        self, symbol: Any = None, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         return self.get_account(symbol, extra_data, **kwargs)
 
-    def async_get_account(self, symbol: Any = None, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_get_account(
+        self, symbol: Any = None, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         path, params, extra_data = self._get_account(symbol, extra_data, **kwargs)
-        self.submit(self.async_request(path, extra_data=extra_data), callback=self.async_callback)
+        self.submit(
+            self.async_request(path, extra_data=extra_data),
+            callback=self.async_callback,
+        )
 
     def async_get_balance(self, extra_data: Any = None, **kwargs: Any) -> None:
         path = self._params.get_rest_path("get_balance_assert")
-        self.submit(self.async_request(path, extra_data=extra_data), callback=self.async_callback)
+        self.submit(
+            self.async_request(path, extra_data=extra_data),
+            callback=self.async_callback,
+        )
 
     def async_sub_account(self, extra_data: Any = None) -> None:
         path = self._params.get_rest_path("sub_account")
@@ -136,14 +152,18 @@ class AccountMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _get_position_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _get_position_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         status = input_data["code"] == "0"
         if "data" not in input_data:
             return [], status
         data = input_data["data"]
         if len(data) > 0:
             data_list = [
-                OkxPositionData(data[0], extra_data["symbol_name"], extra_data["asset_type"], True)
+                OkxPositionData(
+                    data[0], extra_data["symbol_name"], extra_data["asset_type"], True
+                )
             ]
             target_data = data_list
         else:
@@ -155,7 +175,9 @@ class AccountMixin:
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
-    def async_get_position(self, symbol: Any, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_get_position(
+        self, symbol: Any, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         path, params, extra_data = self._get_position(symbol, extra_data, **kwargs)
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
@@ -233,7 +255,9 @@ class AccountMixin:
         data = input_data["data"]
         if len(data) > 0:
             data_list = [
-                OkxPositionData(i, extra_data["symbol_name"], extra_data["asset_type"], True)
+                OkxPositionData(
+                    i, extra_data["symbol_name"], extra_data["asset_type"], True
+                )
                 for i in data
             ]
             target_data = data_list
@@ -256,7 +280,16 @@ class AccountMixin:
     ) -> Any:
         """Get positions history"""
         path, params, extra_data = self._get_positions_history(
-            inst_type, uly, inst_id, mgn_mode, ccy, after, before, limit, extra_data, **kwargs
+            inst_type,
+            uly,
+            inst_id,
+            mgn_mode,
+            ccy,
+            after,
+            before,
+            limit,
+            extra_data,
+            **kwargs,
         )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
@@ -276,7 +309,16 @@ class AccountMixin:
     ) -> None:
         """Async get positions history"""
         path, params, extra_data = self._get_positions_history(
-            inst_type, uly, inst_id, mgn_mode, ccy, after, before, limit, extra_data, **kwargs
+            inst_type,
+            uly,
+            inst_id,
+            mgn_mode,
+            ccy,
+            after,
+            before,
+            limit,
+            extra_data,
+            **kwargs,
         )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
@@ -285,7 +327,9 @@ class AccountMixin:
 
     # ==================== Config APIs ====================
 
-    def _get_config(self, extra_data: Any = None) -> tuple[str, dict[str, Any], dict[str, Any]]:
+    def _get_config(
+        self, extra_data: Any = None
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
         params: dict[str, Any] = {}
         path = self._params.get_rest_path("get_config")
         extra_data = update_extra_data(
@@ -301,7 +345,9 @@ class AccountMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _generic_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _generic_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         """Generic normalize function for OKX API responses.
         Extracts 'data' list and checks 'code' for status."""
         status = input_data.get("code") == "0"
@@ -313,7 +359,9 @@ class AccountMixin:
         return [data] if data else [], status
 
     @staticmethod
-    def _get_config_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _get_config_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         status = input_data["code"] == "0"
         if "data" not in input_data:
             return [], status
@@ -330,7 +378,10 @@ class AccountMixin:
 
     def async_get_config(self, extra_data: Any = None) -> None:
         path, params, extra_data = self._get_config(extra_data=extra_data)
-        self.submit(self.async_request(path, extra_data=extra_data), callback=self.async_callback)
+        self.submit(
+            self.async_request(path, extra_data=extra_data),
+            callback=self.async_callback,
+        )
 
     def set_mode(self) -> Any:
         params = {"posMode": "long_short_mode"}
@@ -346,7 +397,11 @@ class AccountMixin:
         return data
 
     def async_set_lever(
-        self, symbol: Any, lever: Any = 10, mgn_mode: Any = "cross", extra_data: Any = None
+        self,
+        symbol: Any,
+        lever: Any = 10,
+        mgn_mode: Any = "cross",
+        extra_data: Any = None,
     ) -> None:
         symbol = self._params.get_symbol(symbol)
         params = {"instId": symbol, "lever": lever, "mgnMode": mgn_mode}
@@ -403,7 +458,9 @@ class AccountMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _get_fee_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _get_fee_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         """Normalize fee data"""
         status = input_data["code"] == "0"
         if "data" not in input_data:
@@ -411,7 +468,9 @@ class AccountMixin:
         data = input_data["data"]
         if len(data) > 0:
             data_list = [
-                OkxPositionData(i, extra_data["symbol_name"], extra_data["asset_type"], True)
+                OkxPositionData(
+                    i, extra_data["symbol_name"], extra_data["asset_type"], True
+                )
                 for i in data
             ]
             target_data = data_list
@@ -500,7 +559,9 @@ class AccountMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _get_max_size_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _get_max_size_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         """Normalize max size data"""
         status = input_data["code"] == "0"
         if "data" not in input_data:
@@ -508,7 +569,9 @@ class AccountMixin:
         data = input_data["data"]
         if len(data) > 0:
             data_list = [
-                OkxPositionData(i, extra_data["symbol_name"], extra_data["asset_type"], True)
+                OkxPositionData(
+                    i, extra_data["symbol_name"], extra_data["asset_type"], True
+                )
                 for i in data
             ]
             target_data = data_list
@@ -605,7 +668,9 @@ class AccountMixin:
         data = input_data["data"]
         if len(data) > 0:
             data_list = [
-                OkxPositionData(i, extra_data["symbol_name"], extra_data["asset_type"], True)
+                OkxPositionData(
+                    i, extra_data["symbol_name"], extra_data["asset_type"], True
+                )
                 for i in data
             ]
             target_data = data_list
@@ -713,7 +778,15 @@ class AccountMixin:
     ) -> Any:
         """Set margin balance (add/reduce margin)"""
         path, body, extra_data = self._set_margin_balance(
-            symbol, pos_id, amt, mgn_mode, action_type, pos_side, ccy, extra_data, **kwargs
+            symbol,
+            pos_id,
+            amt,
+            mgn_mode,
+            action_type,
+            pos_side,
+            ccy,
+            extra_data,
+            **kwargs,
         )
         data = self.request(path, body=body, extra_data=extra_data)
         return data
@@ -732,8 +805,17 @@ class AccountMixin:
     ) -> None:
         """Async set margin balance (add/reduce margin)"""
         path, body, extra_data = self._set_margin_balance(
-            symbol, pos_id, amt, mgn_mode, action_type, pos_side, ccy, extra_data, **kwargs
+            symbol,
+            pos_id,
+            amt,
+            mgn_mode,
+            action_type,
+            pos_side,
+            ccy,
+            extra_data,
+            **kwargs,
         )
         self.submit(
-            self.async_request(path, body=body, extra_data=extra_data), callback=self.async_callback
+            self.async_request(path, body=body, extra_data=extra_data),
+            callback=self.async_callback,
         )

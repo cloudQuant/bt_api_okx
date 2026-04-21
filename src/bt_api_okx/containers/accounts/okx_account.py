@@ -9,7 +9,9 @@ from bt_api_base.functions.utils import from_dict_get_float
 
 
 class OkxAccountData(AccountData):
-    def __init__(self, account_info, symbol_name, asset_type, has_been_json_encoded=False):
+    def __init__(
+        self, account_info, symbol_name, asset_type, has_been_json_encoded=False
+    ):
         super().__init__(account_info, has_been_json_encoded)
         self.exchange_name = "OKX"
         self.symbol_name = symbol_name
@@ -38,7 +40,9 @@ class OkxAccountData(AccountData):
         self.total_margin = from_dict_get_float(self.account_data, "totalEq")
         self.total_used_margin = from_dict_get_float(self.account_data, "imr")
         self.total_maintain_margin = from_dict_get_float(self.account_data, "mmr")
-        self.total_open_order_initial_margin = from_dict_get_float(self.account_data, "ordFroz")
+        self.total_open_order_initial_margin = from_dict_get_float(
+            self.account_data, "ordFroz"
+        )
         self.total_unrealized_profit = from_dict_get_float(self.account_data, "upl")
         self.balances = [
             OkxBalanceData(i, self.get_symbol_name(), self.get_asset_type(), True)
@@ -177,7 +181,9 @@ class OkxAccountData(AccountData):
                 "total_open_order_initial_margin": self.total_open_order_initial_margin,
                 "total_unrealized_profit": self.total_unrealized_profit,
                 "balances": [
-                    OkxBalanceData(i, self.get_symbol_name(), self.get_asset_type(), True)
+                    OkxBalanceData(
+                        i, self.get_symbol_name(), self.get_asset_type(), True
+                    )
                     for i in self.account_data["details"]
                 ],
                 "total_wallet_balance": self.total_wallet_balance,

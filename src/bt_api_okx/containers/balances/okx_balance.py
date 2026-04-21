@@ -8,7 +8,9 @@ from bt_api_base.functions.utils import from_dict_get_float, from_dict_get_strin
 
 
 class OkxBalanceData(BalanceData):
-    def __init__(self, balance_info, symbol_name, asset_type, has_been_json_encoded=False):
+    def __init__(
+        self, balance_info, symbol_name, asset_type, has_been_json_encoded=False
+    ):
         super().__init__(balance_info, has_been_json_encoded)
         self.exchange_name = "OKX"
         self.symbol_name = symbol_name
@@ -38,7 +40,9 @@ class OkxBalanceData(BalanceData):
         self.margin = from_dict_get_float(self.balance_data, "eq")
         self.used_margin = from_dict_get_float(self.balance_data, "frozenBal")
         self.available_margin = from_dict_get_float(self.balance_data, "availBal")
-        self.open_order_initial_margin = from_dict_get_float(self.balance_data, "frozenBal")
+        self.open_order_initial_margin = from_dict_get_float(
+            self.balance_data, "frozenBal"
+        )
         self.unrealized_profit = from_dict_get_float(self.balance_data, "upl")
         self.interest = from_dict_get_float(self.balance_data, "interest")
         self.has_been_init_data = True

@@ -882,7 +882,9 @@ class StatisticsMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _position_builder_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _position_builder_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         """Normalize position builder response"""
         status = input_data.get("code") == "0"
         if "data" not in input_data:
@@ -1084,7 +1086,9 @@ class StatisticsMixin:
     # ==================== Missing Trading Statistics APIs ====================
 
     @staticmethod
-    def _get_support_coin_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _get_support_coin_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         """Normalize get_support_coin response.
         API returns data with different coin types grouped by category.
         Response format: {"code": "0", "data": {"contract": [...], "option": [...], "spot": [...]}}

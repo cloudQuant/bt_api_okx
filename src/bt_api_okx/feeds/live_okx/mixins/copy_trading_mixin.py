@@ -336,7 +336,8 @@ class CopyTradingMixin:
             **kwargs,
         )
         self.submit(
-            self.async_request(path, body=body, extra_data=extra_data), callback=self.async_callback
+            self.async_request(path, body=body, extra_data=extra_data),
+            callback=self.async_callback,
         )
 
     def _copytrading_close_subposition(
@@ -398,7 +399,8 @@ class CopyTradingMixin:
             sub_pos_id, extra_data, **kwargs
         )
         self.submit(
-            self.async_request(path, body=body, extra_data=extra_data), callback=self.async_callback
+            self.async_request(path, body=body, extra_data=extra_data),
+            callback=self.async_callback,
         )
 
     def _copytrading_get_instruments(
@@ -441,20 +443,30 @@ class CopyTradingMixin:
 
     def copytrading_get_instruments(self, extra_data: Any = None, **kwargs: Any) -> Any:
         """Leading instruments"""
-        path, params, extra_data = self._copytrading_get_instruments(extra_data, **kwargs)
+        path, params, extra_data = self._copytrading_get_instruments(
+            extra_data, **kwargs
+        )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
-    def async_copytrading_get_instruments(self, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_copytrading_get_instruments(
+        self, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         """Async leading instruments"""
-        path, params, extra_data = self._copytrading_get_instruments(extra_data, **kwargs)
+        path, params, extra_data = self._copytrading_get_instruments(
+            extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
             callback=self.async_callback,
         )
 
     def _copytrading_set_instruments(
-        self, inst_type: Any, inst_ids: Any = None, extra_data: Any = None, **kwargs: Any
+        self,
+        inst_type: Any,
+        inst_ids: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
         """
         Amend leading instruments
@@ -469,7 +481,9 @@ class CopyTradingMixin:
             "instType": inst_type,
         }
         if inst_ids:
-            body["instId"] = ",".join(inst_ids) if isinstance(inst_ids, list) else inst_ids
+            body["instId"] = (
+                ",".join(inst_ids) if isinstance(inst_ids, list) else inst_ids
+            )
         path = self._params.get_rest_path(request_type)
         extra_data = update_extra_data(
             extra_data,
@@ -498,7 +512,11 @@ class CopyTradingMixin:
         return target_data, status
 
     def copytrading_set_instruments(
-        self, inst_type: Any, inst_ids: Any = None, extra_data: Any = None, **kwargs: Any
+        self,
+        inst_type: Any,
+        inst_ids: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
     ) -> Any:
         """Amend leading instruments"""
         path, body, extra_data = self._copytrading_set_instruments(
@@ -508,14 +526,19 @@ class CopyTradingMixin:
         return data
 
     def async_copytrading_set_instruments(
-        self, inst_type: Any, inst_ids: Any = None, extra_data: Any = None, **kwargs: Any
+        self,
+        inst_type: Any,
+        inst_ids: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
     ) -> None:
         """Async amend leading instruments"""
         path, body, extra_data = self._copytrading_set_instruments(
             inst_type, inst_ids, extra_data, **kwargs
         )
         self.submit(
-            self.async_request(path, body=body, extra_data=extra_data), callback=self.async_callback
+            self.async_request(path, body=body, extra_data=extra_data),
+            callback=self.async_callback,
         )
 
     def _copytrading_get_profit_sharing_details(
@@ -640,9 +663,13 @@ class CopyTradingMixin:
         target_data = data if len(data) > 0 else []
         return target_data, status
 
-    def copytrading_get_total_profit_sharing(self, extra_data: Any = None, **kwargs: Any) -> Any:
+    def copytrading_get_total_profit_sharing(
+        self, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """Total profit sharing"""
-        path, params, extra_data = self._copytrading_get_total_profit_sharing(extra_data, **kwargs)
+        path, params, extra_data = self._copytrading_get_total_profit_sharing(
+            extra_data, **kwargs
+        )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
@@ -650,7 +677,9 @@ class CopyTradingMixin:
         self, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async total profit sharing"""
-        path, params, extra_data = self._copytrading_get_total_profit_sharing(extra_data, **kwargs)
+        path, params, extra_data = self._copytrading_get_total_profit_sharing(
+            extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -717,8 +746,10 @@ class CopyTradingMixin:
         **kwargs: Any,
     ) -> Any:
         """Unrealized profit sharing details"""
-        path, params, extra_data = self._copytrading_get_unrealized_profit_sharing_details(
-            after, before, limit, extra_data, **kwargs
+        path, params, extra_data = (
+            self._copytrading_get_unrealized_profit_sharing_details(
+                after, before, limit, extra_data, **kwargs
+            )
         )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
@@ -732,8 +763,10 @@ class CopyTradingMixin:
         **kwargs: Any,
     ) -> None:
         """Async unrealized profit sharing details"""
-        path, params, extra_data = self._copytrading_get_unrealized_profit_sharing_details(
-            after, before, limit, extra_data, **kwargs
+        path, params, extra_data = (
+            self._copytrading_get_unrealized_profit_sharing_details(
+                after, before, limit, extra_data, **kwargs
+            )
         )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
@@ -782,8 +815,8 @@ class CopyTradingMixin:
         self, extra_data: Any = None, **kwargs: Any
     ) -> Any:
         """Total unrealized profit sharing"""
-        path, params, extra_data = self._copytrading_get_total_unrealized_profit_sharing(
-            extra_data, **kwargs
+        path, params, extra_data = (
+            self._copytrading_get_total_unrealized_profit_sharing(extra_data, **kwargs)
         )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
@@ -792,8 +825,8 @@ class CopyTradingMixin:
         self, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async total unrealized profit sharing"""
-        path, params, extra_data = self._copytrading_get_total_unrealized_profit_sharing(
-            extra_data, **kwargs
+        path, params, extra_data = (
+            self._copytrading_get_total_unrealized_profit_sharing(extra_data, **kwargs)
         )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
@@ -859,7 +892,8 @@ class CopyTradingMixin:
             profit_sharing_ratio, extra_data, **kwargs
         )
         self.submit(
-            self.async_request(path, body=body, extra_data=extra_data), callback=self.async_callback
+            self.async_request(path, body=body, extra_data=extra_data),
+            callback=self.async_callback,
         )
 
     def _copytrading_get_config(
@@ -906,7 +940,9 @@ class CopyTradingMixin:
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
-    def async_copytrading_get_config(self, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_copytrading_get_config(
+        self, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         """Async account configuration"""
         path, params, extra_data = self._copytrading_get_config(extra_data, **kwargs)
         self.submit(
@@ -915,7 +951,11 @@ class CopyTradingMixin:
         )
 
     def _copytrading_first_copy_settings(
-        self, copy_inst_id: Any, lever: Any = None, extra_data: Any = None, **kwargs: Any
+        self,
+        copy_inst_id: Any,
+        lever: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
         """
         First copy settings
@@ -959,7 +999,11 @@ class CopyTradingMixin:
         return target_data, status
 
     def copytrading_first_copy_settings(
-        self, copy_inst_id: Any, lever: Any = None, extra_data: Any = None, **kwargs: Any
+        self,
+        copy_inst_id: Any,
+        lever: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
     ) -> Any:
         """First copy settings"""
         path, body, extra_data = self._copytrading_first_copy_settings(
@@ -969,18 +1013,27 @@ class CopyTradingMixin:
         return data
 
     def async_copytrading_first_copy_settings(
-        self, copy_inst_id: Any, lever: Any = None, extra_data: Any = None, **kwargs: Any
+        self,
+        copy_inst_id: Any,
+        lever: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
     ) -> None:
         """Async first copy settings"""
         path, body, extra_data = self._copytrading_first_copy_settings(
             copy_inst_id, lever, extra_data, **kwargs
         )
         self.submit(
-            self.async_request(path, body=body, extra_data=extra_data), callback=self.async_callback
+            self.async_request(path, body=body, extra_data=extra_data),
+            callback=self.async_callback,
         )
 
     def _copytrading_amend_copy_settings(
-        self, copy_inst_id: Any, lever: Any = None, extra_data: Any = None, **kwargs: Any
+        self,
+        copy_inst_id: Any,
+        lever: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
         """
         Amend copy settings
@@ -1024,7 +1077,11 @@ class CopyTradingMixin:
         return target_data, status
 
     def copytrading_amend_copy_settings(
-        self, copy_inst_id: Any, lever: Any = None, extra_data: Any = None, **kwargs: Any
+        self,
+        copy_inst_id: Any,
+        lever: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
     ) -> Any:
         """Amend copy settings"""
         path, body, extra_data = self._copytrading_amend_copy_settings(
@@ -1034,14 +1091,19 @@ class CopyTradingMixin:
         return data
 
     def async_copytrading_amend_copy_settings(
-        self, copy_inst_id: Any, lever: Any = None, extra_data: Any = None, **kwargs: Any
+        self,
+        copy_inst_id: Any,
+        lever: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
     ) -> None:
         """Async amend copy settings"""
         path, body, extra_data = self._copytrading_amend_copy_settings(
             copy_inst_id, lever, extra_data, **kwargs
         )
         self.submit(
-            self.async_request(path, body=body, extra_data=extra_data), callback=self.async_callback
+            self.async_request(path, body=body, extra_data=extra_data),
+            callback=self.async_callback,
         )
 
     def _copytrading_stop_copy_trading(
@@ -1103,7 +1165,8 @@ class CopyTradingMixin:
             copy_inst_id, extra_data, **kwargs
         )
         self.submit(
-            self.async_request(path, body=body, extra_data=extra_data), callback=self.async_callback
+            self.async_request(path, body=body, extra_data=extra_data),
+            callback=self.async_callback,
         )
 
     def _copytrading_get_copy_settings(
@@ -1144,15 +1207,23 @@ class CopyTradingMixin:
         target_data = data if len(data) > 0 else []
         return target_data, status
 
-    def copytrading_get_copy_settings(self, extra_data: Any = None, **kwargs: Any) -> Any:
+    def copytrading_get_copy_settings(
+        self, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """Get copy settings"""
-        path, params, extra_data = self._copytrading_get_copy_settings(extra_data, **kwargs)
+        path, params, extra_data = self._copytrading_get_copy_settings(
+            extra_data, **kwargs
+        )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
-    def async_copytrading_get_copy_settings(self, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_copytrading_get_copy_settings(
+        self, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         """Async get copy settings"""
-        path, params, extra_data = self._copytrading_get_copy_settings(extra_data, **kwargs)
+        path, params, extra_data = self._copytrading_get_copy_settings(
+            extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -1196,9 +1267,13 @@ class CopyTradingMixin:
         target_data = data if len(data) > 0 else []
         return target_data, status
 
-    def copytrading_get_batch_leverage_info(self, extra_data: Any = None, **kwargs: Any) -> Any:
+    def copytrading_get_batch_leverage_info(
+        self, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """My lead traders"""
-        path, params, extra_data = self._copytrading_get_batch_leverage_info(extra_data, **kwargs)
+        path, params, extra_data = self._copytrading_get_batch_leverage_info(
+            extra_data, **kwargs
+        )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
@@ -1206,7 +1281,9 @@ class CopyTradingMixin:
         self, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async my lead traders"""
-        path, params, extra_data = self._copytrading_get_batch_leverage_info(extra_data, **kwargs)
+        path, params, extra_data = self._copytrading_get_batch_leverage_info(
+            extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
             callback=self.async_callback,

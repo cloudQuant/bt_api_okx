@@ -16,7 +16,9 @@ class OkxOpenInterestData:
     Represents the total number of outstanding derivative contracts.
     """
 
-    def __init__(self, open_interest_info, symbol_name, asset_type, has_been_json_encoded=False):
+    def __init__(
+        self, open_interest_info, symbol_name, asset_type, has_been_json_encoded=False
+    ):
         self.event = "OpenInterestEvent"
         self.open_interest_info = open_interest_info
         self.has_been_json_encoded = has_been_json_encoded
@@ -43,7 +45,9 @@ class OkxOpenInterestData:
 
         self.open_interest_data = self.open_interest_data
         self.server_time = from_dict_get_float(self.open_interest_data, "ts")
-        self.open_interest_symbol_name = from_dict_get_string(self.open_interest_data, "instId")
+        self.open_interest_symbol_name = from_dict_get_string(
+            self.open_interest_data, "instId"
+        )
         self.open_interest = from_dict_get_float(self.open_interest_data, "oi")
         self.open_interest_ccy = from_dict_get_string(self.open_interest_data, "oiCcy")
 

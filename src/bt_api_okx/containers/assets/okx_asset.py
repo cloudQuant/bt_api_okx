@@ -7,7 +7,11 @@ from __future__ import annotations
 import json
 import time
 
-from bt_api_base.functions.utils import from_dict_get_float, from_dict_get_int, from_dict_get_string
+from bt_api_base.functions.utils import (
+    from_dict_get_float,
+    from_dict_get_int,
+    from_dict_get_string,
+)
 
 
 class OkxCurrencyData:
@@ -36,7 +40,9 @@ class OkxCurrencyData:
 
         if not self.has_been_json_encoded:
             self.currency_info = (
-                self.raw_data if isinstance(self.raw_data, dict) else json.loads(self.raw_data)
+                self.raw_data
+                if isinstance(self.raw_data, dict)
+                else json.loads(self.raw_data)
             )
             self.has_been_json_encoded = True
 
@@ -127,7 +133,9 @@ class OkxAssetBalanceData:
 
         if not self.has_been_json_encoded:
             self.balance_info = (
-                self.raw_data if isinstance(self.raw_data, dict) else json.loads(self.raw_data)
+                self.raw_data
+                if isinstance(self.raw_data, dict)
+                else json.loads(self.raw_data)
             )
             self.has_been_json_encoded = True
 
@@ -198,7 +206,9 @@ class OkxAssetValuationData:
 
         if not self.has_been_json_encoded:
             self.valuation_info = (
-                self.raw_data if isinstance(self.raw_data, dict) else json.loads(self.raw_data)
+                self.raw_data
+                if isinstance(self.raw_data, dict)
+                else json.loads(self.raw_data)
             )
             self.has_been_json_encoded = True
 
@@ -272,7 +282,9 @@ class OkxTransferStateData:
 
         if not self.has_been_json_encoded:
             self.transfer_info = (
-                self.raw_data if isinstance(self.raw_data, dict) else json.loads(self.raw_data)
+                self.raw_data
+                if isinstance(self.raw_data, dict)
+                else json.loads(self.raw_data)
             )
             self.has_been_json_encoded = True
 
@@ -342,7 +354,11 @@ class OkxDepositInfoData:
     """Container for deposit information from OKX WebSocket (deposit-info channel)."""
 
     def __init__(
-        self, deposit_info, symbol_name="ANY", asset_type="SWAP", has_been_json_encoded=False
+        self,
+        deposit_info,
+        symbol_name="ANY",
+        asset_type="SWAP",
+        has_been_json_encoded=False,
     ):
         super().__init__()
         self.deposit_info = deposit_info if has_been_json_encoded else None
@@ -370,7 +386,9 @@ class OkxDepositInfoData:
 
         if not self.has_been_json_encoded:
             self.deposit_info = (
-                self.raw_data if isinstance(self.raw_data, dict) else json.loads(self.raw_data)
+                self.raw_data
+                if isinstance(self.raw_data, dict)
+                else json.loads(self.raw_data)
             )
             self.has_been_json_encoded = True
 
@@ -458,7 +476,11 @@ class OkxWithdrawalInfoData:
     """Container for withdrawal information from OKX WebSocket (withdrawal-info channel)."""
 
     def __init__(
-        self, withdrawal_info, symbol_name="ANY", asset_type="SWAP", has_been_json_encoded=False
+        self,
+        withdrawal_info,
+        symbol_name="ANY",
+        asset_type="SWAP",
+        has_been_json_encoded=False,
     ):
         super().__init__()
         self.withdrawal_info = withdrawal_info if has_been_json_encoded else None
@@ -486,7 +508,9 @@ class OkxWithdrawalInfoData:
 
         if not self.has_been_json_encoded:
             self.withdrawal_info = (
-                self.raw_data if isinstance(self.raw_data, dict) else json.loads(self.raw_data)
+                self.raw_data
+                if isinstance(self.raw_data, dict)
+                else json.loads(self.raw_data)
             )
             self.has_been_json_encoded = True
 

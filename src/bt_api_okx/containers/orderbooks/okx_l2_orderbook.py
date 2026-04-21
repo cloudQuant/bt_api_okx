@@ -19,7 +19,9 @@ class OkxL2OrderBookData(OrderBookData):
     - Action field indicates 'snapshot', 'update' or partial update
     """
 
-    def __init__(self, order_book_info, symbol_name, asset_type, has_been_json_encoded=False):
+    def __init__(
+        self, order_book_info, symbol_name, asset_type, has_been_json_encoded=False
+    ):
         super().__init__(order_book_info, has_been_json_encoded)
         self.exchange_name = "OKX"
         self.local_update_time = time.time()

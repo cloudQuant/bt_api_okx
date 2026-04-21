@@ -64,7 +64,9 @@ class StatusMixin:
             return [], status
         return input_data["data"], status
 
-    def get_system_status(self, state: Any = None, extra_data: Any = None, **kwargs: Any) -> Any:
+    def get_system_status(
+        self, state: Any = None, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """Get system status
         Args:
             state: Status type. "scheduled" for maintenance announcements. Default is empty for current system status.
@@ -235,7 +237,9 @@ class StatusMixin:
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
-    def async_get_announcement_types(self, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_get_announcement_types(
+        self, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         """Async get announcement types
         Args:
             extra_data: extra_data, default is None, can be a dict passed by user

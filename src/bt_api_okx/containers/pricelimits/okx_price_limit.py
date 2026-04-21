@@ -73,7 +73,9 @@ class OkxPriceLimitData:
             return self
 
         self.server_time = from_dict_get_float(self.price_limit_data, "ts")
-        self.price_limit_symbol_name = from_dict_get_string(self.price_limit_data, "instId")
+        self.price_limit_symbol_name = from_dict_get_string(
+            self.price_limit_data, "instId"
+        )
         self.buy_limit = from_dict_get_float(self.price_limit_data, "buyLmt")
         self.sell_limit = from_dict_get_float(self.price_limit_data, "sellLmt")
 
@@ -81,7 +83,9 @@ class OkxPriceLimitData:
         return self
 
         self.server_time = from_dict_get_float(self.price_limit_data, "ts")
-        self.price_limit_symbol_name = from_dict_get_string(self.price_limit_data, "instId")
+        self.price_limit_symbol_name = from_dict_get_string(
+            self.price_limit_data, "instId"
+        )
         self.buy_limit = from_dict_get_float(self.price_limit_data, "buyLmt")
         self.sell_limit = from_dict_get_float(self.price_limit_data, "sellLmt")
 

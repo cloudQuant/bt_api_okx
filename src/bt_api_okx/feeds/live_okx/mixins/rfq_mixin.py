@@ -110,7 +110,9 @@ class RfqMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _create_rfq_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _create_rfq_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         """Normalize create RFQ response."""
         status = input_data.get("code") == "0"
         if "data" not in input_data:
@@ -182,7 +184,9 @@ class RfqMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _cancel_rfq_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _cancel_rfq_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         """Normalize cancel RFQ response."""
         status = input_data.get("code") == "0"
         if "data" not in input_data:
@@ -191,9 +195,13 @@ class RfqMixin:
         target_data = data if len(data) > 0 else []
         return target_data, status
 
-    def cancel_rfq(self, rfq_id: Any, inst_id: Any, extra_data: Any = None, **kwargs: Any) -> Any:
+    def cancel_rfq(
+        self, rfq_id: Any, inst_id: Any, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """Cancel RFQ."""
-        path, params, extra_data = self._cancel_rfq(rfq_id, inst_id, extra_data, **kwargs)
+        path, params, extra_data = self._cancel_rfq(
+            rfq_id, inst_id, extra_data, **kwargs
+        )
         data = self.request(path, body=params, extra_data=extra_data)
         return data
 
@@ -201,7 +209,9 @@ class RfqMixin:
         self, rfq_id: Any, inst_id: Any, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async cancel RFQ."""
-        path, params, extra_data = self._cancel_rfq(rfq_id, inst_id, extra_data, **kwargs)
+        path, params, extra_data = self._cancel_rfq(
+            rfq_id, inst_id, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, body=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -287,7 +297,9 @@ class RfqMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _cancel_all_rfqs_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _cancel_all_rfqs_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         """Normalize cancel all RFQs response."""
         status = input_data.get("code") == "0"
         if "data" not in input_data:
@@ -296,13 +308,17 @@ class RfqMixin:
         target_data = data if len(data) > 0 else []
         return target_data, status
 
-    def cancel_all_rfqs(self, inst_id: Any, extra_data: Any = None, **kwargs: Any) -> Any:
+    def cancel_all_rfqs(
+        self, inst_id: Any, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """Cancel all RFQs."""
         path, params, extra_data = self._cancel_all_rfqs(inst_id, extra_data, **kwargs)
         data = self.request(path, body=params, extra_data=extra_data)
         return data
 
-    def async_cancel_all_rfqs(self, inst_id: Any, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_cancel_all_rfqs(
+        self, inst_id: Any, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         """Async cancel all RFQs."""
         path, params, extra_data = self._cancel_all_rfqs(inst_id, extra_data, **kwargs)
         self.submit(
@@ -354,7 +370,9 @@ class RfqMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _execute_quote_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _execute_quote_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         """Normalize execute quote response."""
         status = input_data.get("code") == "0"
         if "data" not in input_data:
@@ -458,7 +476,9 @@ class RfqMixin:
         """Set quote products."""
         request_type = "set_quote_products"
         path = self._params.get_rest_path(request_type)
-        params = {"products": products if isinstance(products, str) else json.dumps(products)}
+        params = {
+            "products": products if isinstance(products, str) else json.dumps(products)
+        }
         extra_data = update_extra_data(
             extra_data,
             **{
@@ -485,9 +505,13 @@ class RfqMixin:
         target_data = data if len(data) > 0 else []
         return target_data, status
 
-    def set_quote_products(self, products: Any, extra_data: Any = None, **kwargs: Any) -> Any:
+    def set_quote_products(
+        self, products: Any, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """Set quote products."""
-        path, params, extra_data = self._set_quote_products(products, extra_data, **kwargs)
+        path, params, extra_data = self._set_quote_products(
+            products, extra_data, **kwargs
+        )
         data = self.request(path, body=params, extra_data=extra_data)
         return data
 
@@ -495,7 +519,9 @@ class RfqMixin:
         self, products: Any, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async set quote products."""
-        path, params, extra_data = self._set_quote_products(products, extra_data, **kwargs)
+        path, params, extra_data = self._set_quote_products(
+            products, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, body=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -523,7 +549,9 @@ class RfqMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _rfq_mmp_reset_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _rfq_mmp_reset_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         """Normalize RFQ MMP reset response."""
         status = input_data.get("code") == "0"
         if "data" not in input_data:
@@ -538,7 +566,9 @@ class RfqMixin:
         data = self.request(path, body=params, extra_data=extra_data)
         return data
 
-    def async_rfq_mmp_reset(self, inst_id: Any, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_rfq_mmp_reset(
+        self, inst_id: Any, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         """Async reset MMP status for RFQ."""
         path, params, extra_data = self._rfq_mmp_reset(inst_id, extra_data, **kwargs)
         self.submit(
@@ -579,7 +609,9 @@ class RfqMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _rfq_mmp_config_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _rfq_mmp_config_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         """Normalize RFQ MMP config response."""
         status = input_data.get("code") == "0"
         if "data" not in input_data:
@@ -655,15 +687,23 @@ class RfqMixin:
         target_data = data if len(data) > 0 else []
         return target_data, status
 
-    def get_rfq_mmp_config(self, inst_id: Any, extra_data: Any = None, **kwargs: Any) -> Any:
+    def get_rfq_mmp_config(
+        self, inst_id: Any, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """Get MMP configuration for RFQ."""
-        path, params, extra_data = self._get_rfq_mmp_config(inst_id, extra_data, **kwargs)
+        path, params, extra_data = self._get_rfq_mmp_config(
+            inst_id, extra_data, **kwargs
+        )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
-    def async_get_rfq_mmp_config(self, inst_id: Any, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_get_rfq_mmp_config(
+        self, inst_id: Any, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         """Async get MMP configuration for RFQ."""
-        path, params, extra_data = self._get_rfq_mmp_config(inst_id, extra_data, **kwargs)
+        path, params, extra_data = self._get_rfq_mmp_config(
+            inst_id, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -706,7 +746,9 @@ class RfqMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _create_quote_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _create_quote_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         """Normalize create quote response."""
         status = input_data.get("code") == "0"
         if "data" not in input_data:
@@ -782,7 +824,9 @@ class RfqMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _cancel_quote_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _cancel_quote_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         """Normalize cancel quote response."""
         status = input_data.get("code") == "0"
         if "data" not in input_data:
@@ -921,7 +965,9 @@ class RfqMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _cancel_all_quotes_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _cancel_all_quotes_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         """Normalize cancel all quotes response."""
         status = input_data.get("code") == "0"
         if "data" not in input_data:
@@ -930,15 +976,23 @@ class RfqMixin:
         target_data = data if len(data) > 0 else []
         return target_data, status
 
-    def cancel_all_quotes(self, inst_id: Any, extra_data: Any = None, **kwargs: Any) -> Any:
+    def cancel_all_quotes(
+        self, inst_id: Any, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """Cancel all RFQ quotes."""
-        path, params, extra_data = self._cancel_all_quotes(inst_id, extra_data, **kwargs)
+        path, params, extra_data = self._cancel_all_quotes(
+            inst_id, extra_data, **kwargs
+        )
         data = self.request(path, body=params, extra_data=extra_data)
         return data
 
-    def async_cancel_all_quotes(self, inst_id: Any, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_cancel_all_quotes(
+        self, inst_id: Any, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         """Async cancel all RFQ quotes."""
-        path, params, extra_data = self._cancel_all_quotes(inst_id, extra_data, **kwargs)
+        path, params, extra_data = self._cancel_all_quotes(
+            inst_id, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, body=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -1055,7 +1109,9 @@ class RfqMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _get_rfqs_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _get_rfqs_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         """Normalize get RFQs response."""
         status = input_data.get("code") == "0"
         if "data" not in input_data:
@@ -1142,7 +1198,9 @@ class RfqMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _get_rfq_quotes_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _get_rfq_quotes_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         """Normalize get RFQ quotes response."""
         status = input_data.get("code") == "0"
         if "data" not in input_data:
@@ -1225,7 +1283,9 @@ class RfqMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _get_rfq_trades_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _get_rfq_trades_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         """Normalize get RFQ trades response."""
         status = input_data.get("code") == "0"
         if "data" not in input_data:
@@ -1382,7 +1442,9 @@ class RfqMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _get_block_tickers_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _get_block_tickers_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         """Normalize get block tickers response."""
         status = input_data.get("code") == "0"
         if "data" not in input_data:
@@ -1445,7 +1507,9 @@ class RfqMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _get_block_ticker_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _get_block_ticker_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         """Normalize get block ticker response."""
         status = input_data.get("code") == "0"
         if "data" not in input_data:
@@ -1454,13 +1518,17 @@ class RfqMixin:
         target_data = data if len(data) > 0 else []
         return target_data, status
 
-    def get_block_ticker(self, inst_id: Any, extra_data: Any = None, **kwargs: Any) -> Any:
+    def get_block_ticker(
+        self, inst_id: Any, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """Get single block ticker."""
         path, params, extra_data = self._get_block_ticker(inst_id, extra_data, **kwargs)
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
-    def async_get_block_ticker(self, inst_id: Any, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_get_block_ticker(
+        self, inst_id: Any, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         """Async get single block ticker."""
         path, params, extra_data = self._get_block_ticker(inst_id, extra_data, **kwargs)
         self.submit(

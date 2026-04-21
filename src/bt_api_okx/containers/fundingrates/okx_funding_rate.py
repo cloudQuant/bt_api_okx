@@ -10,7 +10,9 @@ from bt_api_base.functions.utils import from_dict_get_float, from_dict_get_strin
 class OkxFundingRateData(FundingRateData):
     """保存资金费率信息"""
 
-    def __init__(self, funding_rate_info, symbol_name, asset_type, has_been_json_encoded):
+    def __init__(
+        self, funding_rate_info, symbol_name, asset_type, has_been_json_encoded
+    ):
         super().__init__(funding_rate_info, has_been_json_encoded)
         self.exchange_name = "OKX"
         self.symbol_name = symbol_name
@@ -37,16 +39,30 @@ class OkxFundingRateData(FundingRateData):
         if self.has_been_init_data:
             return self
         self.server_time = from_dict_get_float(self.funding_rate_data, "ts")
-        self.next_funding_rate = from_dict_get_float(self.funding_rate_data, "nextFundingRate")
-        self.next_funding_time = from_dict_get_float(self.funding_rate_data, "nextFundingTime")
-        self.max_funding_rate = from_dict_get_float(self.funding_rate_data, "maxFundingRate")
-        self.min_funding_rate = from_dict_get_float(self.funding_rate_data, "minFundingRate")
-        self.current_funding_rate = from_dict_get_float(self.funding_rate_data, "fundingRate")
-        self.current_funding_time = from_dict_get_float(self.funding_rate_data, "fundingTime")
+        self.next_funding_rate = from_dict_get_float(
+            self.funding_rate_data, "nextFundingRate"
+        )
+        self.next_funding_time = from_dict_get_float(
+            self.funding_rate_data, "nextFundingTime"
+        )
+        self.max_funding_rate = from_dict_get_float(
+            self.funding_rate_data, "maxFundingRate"
+        )
+        self.min_funding_rate = from_dict_get_float(
+            self.funding_rate_data, "minFundingRate"
+        )
+        self.current_funding_rate = from_dict_get_float(
+            self.funding_rate_data, "fundingRate"
+        )
+        self.current_funding_time = from_dict_get_float(
+            self.funding_rate_data, "fundingTime"
+        )
         self.settlement_funding_rate = from_dict_get_float(
             self.funding_rate_data, "settFundingRate"
         )
-        self.settlement_status = from_dict_get_string(self.funding_rate_data, "settState")
+        self.settlement_status = from_dict_get_string(
+            self.funding_rate_data, "settState"
+        )
         self.method = from_dict_get_string(self.funding_rate_data, "method")
         self.has_been_init_data = True
         return self

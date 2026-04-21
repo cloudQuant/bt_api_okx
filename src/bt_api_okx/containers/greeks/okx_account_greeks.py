@@ -32,7 +32,9 @@ class OkxAccountGreeksData(GreeksData):
     }
     """
 
-    def __init__(self, greeks_info, symbol_name, asset_type, has_been_json_encoded=False):
+    def __init__(
+        self, greeks_info, symbol_name, asset_type, has_been_json_encoded=False
+    ):
         super().__init__(greeks_info, has_been_json_encoded)
         self.exchange_name = "OKX"
         self.symbol_name = symbol_name or "ANY"

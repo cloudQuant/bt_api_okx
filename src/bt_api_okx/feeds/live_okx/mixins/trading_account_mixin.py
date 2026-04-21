@@ -171,11 +171,14 @@ class TradingAccountMixin:
         data = self.request(path, body=body, extra_data=extra_data)
         return data
 
-    def async_set_fee_type(self, fee_type: Any, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_set_fee_type(
+        self, fee_type: Any, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         """Async set fee rate tier"""
         path, body, extra_data = self._set_fee_type(fee_type, extra_data, **kwargs)
         self.submit(
-            self.async_request(path, body=body, extra_data=extra_data), callback=self.async_callback
+            self.async_request(path, body=body, extra_data=extra_data),
+            callback=self.async_callback,
         )
 
     def _set_greeks(
@@ -208,7 +211,9 @@ class TradingAccountMixin:
         return path, body, extra_data
 
     @staticmethod
-    def _set_greeks_normalize_function(input_data: Any, extra_data: Any) -> tuple[list[Any], bool]:
+    def _set_greeks_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[list[Any], bool]:
         status = input_data["code"] == "0"
         if "data" not in input_data:
             return [], status
@@ -216,17 +221,22 @@ class TradingAccountMixin:
         target_data = [data[0]] if len(data) > 0 else []
         return target_data, status
 
-    def set_greeks(self, greeks_type: Any, extra_data: Any = None, **kwargs: Any) -> Any:
+    def set_greeks(
+        self, greeks_type: Any, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """Set Greeks display type"""
         path, body, extra_data = self._set_greeks(greeks_type, extra_data, **kwargs)
         data = self.request(path, body=body, extra_data=extra_data)
         return data
 
-    def async_set_greeks(self, greeks_type: Any, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_set_greeks(
+        self, greeks_type: Any, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         """Async set Greeks display type"""
         path, body, extra_data = self._set_greeks(greeks_type, extra_data, **kwargs)
         self.submit(
-            self.async_request(path, body=body, extra_data=extra_data), callback=self.async_callback
+            self.async_request(path, body=body, extra_data=extra_data),
+            callback=self.async_callback,
         )
 
     def _set_isolated_mode(
@@ -276,7 +286,9 @@ class TradingAccountMixin:
         self, symbol: Any, iso_mode: Any, extra_data: Any = None, **kwargs: Any
     ) -> Any:
         """Set isolated margin mode"""
-        path, body, extra_data = self._set_isolated_mode(symbol, iso_mode, extra_data, **kwargs)
+        path, body, extra_data = self._set_isolated_mode(
+            symbol, iso_mode, extra_data, **kwargs
+        )
         data = self.request(path, body=body, extra_data=extra_data)
         return data
 
@@ -284,9 +296,12 @@ class TradingAccountMixin:
         self, symbol: Any, iso_mode: Any, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async set isolated margin mode"""
-        path, body, extra_data = self._set_isolated_mode(symbol, iso_mode, extra_data, **kwargs)
+        path, body, extra_data = self._set_isolated_mode(
+            symbol, iso_mode, extra_data, **kwargs
+        )
         self.submit(
-            self.async_request(path, body=body, extra_data=extra_data), callback=self.async_callback
+            self.async_request(path, body=body, extra_data=extra_data),
+            callback=self.async_callback,
         )
 
     def _borrow_repay(
@@ -385,7 +400,8 @@ class TradingAccountMixin:
             ccy, side, amt, mgn_mode, symbol, auto, extra_data, **kwargs
         )
         self.submit(
-            self.async_request(path, body=body, extra_data=extra_data), callback=self.async_callback
+            self.async_request(path, body=body, extra_data=extra_data),
+            callback=self.async_callback,
         )
 
     def _set_auto_repay(
@@ -428,17 +444,22 @@ class TradingAccountMixin:
         target_data = [data[0]] if len(data) > 0 else []
         return target_data, status
 
-    def set_auto_repay(self, auto_repay: Any, extra_data: Any = None, **kwargs: Any) -> Any:
+    def set_auto_repay(
+        self, auto_repay: Any, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """Set auto loan repayment"""
         path, body, extra_data = self._set_auto_repay(auto_repay, extra_data, **kwargs)
         data = self.request(path, body=body, extra_data=extra_data)
         return data
 
-    def async_set_auto_repay(self, auto_repay: Any, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_set_auto_repay(
+        self, auto_repay: Any, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         """Async set auto loan repayment"""
         path, body, extra_data = self._set_auto_repay(auto_repay, extra_data, **kwargs)
         self.submit(
-            self.async_request(path, body=body, extra_data=extra_data), callback=self.async_callback
+            self.async_request(path, body=body, extra_data=extra_data),
+            callback=self.async_callback,
         )
 
     def _get_borrow_repay_history(
@@ -571,7 +592,9 @@ class TradingAccountMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _mmp_reset_normalize_function(input_data: Any, extra_data: Any) -> tuple[list[Any], bool]:
+    def _mmp_reset_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[list[Any], bool]:
         status = input_data["code"] == "0"
         if "data" not in input_data:
             return [], status
@@ -583,7 +606,9 @@ class TradingAccountMixin:
         self, inst_type: Any, symbol: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> Any:
         """Reset MMP (Market Maker Protection) status"""
-        path, params, extra_data = self._mmp_reset(inst_type, symbol, extra_data, **kwargs)
+        path, params, extra_data = self._mmp_reset(
+            inst_type, symbol, extra_data, **kwargs
+        )
         data = self.request(path, body=params, extra_data=extra_data)
         return data
 
@@ -591,7 +616,9 @@ class TradingAccountMixin:
         self, inst_type: Any, symbol: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async reset MMP (Market Maker Protection) status"""
-        path, params, extra_data = self._mmp_reset(inst_type, symbol, extra_data, **kwargs)
+        path, params, extra_data = self._mmp_reset(
+            inst_type, symbol, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, body=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -663,7 +690,12 @@ class TradingAccountMixin:
     ) -> Any:
         """Set MMP (Market Maker Protection) configuration"""
         path, params, extra_data = self._set_mmp_config(
-            inst_type, symbol, time_interval_frozen, algo_orders_frozen, extra_data, **kwargs
+            inst_type,
+            symbol,
+            time_interval_frozen,
+            algo_orders_frozen,
+            extra_data,
+            **kwargs,
         )
         data = self.request(path, body=params, extra_data=extra_data)
         return data
@@ -679,7 +711,12 @@ class TradingAccountMixin:
     ) -> None:
         """Async set MMP (Market Maker Protection) configuration"""
         path, params, extra_data = self._set_mmp_config(
-            inst_type, symbol, time_interval_frozen, algo_orders_frozen, extra_data, **kwargs
+            inst_type,
+            symbol,
+            time_interval_frozen,
+            algo_orders_frozen,
+            extra_data,
+            **kwargs,
         )
         self.submit(
             self.async_request(path, body=params, extra_data=extra_data),
@@ -726,13 +763,17 @@ class TradingAccountMixin:
         target_data = data if len(data) > 0 else []
         return target_data, status
 
-    def get_mmp_config(self, inst_type: Any, extra_data: Any = None, **kwargs: Any) -> Any:
+    def get_mmp_config(
+        self, inst_type: Any, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """Get MMP (Market Maker Protection) configuration"""
         path, params, extra_data = self._get_mmp_config(inst_type, extra_data, **kwargs)
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
-    def async_get_mmp_config(self, inst_type: Any, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_get_mmp_config(
+        self, inst_type: Any, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         """Async get MMP (Market Maker Protection) configuration"""
         path, params, extra_data = self._get_mmp_config(inst_type, extra_data, **kwargs)
         self.submit(
@@ -1005,7 +1046,8 @@ class TradingAccountMixin:
             auto_loan, ccy, iso_mode, mgn_mode, extra_data, **kwargs
         )
         self.submit(
-            self.async_request(path, body=body, extra_data=extra_data), callback=self.async_callback
+            self.async_request(path, body=body, extra_data=extra_data),
+            callback=self.async_callback,
         )
 
     def _set_account_level(
@@ -1088,7 +1130,15 @@ class TradingAccountMixin:
     ) -> Any:
         """Set account level"""
         path, body, extra_data = self._set_account_level(
-            acct_lv, inst_type, inst_id, ccy, td_mode, pos_side, uly, extra_data, **kwargs
+            acct_lv,
+            inst_type,
+            inst_id,
+            ccy,
+            td_mode,
+            pos_side,
+            uly,
+            extra_data,
+            **kwargs,
         )
         data = self.request(path, body=body, extra_data=extra_data)
         return data
@@ -1107,10 +1157,19 @@ class TradingAccountMixin:
     ) -> None:
         """Async set account level"""
         path, body, extra_data = self._set_account_level(
-            acct_lv, inst_type, inst_id, ccy, td_mode, pos_side, uly, extra_data, **kwargs
+            acct_lv,
+            inst_type,
+            inst_id,
+            ccy,
+            td_mode,
+            pos_side,
+            uly,
+            extra_data,
+            **kwargs,
         )
         self.submit(
-            self.async_request(path, body=body, extra_data=extra_data), callback=self.async_callback
+            self.async_request(path, body=body, extra_data=extra_data),
+            callback=self.async_callback,
         )
 
     def _account_level_switch_preset(
@@ -1202,7 +1261,8 @@ class TradingAccountMixin:
             acct_lv, pos_side, ccy_list, uly, inst_type, extra_data, **kwargs
         )
         self.submit(
-            self.async_request(path, body=body, extra_data=extra_data), callback=self.async_callback
+            self.async_request(path, body=body, extra_data=extra_data),
+            callback=self.async_callback,
         )
 
     def _account_level_switch_precheck(
@@ -1287,7 +1347,11 @@ class TradingAccountMixin:
         )
 
     def _set_collateral_assets(
-        self, ccy_list: Any, auto_loan: Any = None, extra_data: Any = None, **kwargs: Any
+        self,
+        ccy_list: Any,
+        auto_loan: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
         """
         Set collateral assets
@@ -1330,7 +1394,11 @@ class TradingAccountMixin:
         return target_data, status
 
     def set_collateral_assets(
-        self, ccy_list: Any, auto_loan: Any = None, extra_data: Any = None, **kwargs: Any
+        self,
+        ccy_list: Any,
+        auto_loan: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
     ) -> Any:
         """Set collateral assets"""
         path, body, extra_data = self._set_collateral_assets(
@@ -1340,14 +1408,19 @@ class TradingAccountMixin:
         return data
 
     def async_set_collateral_assets(
-        self, ccy_list: Any, auto_loan: Any = None, extra_data: Any = None, **kwargs: Any
+        self,
+        ccy_list: Any,
+        auto_loan: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
     ) -> None:
         """Async set collateral assets"""
         path, body, extra_data = self._set_collateral_assets(
             ccy_list, auto_loan, extra_data, **kwargs
         )
         self.submit(
-            self.async_request(path, body=body, extra_data=extra_data), callback=self.async_callback
+            self.async_request(path, body=body, extra_data=extra_data),
+            callback=self.async_callback,
         )
 
     def _get_collateral_assets(
@@ -1390,9 +1463,13 @@ class TradingAccountMixin:
         target_data = data if len(data) > 0 else []
         return target_data, status
 
-    def get_collateral_assets(self, ccy: Any = None, extra_data: Any = None, **kwargs: Any) -> Any:
+    def get_collateral_assets(
+        self, ccy: Any = None, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """Get collateral assets"""
-        path, params, extra_data = self._get_collateral_assets(ccy, extra_data, **kwargs)
+        path, params, extra_data = self._get_collateral_assets(
+            ccy, extra_data, **kwargs
+        )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
@@ -1400,7 +1477,9 @@ class TradingAccountMixin:
         self, ccy: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async get collateral assets"""
-        path, params, extra_data = self._get_collateral_assets(ccy, extra_data, **kwargs)
+        path, params, extra_data = self._get_collateral_assets(
+            ccy, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -1532,7 +1611,8 @@ class TradingAccountMixin:
             **kwargs,
         )
         self.submit(
-            self.async_request(path, body=body, extra_data=extra_data), callback=self.async_callback
+            self.async_request(path, body=body, extra_data=extra_data),
+            callback=self.async_callback,
         )
 
     # ==================== Additional Trading Account APIs ====================
@@ -1940,7 +2020,9 @@ class TradingAccountMixin:
         self, symbol: Any, ccy: Any, extra_data: Any = None, **kwargs: Any
     ) -> Any:
         """Set settlement currency"""
-        path, params, extra_data = self._set_settle_currency(symbol, ccy, extra_data, **kwargs)
+        path, params, extra_data = self._set_settle_currency(
+            symbol, ccy, extra_data, **kwargs
+        )
         data = self.request(path, body=params, extra_data=extra_data)
         return data
 
@@ -1948,7 +2030,9 @@ class TradingAccountMixin:
         self, symbol: Any, ccy: Any, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async set settlement currency"""
-        path, params, extra_data = self._set_settle_currency(symbol, ccy, extra_data, **kwargs)
+        path, params, extra_data = self._set_settle_currency(
+            symbol, ccy, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, body=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -2051,7 +2135,11 @@ class TradingAccountMixin:
         )
 
     def _set_delta_neutral_precheck(
-        self, symbol: Any, delta_neutral_precheck: Any, extra_data: Any = None, **kwargs: Any
+        self,
+        symbol: Any,
+        delta_neutral_precheck: Any,
+        extra_data: Any = None,
+        **kwargs: Any,
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
         """
         Set delta neutral precheck
@@ -2094,7 +2182,11 @@ class TradingAccountMixin:
         return target_data, status
 
     def set_delta_neutral_precheck(
-        self, symbol: Any, delta_neutral_precheck: Any, extra_data: Any = None, **kwargs: Any
+        self,
+        symbol: Any,
+        delta_neutral_precheck: Any,
+        extra_data: Any = None,
+        **kwargs: Any,
     ) -> Any:
         """Set delta neutral precheck"""
         path, params, extra_data = self._set_delta_neutral_precheck(
@@ -2104,7 +2196,11 @@ class TradingAccountMixin:
         return data
 
     def async_set_delta_neutral_precheck(
-        self, symbol: Any, delta_neutral_precheck: Any, extra_data: Any = None, **kwargs: Any
+        self,
+        symbol: Any,
+        delta_neutral_precheck: Any,
+        extra_data: Any = None,
+        **kwargs: Any,
     ) -> None:
         """Async set delta neutral precheck"""
         path, params, extra_data = self._set_delta_neutral_precheck(
@@ -2144,7 +2240,9 @@ class TradingAccountMixin:
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
-    def async_get_account_position_risk(self, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_get_account_position_risk(
+        self, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         """Async get account position risk"""
         path, params, extra_data = self._get_account_position_risk(extra_data, **kwargs)
         self.submit(
@@ -2488,7 +2586,9 @@ class TradingAccountMixin:
         **kwargs: Any,
     ) -> Any:
         """Get greeks"""
-        path, params, extra_data = self._get_greeks(inst_type, uly, inst_id, extra_data, **kwargs)
+        path, params, extra_data = self._get_greeks(
+            inst_type, uly, inst_id, extra_data, **kwargs
+        )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
@@ -2501,7 +2601,9 @@ class TradingAccountMixin:
         **kwargs: Any,
     ) -> None:
         """Async get greeks"""
-        path, params, extra_data = self._get_greeks(inst_type, uly, inst_id, extra_data, **kwargs)
+        path, params, extra_data = self._get_greeks(
+            inst_type, uly, inst_id, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -2597,7 +2699,9 @@ class TradingAccountMixin:
             extra_data.update(kwargs)
         return path, params, extra_data
 
-    def get_max_withdrawal(self, ccy: Any = None, extra_data: Any = None, **kwargs: Any) -> Any:
+    def get_max_withdrawal(
+        self, ccy: Any = None, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """Get max withdrawal"""
         path, params, extra_data = self._get_max_withdrawal(ccy, extra_data, **kwargs)
         data = self.request(path, params=params, extra_data=extra_data)
@@ -2710,7 +2814,16 @@ class TradingAccountMixin:
     ) -> Any:
         """Get bills"""
         path, params, extra_data = self._get_bills(
-            inst_type, uly, inst_id, ccy, mgn_mode, after, before, limit, extra_data, **kwargs
+            inst_type,
+            uly,
+            inst_id,
+            ccy,
+            mgn_mode,
+            after,
+            before,
+            limit,
+            extra_data,
+            **kwargs,
         )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
@@ -2730,7 +2843,16 @@ class TradingAccountMixin:
     ) -> None:
         """Async get bills"""
         path, params, extra_data = self._get_bills(
-            inst_type, uly, inst_id, ccy, mgn_mode, after, before, limit, extra_data, **kwargs
+            inst_type,
+            uly,
+            inst_id,
+            ccy,
+            mgn_mode,
+            after,
+            before,
+            limit,
+            extra_data,
+            **kwargs,
         )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),

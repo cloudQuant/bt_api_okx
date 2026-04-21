@@ -22,7 +22,10 @@ def _get_okx_config() -> Any | None:
     if _okx_config_loaded:
         return _okx_config
     try:
-        from bt_api_base.config_loader import get_exchange_config_path, load_exchange_config
+        from bt_api_base.config_loader import (
+            get_exchange_config_path,
+            load_exchange_config,
+        )
 
         config_path = get_exchange_config_path("okx.yaml")
         if config_path.exists():
@@ -91,8 +94,12 @@ class OkxExchangeData(ExchangeData):
         if config.base_urls:
             self.rest_url = config.base_urls.rest.get("default", self.rest_url)
             self.wss_url = config.base_urls.wss.get("public", self.wss_url)
-            self.account_wss_url = config.base_urls.wss.get("private", self.account_wss_url)
-            self.kline_wss_url = config.base_urls.wss.get("business", self.kline_wss_url)
+            self.account_wss_url = config.base_urls.wss.get(
+                "private", self.account_wss_url
+            )
+            self.kline_wss_url = config.base_urls.wss.get(
+                "business", self.kline_wss_url
+            )
 
         # rest_paths
         if asset_cfg.rest_paths:
@@ -111,7 +118,9 @@ class OkxExchangeData(ExchangeData):
             self.wss_paths = converted
 
         # kline_periods
-        kp = asset_cfg.kline_periods or (config.kline_periods if config.kline_periods else None)
+        kp = asset_cfg.kline_periods or (
+            config.kline_periods if config.kline_periods else None
+        )
         if kp:
             self.kline_periods = dict(kp)
             self.reverse_kline_periods = {v: k for k, v in self.kline_periods.items()}
@@ -175,7 +184,9 @@ class OkxExchangeData(ExchangeData):
             parts = symbol.split("-")
             currency = parts[1] if len(parts) > 1 and "USDT" in symbol else parts[0]
             req["args"][0][k] = req["args"][0][k].replace("<currency>", currency)
-            req["args"][0][k] = req["args"][0][k].replace("<period>", kwargs.get("period", ""))
+            req["args"][0][k] = req["args"][0][k].replace(
+                "<period>", kwargs.get("period", "")
+            )
         req = json.dumps(req)
         # print("req_1", req)
         return req
@@ -192,7 +203,15 @@ class OkxExchangeDataFutures(OkxExchangeData):
         super().__init__()
         self._load_from_config("futures")
         # Override instType in wss_paths for FUTURES
-        for key in ["tick", "depth", "books", "bidAsk", "orders", "account", "positions"]:
+        for key in [
+            "tick",
+            "depth",
+            "books",
+            "bidAsk",
+            "orders",
+            "account",
+            "positions",
+        ]:
             if key in self.wss_paths:
                 for arg in self.wss_paths[key]["args"]:
                     if "instType" in arg:
@@ -236,6 +255,10 @@ class OkxExchangeDataSpot(OkxExchangeData):
         for k in req["args"][0]:
             symbol = kwargs.get("symbol", "")
             req["args"][0][k] = req["args"][0][k].replace("<symbol>", symbol)
-            req["args"][0][k] = req["args"][0][k].replace("<currency>", symbol.split("-")[0])
-            req["args"][0][k] = req["args"][0][k].replace("<period>", kwargs.get("period", ""))
+            req["args"][0][k] = req["args"][0][k].replace(
+                "<currency>", symbol.split("-")[0]
+            )
+            req["args"][0][k] = req["args"][0][k].replace(
+                "<period>", kwargs.get("period", "")
+            )
         return json.dumps(req)

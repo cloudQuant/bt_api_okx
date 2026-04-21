@@ -10,7 +10,9 @@ from bt_api_base.functions.utils import from_dict_get_float, from_dict_get_strin
 class OkxTradeData(TradeData):
     """交易类，用于保存成交信息"""
 
-    def __init__(self, trade_info, symbol_name, asset_type, has_been_json_encoded=False):
+    def __init__(
+        self, trade_info, symbol_name, asset_type, has_been_json_encoded=False
+    ):
         super().__init__(trade_info, has_been_json_encoded)
         self.exchange_name = "OKX"
         self.local_update_time = time.time()  # 本地时间戳

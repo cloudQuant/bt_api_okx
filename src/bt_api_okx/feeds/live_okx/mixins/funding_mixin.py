@@ -48,13 +48,17 @@ class FundingMixin:
             extra_data.update(kwargs)
         return path, params, extra_data
 
-    def get_currencies(self, ccy: Any = None, extra_data: Any = None, **kwargs: Any) -> Any:
+    def get_currencies(
+        self, ccy: Any = None, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """Get currencies"""
         path, params, extra_data = self._get_currencies(ccy, extra_data, **kwargs)
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
-    def async_get_currencies(self, ccy: Any = None, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_get_currencies(
+        self, ccy: Any = None, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         """Async get currencies"""
         path, params, extra_data = self._get_currencies(ccy, extra_data, **kwargs)
         self.submit(
@@ -85,7 +89,9 @@ class FundingMixin:
             extra_data.update(kwargs)
         return path, params, extra_data
 
-    def get_asset_balances(self, ccy: Any = None, extra_data: Any = None, **kwargs: Any) -> Any:
+    def get_asset_balances(
+        self, ccy: Any = None, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """Get asset balances"""
         path, params, extra_data = self._get_asset_balances(ccy, extra_data, **kwargs)
         data = self.request(path, params=params, extra_data=extra_data)
@@ -128,7 +134,9 @@ class FundingMixin:
         self, ccy: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> Any:
         """Get non-tradable assets"""
-        path, params, extra_data = self._get_non_tradable_assets(ccy, extra_data, **kwargs)
+        path, params, extra_data = self._get_non_tradable_assets(
+            ccy, extra_data, **kwargs
+        )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
@@ -136,7 +144,9 @@ class FundingMixin:
         self, ccy: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async get non-tradable assets"""
-        path, params, extra_data = self._get_non_tradable_assets(ccy, extra_data, **kwargs)
+        path, params, extra_data = self._get_non_tradable_assets(
+            ccy, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -165,7 +175,9 @@ class FundingMixin:
             extra_data.update(kwargs)
         return path, params, extra_data
 
-    def get_asset_valuation(self, ccy: Any = None, extra_data: Any = None, **kwargs: Any) -> Any:
+    def get_asset_valuation(
+        self, ccy: Any = None, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """Get asset valuation"""
         path, params, extra_data = self._get_asset_valuation(ccy, extra_data, **kwargs)
         data = self.request(path, params=params, extra_data=extra_data)
@@ -472,7 +484,12 @@ class FundingMixin:
         )
 
     def _get_deposit_address(
-        self, ccy: Any, to: Any = None, chain: Any = None, extra_data: Any = None, **kwargs: Any
+        self,
+        ccy: Any,
+        to: Any = None,
+        chain: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
         """Get deposit address"""
         request_type = "get_deposit_address"
@@ -497,18 +514,32 @@ class FundingMixin:
         return path, params, extra_data
 
     def get_deposit_address(
-        self, ccy: Any, to: Any = None, chain: Any = None, extra_data: Any = None, **kwargs: Any
+        self,
+        ccy: Any,
+        to: Any = None,
+        chain: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
     ) -> Any:
         """Get deposit address"""
-        path, params, extra_data = self._get_deposit_address(ccy, to, chain, extra_data, **kwargs)
+        path, params, extra_data = self._get_deposit_address(
+            ccy, to, chain, extra_data, **kwargs
+        )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
     def async_get_deposit_address(
-        self, ccy: Any, to: Any = None, chain: Any = None, extra_data: Any = None, **kwargs: Any
+        self,
+        ccy: Any,
+        to: Any = None,
+        chain: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
     ) -> None:
         """Async get deposit address"""
-        path, params, extra_data = self._get_deposit_address(ccy, to, chain, extra_data, **kwargs)
+        path, params, extra_data = self._get_deposit_address(
+            ccy, to, chain, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -711,7 +742,16 @@ class FundingMixin:
     ) -> Any:
         """Withdrawal"""
         path, params, extra_data = self._withdrawal(
-            ccy, amt, dest, to_addr, fee, chain, area_code, client_chain_id, extra_data, **kwargs
+            ccy,
+            amt,
+            dest,
+            to_addr,
+            fee,
+            chain,
+            area_code,
+            client_chain_id,
+            extra_data,
+            **kwargs,
         )
         data = self.request(path, body=params, extra_data=extra_data)
         return data
@@ -731,7 +771,16 @@ class FundingMixin:
     ) -> None:
         """Async withdrawal"""
         path, params, extra_data = self._withdrawal(
-            ccy, amt, dest, to_addr, fee, chain, area_code, client_chain_id, extra_data, **kwargs
+            ccy,
+            amt,
+            dest,
+            to_addr,
+            fee,
+            chain,
+            area_code,
+            client_chain_id,
+            extra_data,
+            **kwargs,
         )
         self.submit(
             self.async_request(path, body=params, extra_data=extra_data),
@@ -765,7 +814,9 @@ class FundingMixin:
         self, wd_id: Any, ccy: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> Any:
         """Cancel withdrawal"""
-        path, params, extra_data = self._cancel_withdrawal(wd_id, ccy, extra_data, **kwargs)
+        path, params, extra_data = self._cancel_withdrawal(
+            wd_id, ccy, extra_data, **kwargs
+        )
         data = self.request(path, body=params, extra_data=extra_data)
         return data
 
@@ -773,7 +824,9 @@ class FundingMixin:
         self, wd_id: Any, ccy: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async cancel withdrawal"""
-        path, params, extra_data = self._cancel_withdrawal(wd_id, ccy, extra_data, **kwargs)
+        path, params, extra_data = self._cancel_withdrawal(
+            wd_id, ccy, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, body=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -873,7 +926,9 @@ class FundingMixin:
             extra_data.update(kwargs)
         return path, params, extra_data
 
-    def get_exchange_list(self, ccy: Any = None, extra_data: Any = None, **kwargs: Any) -> Any:
+    def get_exchange_list(
+        self, ccy: Any = None, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """Get exchange list"""
         path, params, extra_data = self._get_exchange_list(ccy, extra_data, **kwargs)
         data = self.request(path, params=params, extra_data=extra_data)
@@ -916,7 +971,9 @@ class FundingMixin:
         self, month: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> Any:
         """Apply for monthly statement (last year)"""
-        path, params, extra_data = self._apply_monthly_statement(month, extra_data, **kwargs)
+        path, params, extra_data = self._apply_monthly_statement(
+            month, extra_data, **kwargs
+        )
         data = self.request(path, body=params, extra_data=extra_data)
         return data
 
@@ -924,7 +981,9 @@ class FundingMixin:
         self, month: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async apply for monthly statement (last year)"""
-        path, params, extra_data = self._apply_monthly_statement(month, extra_data, **kwargs)
+        path, params, extra_data = self._apply_monthly_statement(
+            month, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, body=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -957,7 +1016,9 @@ class FundingMixin:
         self, month: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> Any:
         """Get monthly statement (last year)"""
-        path, params, extra_data = self._get_monthly_statement(month, extra_data, **kwargs)
+        path, params, extra_data = self._get_monthly_statement(
+            month, extra_data, **kwargs
+        )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
@@ -965,7 +1026,9 @@ class FundingMixin:
         self, month: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async get monthly statement (last year)"""
-        path, params, extra_data = self._get_monthly_statement(month, extra_data, **kwargs)
+        path, params, extra_data = self._get_monthly_statement(
+            month, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -998,7 +1061,9 @@ class FundingMixin:
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
-    def async_get_convert_currencies(self, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_get_convert_currencies(
+        self, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         """Async get convert currencies list"""
         path, params, extra_data = self._get_convert_currencies(extra_data, **kwargs)
         self.submit(
@@ -1007,7 +1072,11 @@ class FundingMixin:
         )
 
     def _get_convert_currency_pair(
-        self, from_ccy: Any = None, to_ccy: Any = None, extra_data: Any = None, **kwargs: Any
+        self,
+        from_ccy: Any = None,
+        to_ccy: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
         """Get convert currency pair"""
         request_type = "get_convert_currency_pair"
@@ -1032,7 +1101,11 @@ class FundingMixin:
         return path, params, extra_data
 
     def get_convert_currency_pair(
-        self, from_ccy: Any = None, to_ccy: Any = None, extra_data: Any = None, **kwargs: Any
+        self,
+        from_ccy: Any = None,
+        to_ccy: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
     ) -> Any:
         """Get convert currency pair"""
         path, params, extra_data = self._get_convert_currency_pair(
@@ -1042,7 +1115,11 @@ class FundingMixin:
         return data
 
     def async_get_convert_currency_pair(
-        self, from_ccy: Any = None, to_ccy: Any = None, extra_data: Any = None, **kwargs: Any
+        self,
+        from_ccy: Any = None,
+        to_ccy: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
     ) -> None:
         """Async get convert currency pair"""
         path, params, extra_data = self._get_convert_currency_pair(
@@ -1276,7 +1353,9 @@ class FundingMixin:
         self, ccy: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> Any:
         """Get deposit payment methods"""
-        path, params, extra_data = self._get_deposit_payment_methods(ccy, extra_data, **kwargs)
+        path, params, extra_data = self._get_deposit_payment_methods(
+            ccy, extra_data, **kwargs
+        )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
@@ -1284,7 +1363,9 @@ class FundingMixin:
         self, ccy: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async get deposit payment methods"""
-        path, params, extra_data = self._get_deposit_payment_methods(ccy, extra_data, **kwargs)
+        path, params, extra_data = self._get_deposit_payment_methods(
+            ccy, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -1317,7 +1398,9 @@ class FundingMixin:
         self, ccy: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> Any:
         """Get withdrawal payment methods"""
-        path, params, extra_data = self._get_withdrawal_payment_methods(ccy, extra_data, **kwargs)
+        path, params, extra_data = self._get_withdrawal_payment_methods(
+            ccy, extra_data, **kwargs
+        )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
@@ -1325,7 +1408,9 @@ class FundingMixin:
         self, ccy: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async get withdrawal payment methods"""
-        path, params, extra_data = self._get_withdrawal_payment_methods(ccy, extra_data, **kwargs)
+        path, params, extra_data = self._get_withdrawal_payment_methods(
+            ccy, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -1441,9 +1526,13 @@ class FundingMixin:
             extra_data.update(kwargs)
         return path, params, extra_data
 
-    def cancel_withdrawal_order(self, wd_id: Any, extra_data: Any = None, **kwargs: Any) -> Any:
+    def cancel_withdrawal_order(
+        self, wd_id: Any, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """Cancel withdrawal order"""
-        path, params, extra_data = self._cancel_withdrawal_order(wd_id, extra_data, **kwargs)
+        path, params, extra_data = self._cancel_withdrawal_order(
+            wd_id, extra_data, **kwargs
+        )
         data = self.request(path, body=params, extra_data=extra_data)
         return data
 
@@ -1451,7 +1540,9 @@ class FundingMixin:
         self, wd_id: Any, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async cancel withdrawal order"""
-        path, params, extra_data = self._cancel_withdrawal_order(wd_id, extra_data, **kwargs)
+        path, params, extra_data = self._cancel_withdrawal_order(
+            wd_id, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, body=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -1554,9 +1645,13 @@ class FundingMixin:
             extra_data.update(kwargs)
         return path, params, extra_data
 
-    def get_withdrawal_order_detail(self, wd_id: Any, extra_data: Any = None, **kwargs: Any) -> Any:
+    def get_withdrawal_order_detail(
+        self, wd_id: Any, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """Get withdrawal order detail"""
-        path, params, extra_data = self._get_withdrawal_order_detail(wd_id, extra_data, **kwargs)
+        path, params, extra_data = self._get_withdrawal_order_detail(
+            wd_id, extra_data, **kwargs
+        )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
@@ -1564,7 +1659,9 @@ class FundingMixin:
         self, wd_id: Any, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async get withdrawal order detail"""
-        path, params, extra_data = self._get_withdrawal_order_detail(wd_id, extra_data, **kwargs)
+        path, params, extra_data = self._get_withdrawal_order_detail(
+            wd_id, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -1667,9 +1764,13 @@ class FundingMixin:
             extra_data.update(kwargs)
         return path, params, extra_data
 
-    def get_deposit_order_detail(self, dep_id: Any, extra_data: Any = None, **kwargs: Any) -> Any:
+    def get_deposit_order_detail(
+        self, dep_id: Any, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """Get deposit order detail"""
-        path, params, extra_data = self._get_deposit_order_detail(dep_id, extra_data, **kwargs)
+        path, params, extra_data = self._get_deposit_order_detail(
+            dep_id, extra_data, **kwargs
+        )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
@@ -1677,7 +1778,9 @@ class FundingMixin:
         self, dep_id: Any, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async get deposit order detail"""
-        path, params, extra_data = self._get_deposit_order_detail(dep_id, extra_data, **kwargs)
+        path, params, extra_data = self._get_deposit_order_detail(
+            dep_id, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -1710,7 +1813,9 @@ class FundingMixin:
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
-    def async_get_buy_sell_currencies(self, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_get_buy_sell_currencies(
+        self, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         """Async get buy/sell currencies list"""
         path, params, extra_data = self._get_buy_sell_currencies(extra_data, **kwargs)
         self.submit(
@@ -1741,13 +1846,19 @@ class FundingMixin:
 
     def get_buy_sell_currency_pair(self, extra_data: Any = None, **kwargs: Any) -> Any:
         """Get buy/sell currency pair"""
-        path, params, extra_data = self._get_buy_sell_currency_pair(extra_data, **kwargs)
+        path, params, extra_data = self._get_buy_sell_currency_pair(
+            extra_data, **kwargs
+        )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
-    def async_get_buy_sell_currency_pair(self, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_get_buy_sell_currency_pair(
+        self, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         """Async get buy/sell currency pair"""
-        path, params, extra_data = self._get_buy_sell_currency_pair(extra_data, **kwargs)
+        path, params, extra_data = self._get_buy_sell_currency_pair(
+            extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
             callback=self.async_callback,

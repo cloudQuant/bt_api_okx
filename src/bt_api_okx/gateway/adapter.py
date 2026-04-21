@@ -68,7 +68,9 @@ class OkxGatewayAdapter(BaseGatewayAdapter):
         self.aliases: dict[str, set[str]] = defaultdict(set)
         self.running = False
         self.thread: threading.Thread | None = None
-        self.timeout = float(normalized.get("gateway_startup_timeout_sec", 10.0) or 10.0)
+        self.timeout = float(
+            normalized.get("gateway_startup_timeout_sec", 10.0) or 10.0
+        )
         self._market_connect_timeout = float(
             normalized.get("market_stream_connect_timeout_sec", 1.0) or 1.0
         )

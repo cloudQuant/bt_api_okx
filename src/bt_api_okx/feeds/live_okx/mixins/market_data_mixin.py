@@ -54,14 +54,18 @@ class MarketDataMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _get_tick_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _get_tick_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         status = input_data["code"] == "0"
         if "data" not in input_data or not input_data["data"]:
             return [], status
         data = input_data["data"][0]
         if len(data) > 0:
             data_list = [
-                OkxTickerData(data, extra_data["symbol_name"], extra_data["asset_type"], True)
+                OkxTickerData(
+                    data, extra_data["symbol_name"], extra_data["asset_type"], True
+                )
             ]
             target_data = data_list
         else:
@@ -73,7 +77,9 @@ class MarketDataMixin:
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
-    def async_get_tick(self, symbol: Any, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_get_tick(
+        self, symbol: Any, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         path, params, extra_data = self._get_tick(symbol, extra_data, **kwargs)
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
@@ -102,21 +108,27 @@ class MarketDataMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _get_depth_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _get_depth_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         status = input_data["code"] == "0"
         if "data" not in input_data or not input_data["data"]:
             return [], status
         data = input_data["data"][0]
         if len(data) > 0:
             data_list = [
-                OkxOrderBookData(data, extra_data["symbol_name"], extra_data["asset_type"], True)
+                OkxOrderBookData(
+                    data, extra_data["symbol_name"], extra_data["asset_type"], True
+                )
             ]
             target_data = data_list
         else:
             target_data = []
         return target_data, status
 
-    def get_depth(self, symbol: Any, size: Any = 20, extra_data: Any = None, **kwargs: Any) -> Any:
+    def get_depth(
+        self, symbol: Any, size: Any = 20, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         path, params, extra_data = self._get_depth(symbol, size, extra_data, **kwargs)
         data = self.request(path, params=params, extra_data=extra_data)
         return data
@@ -168,7 +180,9 @@ class MarketDataMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _get_kline_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _get_kline_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         status = input_data["code"] == "0"
         if "data" not in input_data:
             return [], status
@@ -244,26 +258,34 @@ class MarketDataMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _get_funding_rate_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _get_funding_rate_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         status = input_data["code"] == "0"
         if "data" not in input_data or not input_data["data"]:
             return [], status
         data = input_data["data"][0]
         if len(data) > 0:
             data_list = [
-                OkxFundingRateData(data, extra_data["symbol_name"], extra_data["asset_type"], True)
+                OkxFundingRateData(
+                    data, extra_data["symbol_name"], extra_data["asset_type"], True
+                )
             ]
             target_data = data_list
         else:
             target_data = []
         return target_data, status
 
-    def get_funding_rate(self, symbol: Any, extra_data: Any = None, **kwargs: Any) -> Any:
+    def get_funding_rate(
+        self, symbol: Any, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         path, params, extra_data = self._get_funding_rate(symbol, extra_data, **kwargs)
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
-    def async_get_funding_rate(self, symbol: Any, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_get_funding_rate(
+        self, symbol: Any, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         path, params, extra_data = self._get_funding_rate(symbol, extra_data, **kwargs)
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
@@ -316,7 +338,9 @@ class MarketDataMixin:
         data = input_data["data"]
         if len(data) > 0:
             data_list = [
-                OkxFundingRateData(i, extra_data["symbol_name"], extra_data["asset_type"], True)
+                OkxFundingRateData(
+                    i, extra_data["symbol_name"], extra_data["asset_type"], True
+                )
                 for i in data
             ]
             target_data = data_list
@@ -374,7 +398,9 @@ class MarketDataMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _get_instruments_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _get_instruments_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         status = input_data["code"] == "0"
         if "data" not in input_data:
             return [], status
@@ -426,14 +452,18 @@ class MarketDataMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _get_mark_price_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _get_mark_price_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         status = input_data["code"] == "0"
         if "data" not in input_data or not input_data["data"]:
             return [], status
         data = input_data["data"][0]
         if len(data) > 0:
             data_list = [
-                OkxMarkPriceData(data, extra_data["symbol_name"], extra_data["asset_type"], True)
+                OkxMarkPriceData(
+                    data, extra_data["symbol_name"], extra_data["asset_type"], True
+                )
             ]
             target_data = data_list
         else:
@@ -445,7 +475,9 @@ class MarketDataMixin:
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
-    def async_get_mark_price(self, symbol: Any, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_get_mark_price(
+        self, symbol: Any, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         path, params, extra_data = self._get_mark_price(symbol, extra_data, **kwargs)
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
@@ -729,7 +761,9 @@ class MarketDataMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _get_exchange_rate_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _get_exchange_rate_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         status = input_data["code"] == "0"
         if "data" not in input_data:
             return [], status
@@ -790,15 +824,23 @@ class MarketDataMixin:
         target_data = (data[0] if isinstance(data, list) else data) if data else {}
         return target_data, status
 
-    def get_index_components(self, index: Any, extra_data: Any = None, **kwargs: Any) -> Any:
+    def get_index_components(
+        self, index: Any, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """Get index components"""
-        path, params, extra_data = self._get_index_components(index, extra_data, **kwargs)
+        path, params, extra_data = self._get_index_components(
+            index, extra_data, **kwargs
+        )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
-    def async_get_index_components(self, index: Any, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_get_index_components(
+        self, index: Any, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         """Async get index components"""
-        path, params, extra_data = self._get_index_components(index, extra_data, **kwargs)
+        path, params, extra_data = self._get_index_components(
+            index, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -888,7 +930,11 @@ class MarketDataMixin:
         )
 
     def _get_discount_rate(
-        self, ccy: Any = None, discount_level: Any = None, extra_data: Any = None, **kwargs: Any
+        self,
+        ccy: Any = None,
+        discount_level: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
         """
         Get discount rate and interest-free quota
@@ -920,7 +966,9 @@ class MarketDataMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _get_discount_rate_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _get_discount_rate_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         status = input_data["code"] == "0"
         if "data" not in input_data:
             return [], status
@@ -929,7 +977,11 @@ class MarketDataMixin:
         return target_data, status
 
     def get_discount_rate(
-        self, ccy: Any = None, discount_level: Any = None, extra_data: Any = None, **kwargs: Any
+        self,
+        ccy: Any = None,
+        discount_level: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
     ) -> Any:
         """Get discount rate and interest-free quota"""
         path, params, extra_data = self._get_discount_rate(
@@ -939,7 +991,11 @@ class MarketDataMixin:
         return data
 
     def async_get_discount_rate(
-        self, ccy: Any = None, discount_level: Any = None, extra_data: Any = None, **kwargs: Any
+        self,
+        ccy: Any = None,
+        discount_level: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
     ) -> None:
         """Async get discount rate and interest-free quota"""
         path, params, extra_data = self._get_discount_rate(
@@ -994,7 +1050,9 @@ class MarketDataMixin:
         self, ccy: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> Any:
         """Get interest rate and loan quota"""
-        path, params, extra_data = self._get_interest_rate_loan_quota(ccy, extra_data, **kwargs)
+        path, params, extra_data = self._get_interest_rate_loan_quota(
+            ccy, extra_data, **kwargs
+        )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
@@ -1002,7 +1060,9 @@ class MarketDataMixin:
         self, ccy: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async get interest rate and loan quota"""
-        path, params, extra_data = self._get_interest_rate_loan_quota(ccy, extra_data, **kwargs)
+        path, params, extra_data = self._get_interest_rate_loan_quota(
+            ccy, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -1117,7 +1177,9 @@ class MarketDataMixin:
         return path, params, extra_data
 
     @staticmethod
-    def _get_underlying_normalize_function(input_data: Any, extra_data: Any) -> tuple[Any, bool]:
+    def _get_underlying_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
         status = input_data["code"] == "0"
         if "data" not in input_data:
             return [], status
@@ -1129,7 +1191,9 @@ class MarketDataMixin:
         self, inst_type: Any, uly: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> Any:
         """Get underlying index"""
-        path, params, extra_data = self._get_underlying(inst_type, uly, extra_data, **kwargs)
+        path, params, extra_data = self._get_underlying(
+            inst_type, uly, extra_data, **kwargs
+        )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
@@ -1137,7 +1201,9 @@ class MarketDataMixin:
         self, inst_type: Any, uly: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async get underlying index"""
-        path, params, extra_data = self._get_underlying(inst_type, uly, extra_data, **kwargs)
+        path, params, extra_data = self._get_underlying(
+            inst_type, uly, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -1490,7 +1556,9 @@ class MarketDataMixin:
         **kwargs: Any,
     ) -> Any:
         """Get tickers for all instruments"""
-        path, params, extra_data = self._get_tickers(inst_type, uly, inst_id, extra_data, **kwargs)
+        path, params, extra_data = self._get_tickers(
+            inst_type, uly, inst_id, extra_data, **kwargs
+        )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
@@ -1503,7 +1571,9 @@ class MarketDataMixin:
         **kwargs: Any,
     ) -> None:
         """Async get tickers for all instruments"""
-        path, params, extra_data = self._get_tickers(inst_type, uly, inst_id, extra_data, **kwargs)
+        path, params, extra_data = self._get_tickers(
+            inst_type, uly, inst_id, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -1535,7 +1605,9 @@ class MarketDataMixin:
         self, symbol: Any, sz: Any = 100, extra_data: Any = None, **kwargs: Any
     ) -> Any:
         """Get full depth order book"""
-        path, params, extra_data = self._get_depth_full(symbol, sz, extra_data, **kwargs)
+        path, params, extra_data = self._get_depth_full(
+            symbol, sz, extra_data, **kwargs
+        )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
@@ -1543,7 +1615,9 @@ class MarketDataMixin:
         self, symbol: Any, sz: Any = 100, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async get full depth order book"""
-        path, params, extra_data = self._get_depth_full(symbol, sz, extra_data, **kwargs)
+        path, params, extra_data = self._get_depth_full(
+            symbol, sz, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
             callback=self.async_callback,

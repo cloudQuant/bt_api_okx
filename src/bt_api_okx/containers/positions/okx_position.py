@@ -10,7 +10,9 @@ from bt_api_base.functions.utils import from_dict_get_float, from_dict_get_strin
 class OkxPositionData(PositionData):
     """保存持仓信息"""
 
-    def __init__(self, position_info, symbol_name, asset_type, has_been_json_encoded=False):
+    def __init__(
+        self, position_info, symbol_name, asset_type, has_been_json_encoded=False
+    ):
         super().__init__(position_info, has_been_json_encoded)
         self.exchange_name = "OKX"
         self.local_update_time = time.time()  # 本地时间戳
@@ -53,9 +55,13 @@ class OkxPositionData(PositionData):
         self.initial_margin = from_dict_get_float(self.position_data, "imr")
         self.maintain_margin = from_dict_get_float(self.position_data, "mmr")
         self.position_fee = from_dict_get_float(self.position_data, "fee")
-        self.position_realized_pnl = from_dict_get_float(self.position_data, "realizedPnl")
+        self.position_realized_pnl = from_dict_get_float(
+            self.position_data, "realizedPnl"
+        )
         self.position_unrealized_pnl = from_dict_get_float(self.position_data, "upl")
-        self.position_funding_value = from_dict_get_float(self.position_data, "fundingFee")
+        self.position_funding_value = from_dict_get_float(
+            self.position_data, "fundingFee"
+        )
         self.has_been_init_data = True
         return self
 

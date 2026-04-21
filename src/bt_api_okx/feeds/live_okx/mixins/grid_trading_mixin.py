@@ -499,7 +499,15 @@ class GridTradingMixin:
     ) -> Any:
         """Get grid strategy order history"""
         path, params, extra_data = self._grid_orders_algo_history(
-            inst_type, inst_id, algo_id, state, after, before, limit, extra_data, **kwargs
+            inst_type,
+            inst_id,
+            algo_id,
+            state,
+            after,
+            before,
+            limit,
+            extra_data,
+            **kwargs,
         )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
@@ -518,7 +526,15 @@ class GridTradingMixin:
     ) -> None:
         """Async get grid strategy order history"""
         path, params, extra_data = self._grid_orders_algo_history(
-            inst_type, inst_id, algo_id, state, after, before, limit, extra_data, **kwargs
+            inst_type,
+            inst_id,
+            algo_id,
+            state,
+            after,
+            before,
+            limit,
+            extra_data,
+            **kwargs,
         )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
@@ -1546,7 +1562,14 @@ class GridTradingMixin:
     ) -> Any:
         """RSI back testing - RSI回测"""
         path, params, extra_data = self._grid_rsi_back_testing(
-            inst_id, algo_algo_type, max_px, min_px, grid_num, time_type, extra_data, **kwargs
+            inst_id,
+            algo_algo_type,
+            max_px,
+            min_px,
+            grid_num,
+            time_type,
+            extra_data,
+            **kwargs,
         )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
@@ -1564,7 +1587,14 @@ class GridTradingMixin:
     ) -> None:
         """Async RSI back testing"""
         path, params, extra_data = self._grid_rsi_back_testing(
-            inst_id, algo_algo_type, max_px, min_px, grid_num, time_type, extra_data, **kwargs
+            inst_id,
+            algo_algo_type,
+            max_px,
+            min_px,
+            grid_num,
+            time_type,
+            extra_data,
+            **kwargs,
         )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),

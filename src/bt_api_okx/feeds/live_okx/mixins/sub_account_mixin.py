@@ -92,7 +92,9 @@ class SubAccountMixin:
         self, sub_acct: Any, tag: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> Any:
         """Create sub account"""
-        path, params, extra_data = self._create_sub_account(sub_acct, tag, extra_data, **kwargs)
+        path, params, extra_data = self._create_sub_account(
+            sub_acct, tag, extra_data, **kwargs
+        )
         data = self.request(path, body=params, extra_data=extra_data)
         return data
 
@@ -100,7 +102,9 @@ class SubAccountMixin:
         self, sub_acct: Any, tag: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async create sub account"""
-        path, params, extra_data = self._create_sub_account(sub_acct, tag, extra_data, **kwargs)
+        path, params, extra_data = self._create_sub_account(
+            sub_acct, tag, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, body=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -196,9 +200,13 @@ class SubAccountMixin:
             extra_data.update(kwargs)
         return path, params, extra_data
 
-    def get_sub_account_api_key(self, sub_acct: Any, extra_data: Any = None, **kwargs: Any) -> Any:
+    def get_sub_account_api_key(
+        self, sub_acct: Any, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """Get sub account API key"""
-        path, params, extra_data = self._get_sub_account_api_key(sub_acct, extra_data, **kwargs)
+        path, params, extra_data = self._get_sub_account_api_key(
+            sub_acct, extra_data, **kwargs
+        )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
@@ -206,7 +214,9 @@ class SubAccountMixin:
         self, sub_acct: Any, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async get sub account API key"""
-        path, params, extra_data = self._get_sub_account_api_key(sub_acct, extra_data, **kwargs)
+        path, params, extra_data = self._get_sub_account_api_key(
+            sub_acct, extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
             callback=self.async_callback,
@@ -621,7 +631,14 @@ class SubAccountMixin:
     ) -> Any:
         """Sub-account transfer"""
         path, params, extra_data = self._sub_account_transfer(
-            ccy, amount, from_acct, to_acct, from_acc_type, to_acc_type, extra_data, **kwargs
+            ccy,
+            amount,
+            from_acct,
+            to_acct,
+            from_acc_type,
+            to_acc_type,
+            extra_data,
+            **kwargs,
         )
         data = self.request(path, body=params, extra_data=extra_data)
         return data
@@ -639,7 +656,14 @@ class SubAccountMixin:
     ) -> None:
         """Async sub-account transfer"""
         path, params, extra_data = self._sub_account_transfer(
-            ccy, amount, from_acct, to_acct, from_acc_type, to_acc_type, extra_data, **kwargs
+            ccy,
+            amount,
+            from_acct,
+            to_acct,
+            from_acc_type,
+            to_acc_type,
+            extra_data,
+            **kwargs,
         )
         self.submit(
             self.async_request(path, body=params, extra_data=extra_data),
@@ -729,15 +753,23 @@ class SubAccountMixin:
             extra_data.update(kwargs)
         return path, params, extra_data
 
-    def get_custody_sub_account_list(self, extra_data: Any = None, **kwargs: Any) -> Any:
+    def get_custody_sub_account_list(
+        self, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
         """Get custody sub-account list"""
-        path, params, extra_data = self._get_custody_sub_account_list(extra_data, **kwargs)
+        path, params, extra_data = self._get_custody_sub_account_list(
+            extra_data, **kwargs
+        )
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
-    def async_get_custody_sub_account_list(self, extra_data: Any = None, **kwargs: Any) -> None:
+    def async_get_custody_sub_account_list(
+        self, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         """Async get custody sub-account list"""
-        path, params, extra_data = self._get_custody_sub_account_list(extra_data, **kwargs)
+        path, params, extra_data = self._get_custody_sub_account_list(
+            extra_data, **kwargs
+        )
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
             callback=self.async_callback,

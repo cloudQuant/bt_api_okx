@@ -30,7 +30,9 @@ class OkxLiquidationWarningData(LiquidationData):
     }
     """
 
-    def __init__(self, liquidation_info, symbol_name, asset_type, has_been_json_encoded=False):
+    def __init__(
+        self, liquidation_info, symbol_name, asset_type, has_been_json_encoded=False
+    ):
         super().__init__(liquidation_info, has_been_json_encoded)
         self.exchange_name = "OKX"
         self.symbol_name = symbol_name

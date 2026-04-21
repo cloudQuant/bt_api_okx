@@ -23,7 +23,9 @@ class OkxRequestDataSpot(OkxRequestData):
         self.request_logger = get_logger("okx_spot_feed")
         self.async_logger = get_logger("okx_spot_feed")
 
-    def _get_index_price(self, symbol: Any, extra_data: Any = None, **kwargs: Any) -> None:
+    def _get_index_price(
+        self, symbol: Any, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         request_symbol = self._params.get_symbol(symbol) if symbol is not None else ""
         request_type = "get_index_price"
         params = {
@@ -54,7 +56,9 @@ class OkxRequestDataSpot(OkxRequestData):
         data = [timestamp, float(data["idxPx"])]
         return data, status
 
-    def get_index_price(self, symbol: Any, extra_data: Any = None, **kwargs: Any) -> None:
+    def get_index_price(
+        self, symbol: Any, extra_data: Any = None, **kwargs: Any
+    ) -> None:
         path, params, extra_data = self._get_index_price(symbol, extra_data, **kwargs)
         data = self.request(path, params=params, extra_data=extra_data)
         return data

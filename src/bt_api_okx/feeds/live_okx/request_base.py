@@ -33,7 +33,12 @@ from bt_api_okx.feeds.live_okx.mixins.sub_account_mixin import SubAccountMixin
 from bt_api_okx.feeds.live_okx.mixins.trade_mixin import TradeMixin
 from bt_api_okx.feeds.live_okx.mixins.trading_account_mixin import TradingAccountMixin
 from bt_api_base.logging_factory import get_logger
-from bt_api_base.rate_limiter import RateLimiter, RateLimitRule, RateLimitScope, RateLimitType
+from bt_api_base.rate_limiter import (
+    RateLimiter,
+    RateLimitRule,
+    RateLimitScope,
+    RateLimitType,
+)
 
 
 class OkxRequestData(
@@ -85,7 +90,9 @@ class OkxRequestData(
         self.data_queue = data_queue
         self.public_key = kwargs.get("public_key") or kwargs.get("api_key")
         self.private_key = (
-            kwargs.get("private_key") or kwargs.get("secret_key") or kwargs.get("api_secret")
+            kwargs.get("private_key")
+            or kwargs.get("secret_key")
+            or kwargs.get("api_secret")
         )
         self.passphrase = kwargs.get("passphrase")
         self.topics = kwargs.get("topics", {})
@@ -96,7 +103,9 @@ class OkxRequestData(
         self.request_logger = get_logger("okx_swap_feed")
         self.async_logger = get_logger("okx_swap_feed")
         self._error_translator = OKXErrorTranslator()
-        self._rate_limiter = kwargs.get("rate_limiter", self._create_default_rate_limiter())
+        self._rate_limiter = kwargs.get(
+            "rate_limiter", self._create_default_rate_limiter()
+        )
 
     @staticmethod
     def _create_default_rate_limiter() -> RateLimiter:
@@ -133,7 +142,9 @@ class OkxRequestData(
         if isinstance(raw_response, dict):
             code = raw_response.get("code", raw_response.get("sCode", "0"))
             if str(code) != "0":
-                return self._error_translator.translate(raw_response, self.exchange_name)
+                return self._error_translator.translate(
+                    raw_response, self.exchange_name
+                )
         return None
 
     def push_data_to_queue(self, data: Any) -> None:
@@ -144,18 +155,27 @@ class OkxRequestData(
 
     # noinspection PyMethodMayBeStatic
     def signature(
-        self, timestamp: Any, method: Any, request_path: Any, secret_key: Any, body: Any = None
+        self,
+        timestamp: Any,
+        method: Any,
+        request_path: Any,
+        secret_key: Any,
+        body: Any = None,
     ) -> None:
         body = "" if body is None else str(body)
         message = str(timestamp) + str.upper(method) + request_path + body
         mac = hmac.new(
-            bytes(secret_key, encoding="utf8"), bytes(message, encoding="utf-8"), digestmod="sha256"
+            bytes(secret_key, encoding="utf8"),
+            bytes(message, encoding="utf-8"),
+            digestmod="sha256",
         )
         d = mac.digest()
         return base64.b64encode(d).decode()
 
     # noinspection PyMethodMayBeStatic
-    def get_header(self, api_key: Any, sign: Any, timestamp: Any, passphrase: Any) -> None:
+    def get_header(
+        self, api_key: Any, sign: Any, timestamp: Any, passphrase: Any
+    ) -> None:
         header = {}
         header["Content-Type"] = "application/json"
         header["OK-ACCESS-KEY"] = api_key
@@ -199,7 +219,9 @@ class OkxRequestData(
             self.private_key,
             body_str,
         )
-        headers = self.get_header(self.public_key, signature_, timestamp, self.passphrase)
+        headers = self.get_header(
+            self.public_key, signature_, timestamp, self.passphrase
+        )
         res = self.http_request(method, url, headers, body, timeout)
         return RequestData(res, extra_data)
 
@@ -232,7 +254,9 @@ class OkxRequestData(
             self.private_key,
             body_str,
         )
-        headers = self.get_header(self.public_key, signature_, timestamp, self.passphrase)
+        headers = self.get_header(
+            self.public_key, signature_, timestamp, self.passphrase
+        )
         res = await self.async_http_request(method, url, headers, body_str, timeout)
         return RequestData(res, extra_data)
 
