@@ -1,5 +1,5 @@
-site_name: "OKX Documentation"
-site_description: "OKX plugin for bt_api"
+site_name: "bt_api_okx Documentation"
+site_description: "OKX exchange plugin for bt_api - Spot, Futures, Swap, Options and more"
 site_author: cloudQuant
 site_url: https://bt-api-okx.readthedocs.io/
 
@@ -25,6 +25,22 @@ theme:
         icon: material/weather-sunny
         name: Switch to light mode
 
+  plugins:
+    - search
+    - materialx
+    - i18n:
+        docs_structure: suffix
+        fallback_to_default: true
+        reconfigure_material: true
+        reconfigure_search: true
+        languages:
+          en:
+            name: English
+            build: true
+          zh:
+            name: 中文
+            build: true
+
 nav:
   - Home: index.md
 
@@ -33,3 +49,5 @@ markdown_extensions:
   - pymdownx.superfences
   - admonition
   - tables
+  - toc:
+      permalink: true
