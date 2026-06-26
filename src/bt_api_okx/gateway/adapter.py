@@ -459,6 +459,9 @@ class OkxGatewayAdapter(BaseGatewayAdapter):
         offset = str(payload.get("offset") or "open").lower()
         order_type_str = f"{side}-{order_type}"
         client_order_id = payload.get("client_order_id")
+        pos_side = _first_value(payload, "posSide", "position_side", "positionSide")
+        reduce_only = _first_value(payload, "reduceOnly", "reduce_only")
+        td_mode = _first_value(payload, "tdMode", "td_mode")
 
         result = self.feed.make_order(
             symbol=symbol,
@@ -468,6 +471,9 @@ class OkxGatewayAdapter(BaseGatewayAdapter):
             offset=offset,
             client_order_id=client_order_id,
             size_in_contracts=True,
+            posSide=pos_side,
+            reduceOnly=reduce_only,
+            tdMode=td_mode,
         )
         data = result.get_data() if hasattr(result, "get_data") else result
         if isinstance(data, list) and len(data) > 0:

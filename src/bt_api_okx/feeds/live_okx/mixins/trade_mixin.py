@@ -71,6 +71,18 @@ class TradeMixin:
             params["px"] = str(price)
         if asset_type == "SPOT" and ord_type == "market":
             params["tgtCcy"] = kwargs.get("tgt_ccy") or kwargs.get("tgtCcy") or "base_ccy"
+        for param_key, aliases in {
+            "posSide": ("posSide", "pos_side", "position_side", "positionSide"),
+            "reduceOnly": ("reduceOnly", "reduce_only"),
+            "tgtCcy": ("tgtCcy", "tgt_ccy"),
+            "tag": ("tag",),
+        }.items():
+            for alias in aliases:
+                value = kwargs.get(alias)
+                if value in (None, ""):
+                    continue
+                params[param_key] = str(value).lower() if isinstance(value, bool) else str(value)
+                break
         path = self._params.get_rest_path(request_type)
         path = path.replace("<instrument_id>", request_symbol)
         extra_data = update_extra_data(

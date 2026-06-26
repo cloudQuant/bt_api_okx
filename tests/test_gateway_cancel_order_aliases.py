@@ -119,6 +119,33 @@ def test_gateway_market_order_omits_okx_price_field(monkeypatch) -> None:
     assert "px" not in feed.last_body
 
 
+def test_gateway_close_order_forwards_position_side_and_reduce_only(monkeypatch) -> None:
+    feed = _GatewayOrderFeed()
+    monkeypatch.setattr(adapter_module, "_create_feed", lambda _queue, _kwargs: feed)
+    adapter = adapter_module.OkxGatewayAdapter(asset_type="SWAP")
+    adapter._ensure_account_stream = lambda: None
+
+    adapter.place_order(
+        {
+            "symbol": "BTC-USDT-SWAP",
+            "size": 3,
+            "price": 0,
+            "side": "sell",
+            "order_type": "market",
+            "offset": "close",
+            "position_side": "long",
+            "reduce_only": True,
+            "td_mode": "isolated",
+        }
+    )
+
+    assert feed.last_body["side"] == "sell"
+    assert feed.last_body["ordType"] == "market"
+    assert feed.last_body["posSide"] == "long"
+    assert feed.last_body["reduceOnly"] == "true"
+    assert feed.last_body["tdMode"] == "isolated"
+
+
 def test_gateway_spot_market_order_uses_base_quantity_and_cash_mode(monkeypatch) -> None:
     feed = _GatewayOrderFeed(asset_type="SPOT")
     monkeypatch.setattr(adapter_module, "_create_feed", lambda _queue, _kwargs: feed)
