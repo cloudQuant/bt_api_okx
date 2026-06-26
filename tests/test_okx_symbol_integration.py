@@ -45,6 +45,18 @@ class TestOkxSymbolData:
         assert symbol.base_asset == "BTC"
         assert symbol.quote_asset == "USDT"
 
+        all_data = symbol.get_all_data()
+        assert all_data["contract_notional_value"] == 10.0
+        assert all_data["okx_contract_value"] == 10.0
+        assert all_data["contract_value_currency"] == "BTC"
+        assert all_data["ctValCcy"] == "BTC"
+        assert all_data["contract_multiplier_raw"] == 1.0
+        assert all_data["ctVal"] == 10.0
+        assert all_data["ctMult"] == 1.0
+        assert all_data["tickSz"] == 0.1
+        assert all_data["lotSz"] == 1.0
+        assert all_data["minSz"] == 1.0
+
     def test_symbol_data_inheritance(self):
         """Test that OkxSymbolData inherits from SymbolData."""
         symbol = OkxSymbolData({}, has_been_json_encoded=True)

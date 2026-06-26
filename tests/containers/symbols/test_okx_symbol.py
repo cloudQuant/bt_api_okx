@@ -67,6 +67,13 @@ def test_symbol_instance():
     assert symbol_instance.get_max_qty() == 1000
     # 验证衍生属性
     assert symbol_instance.get_contract_multiplier() == 100.0
+    all_data = symbol_instance.get_all_data()
+    assert all_data["contract_notional_value"] is None
+    assert all_data["contract_multiplier_raw"] == 100.0
+    assert all_data["ctMult"] == 100.0
+    assert all_data["tickSz"] == 1.0
+    assert all_data["lotSz"] == 0.0001
+    assert all_data["minSz"] == 0.01
     assert symbol_instance.get_max_leverage() == 125.0
     assert symbol_instance.get_symbol_status() == "live"
     assert symbol_instance.get_symbol_trading_type() == "normal"

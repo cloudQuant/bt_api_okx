@@ -81,6 +81,7 @@ class OkxSymbolData(SymbolData):
         self.quote_asset = from_dict_get_string(data, "quoteCcy")
         self.contract_multiplier = from_dict_get_float(data, "ctMult")
         self.contract_notional_value = from_dict_get_float(data, "ctVal")
+        self.contract_value_currency = from_dict_get_string(data, "ctValCcy")
         self.min_amount = from_dict_get_float(data, "notional")
         self.price_unit = from_dict_get_float(data, "tickSz")
         pu = self.price_unit
@@ -145,6 +146,17 @@ class OkxSymbolData(SymbolData):
                 "price_digital": self.price_digital,
                 "price_unit": self.price_unit,
                 "contract_multiplier": self.contract_multiplier,
+                "contract_multiplier_raw": self.contract_multiplier,
+                "contract_notional_value": self.contract_notional_value,
+                "okx_contract_value": self.contract_notional_value,
+                "contract_value_currency": self.contract_value_currency,
+                "contract_value_ccy": self.contract_value_currency,
+                "ctMult": self.contract_multiplier,
+                "ctVal": self.contract_notional_value,
+                "ctValCcy": self.contract_value_currency,
+                "tickSz": self.price_unit,
+                "lotSz": self.qty_unit,
+                "minSz": self.min_qty,
                 "quote_asset": self.quote_asset,
                 "base_asset": self.base_asset,
                 "underlying_index_name": self.underlying_index_name,
