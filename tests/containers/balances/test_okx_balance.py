@@ -1,3 +1,4 @@
+"""Module-level docstring."""
 from __future__ import annotations
 
 from bt_api_okx.containers.balances import OkxBalanceData
@@ -36,6 +37,7 @@ balance_data = {
 
 
 def assert_balance_api(bo):
+    """assert_balance_api function"""
     assert bo.get_event() == "BalanceEvent"
     assert bo.get_exchange_name() == "OKX"
     assert bo.get_asset_type() == "SWAP"
@@ -56,6 +58,7 @@ def assert_balance_api(bo):
 
 
 def test_okx_balance():
+    """test_okx_balance function"""
     bo = OkxBalanceData(balance_data, "USDT", "SWAP", True)
     bo.init_data()
     assert_balance_api(bo)

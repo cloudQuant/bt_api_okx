@@ -1,3 +1,4 @@
+"""Module-level docstring."""
 from __future__ import annotations
 
 from typing import Any
@@ -15,7 +16,9 @@ from bt_api_base.logging_factory import get_logger
 
 
 class OkxRequestDataSpot(OkxRequestData):
+    """Class OkxRequestDataSpot"""
     def __init__(self, data_queue: Any, **kwargs: Any) -> None:
+        """__init__ method"""
         super().__init__(data_queue, **kwargs)
         self.asset_type = kwargs.get("asset_type", "SPOT")
         self.logger_name = kwargs.get("logger_name", "okx_spot_feed.log")
@@ -59,30 +62,39 @@ class OkxRequestDataSpot(OkxRequestData):
     def get_index_price(
         self, symbol: Any, extra_data: Any = None, **kwargs: Any
     ) -> None:
+        """get_index_price method"""
         path, params, extra_data = self._get_index_price(symbol, extra_data, **kwargs)
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
 
 class OkxAccountWssDataSpot(OkxAccountWssData):
+    """Class OkxAccountWssDataSpot"""
     def __init__(self, data_queue: Any, **kwargs: Any) -> None:
+        """__init__ method"""
         super().__init__(data_queue, **kwargs)
         self.asset_type = kwargs.get("asset_type", "SPOT")
 
 
 class OkxMarketWssDataSpot(OkxMarketWssData):
+    """Class OkxMarketWssDataSpot"""
     def __init__(self, data_queue: Any, **kwargs: Any) -> None:
+        """__init__ method"""
         super().__init__(data_queue, **kwargs)
         self.asset_type = kwargs.get("asset_type", "SPOT")
 
 
 class OkxKlineWssDataSpot(OkxKlineWssData):
+    """Class OkxKlineWssDataSpot"""
     def __init__(self, data_queue: Any, **kwargs: Any) -> None:
+        """__init__ method"""
         super().__init__(data_queue, **kwargs)
         self.asset_type = kwargs.get("asset_type", "SPOT")
 
 
 class OkxWssDataSpot(OkxWssData):
+    """Class OkxWssDataSpot"""
     def __init__(self, data_queue: Any, **kwargs: Any) -> None:
+        """__init__ method"""
         super().__init__(data_queue, **kwargs)
         self.asset_type = kwargs.get("asset_type", "SPOT")

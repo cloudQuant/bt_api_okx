@@ -1,3 +1,4 @@
+"""Module-level docstring."""
 from __future__ import annotations
 
 import json
@@ -8,11 +9,12 @@ from bt_api_base.functions.utils import from_dict_get_float, from_dict_get_strin
 
 
 class OkxFundingRateData(FundingRateData):
-    """保存资金费率信息"""
+    """"""
 
     def __init__(
         self, funding_rate_info, symbol_name, asset_type, has_been_json_encoded
     ):
+        """__init__ method"""
         super().__init__(funding_rate_info, has_been_json_encoded)
         self.exchange_name = "OKX"
         self.symbol_name = symbol_name
@@ -33,6 +35,7 @@ class OkxFundingRateData(FundingRateData):
         self.has_been_init_data = False
 
     def init_data(self):
+        """init_data method"""
         if not self.has_been_json_encoded:
             self.funding_rate_data = json.loads(self.funding_rate_info)["data"][0]
             self.has_been_json_encoded = True
@@ -68,6 +71,7 @@ class OkxFundingRateData(FundingRateData):
         return self
 
     def get_all_data(self):
+        """get_all_data method"""
         if self.all_data is None:
             self.all_data = {
                 "exchange_name": self.exchange_name,
@@ -94,42 +98,55 @@ class OkxFundingRateData(FundingRateData):
         return self.__str__()
 
     def get_exchange_name(self):
+        """get_exchange_name method"""
         return self.exchange_name
 
     def get_server_time(self):
+        """get_server_time method"""
         return self.server_time
 
     def get_local_update_time(self):
+        """get_local_update_time method"""
         return self.local_update_time
 
     def get_asset_type(self):
+        """get_asset_type method"""
         return self.asset_type
 
     def get_symbol(self):
+        """get_symbol method"""
         return self.symbol_name
 
     def get_pre_funding_rate(self):
+        """get_pre_funding_rate method"""
         return None
 
     def get_pre_funding_time(self):
+        """get_pre_funding_time method"""
         return None
 
     def get_next_funding_rate(self):
+        """get_next_funding_rate method"""
         return self.next_funding_rate
 
     def get_next_funding_time(self):
+        """get_next_funding_time method"""
         return self.next_funding_time
 
     def get_max_funding_rate(self):
+        """get_max_funding_rate method"""
         return self.max_funding_rate
 
     def get_min_funding_rate(self):
+        """get_min_funding_rate method"""
         return self.min_funding_rate
 
     def get_current_funding_rate(self):
+        """get_current_funding_rate method"""
         return self.current_funding_rate
 
     def get_current_funding_time(self):
+        """get_current_funding_time method"""
         return self.current_funding_time
 
     def get_settlement_funding_rate(self):
@@ -140,7 +157,9 @@ class OkxFundingRateData(FundingRateData):
         return self.settlement_funding_rate
 
     def get_settlement_status(self):
+        """get_settlement_status method"""
         return self.settlement_status
 
     def get_method(self):
+        """get_method method"""
         return self.method

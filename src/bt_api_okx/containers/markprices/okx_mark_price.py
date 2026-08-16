@@ -1,3 +1,4 @@
+"""Module-level docstring."""
 from __future__ import annotations
 
 import json
@@ -10,7 +11,7 @@ from bt_api_base.functions.utils import from_dict_get_float, from_dict_get_strin
 
 
 class OkxMarkPriceData(MarkPriceData):
-    """保存标记价格信息"""
+    """"""
 
     def __init__(
         self,
@@ -19,6 +20,7 @@ class OkxMarkPriceData(MarkPriceData):
         asset_type: Any,
         has_been_json_encoded: Any = False,
     ) -> None:
+        """__init__ method"""
         super().__init__(mark_price_info, has_been_json_encoded)
         self.exchange_name = "OKX"
         self.symbol_name = symbol_name
@@ -34,6 +36,7 @@ class OkxMarkPriceData(MarkPriceData):
         self.has_been_init_data = False
 
     def init_data(self) -> Self:
+        """init_data method"""
         if not self.has_been_json_encoded:
             raw = self.mark_price_info
             parsed = json.loads(raw) if isinstance(raw, str) else raw
@@ -56,6 +59,7 @@ class OkxMarkPriceData(MarkPriceData):
         return self
 
     def get_all_data(self) -> dict[str, Any]:
+        """get_all_data method"""
         if self.all_data is None:
             self.all_data = {
                 "exchange_name": self.exchange_name,
@@ -76,24 +80,31 @@ class OkxMarkPriceData(MarkPriceData):
         return self.__str__()
 
     def get_exchange_name(self) -> str:
+        """get_exchange_name method"""
         return str(self.exchange_name)
 
     def get_server_time(self) -> float:
+        """get_server_time method"""
         return self.server_time if self.server_time is not None else 0.0
 
     def get_local_update_time(self) -> float:
+        """get_local_update_time method"""
         return self.local_update_time
 
     def get_symbol_name(self) -> str:
+        """get_symbol_name method"""
         return str(self.symbol_name)
 
     def get_mark_price_symbol_name(self) -> str | None:
+        """get_mark_price_symbol_name method"""
         return self.mark_price_symbol_name
 
     def get_asset_type(self) -> str:
+        """get_asset_type method"""
         return str(self.asset_type)
 
     def get_mark_price(self) -> float | None:
+        """get_mark_price method"""
         data = self.mark_price_data or {}
         mark_price = data.get("markPx", None)
         if mark_price is None:

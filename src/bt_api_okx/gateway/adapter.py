@@ -50,6 +50,7 @@ class OkxGatewayAdapter(BaseGatewayAdapter):
     """Gateway adapter wrapping OKX REST + WSS feeds."""
 
     def __init__(self, **kwargs: Any) -> None:
+        """__init__ method"""
         normalized = dict(kwargs)
         self.asset_type = _normalize_asset_type(normalized.get("asset_type"))
         normalized["asset_type"] = self.asset_type
@@ -79,6 +80,7 @@ class OkxGatewayAdapter(BaseGatewayAdapter):
         )
 
     def connect(self) -> None:
+        """connect method"""
         if self.running:
             return
         self.running = True
@@ -87,6 +89,7 @@ class OkxGatewayAdapter(BaseGatewayAdapter):
         self.logger.info("OkxGatewayAdapter connected")
 
     def disconnect(self) -> None:
+        """disconnect method"""
         self.running = False
         thread = self.thread
         if thread is not None and thread.is_alive():
@@ -98,6 +101,7 @@ class OkxGatewayAdapter(BaseGatewayAdapter):
         self.logger.info("OkxGatewayAdapter disconnected")
 
     def subscribe_symbols(self, symbols: list[str]) -> dict[str, Any]:
+        """subscribe_symbols method"""
         topics = [{"topic": "ticker", "symbol": s} for s in symbols]
         wss_kwargs = dict(self.kwargs)
         wss_kwargs["topics"] = topics
@@ -144,6 +148,7 @@ class OkxGatewayAdapter(BaseGatewayAdapter):
             )
 
     def get_balance(self) -> dict[str, Any]:
+        """get_balance method"""
         self._ensure_account_stream()
         try:
             result = self.feed.get_balance()
@@ -161,6 +166,7 @@ class OkxGatewayAdapter(BaseGatewayAdapter):
             return {"error": str(exc)}
 
     def get_positions(self) -> list[dict[str, Any]]:
+        """get_positions method"""
         self._ensure_account_stream()
         try:
             result = self.feed.get_position(symbol=None)
@@ -179,6 +185,7 @@ class OkxGatewayAdapter(BaseGatewayAdapter):
             return []
 
     def place_order(self, payload: dict[str, Any]) -> dict[str, Any]:
+        """place_order method"""
         self._ensure_account_stream()
         symbol = payload.get("data_name") or payload.get("symbol") or ""
         volume = float(payload.get("volume") or payload.get("size") or 0)
@@ -210,6 +217,7 @@ class OkxGatewayAdapter(BaseGatewayAdapter):
         return {"raw": str(data)}
 
     def cancel_order(self, payload: dict[str, Any]) -> dict[str, Any]:
+        """cancel_order method"""
         self._ensure_account_stream()
         symbol = payload.get("data_name") or payload.get("symbol") or ""
         order_id = payload.get("order_id") or payload.get("external_order_id")

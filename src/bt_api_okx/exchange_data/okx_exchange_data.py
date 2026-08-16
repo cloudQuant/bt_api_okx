@@ -1,3 +1,4 @@
+"""Module documentation"""
 from __future__ import annotations
 
 import copy
@@ -11,13 +12,13 @@ from bt_api_base.logging_factory import get_logger
 
 logger = get_logger("okx_exchange_data")
 
-# ── 配置加载缓存 ──────────────────────────────────────────────
+# ──  ──────────────────────────────────────────────
 _okx_config = None
 _okx_config_loaded = False
 
 
 def _get_okx_config() -> Any | None:
-    """延迟加载并缓存 OKX YAML 配置."""
+    """ OKX YAML ."""
     global _okx_config, _okx_config_loaded
     if _okx_config_loaded:
         return _okx_config
@@ -45,7 +46,7 @@ class OkxExchangeData(ExchangeData):
     """
 
     def __init__(self) -> None:
-        """这个类存放一些交易所用到的参数."""
+        """."""
         super().__init__()
         self.exchange_name = "OkxSwap"
         self.rest_url = "https://www.okx.com"
@@ -67,16 +68,14 @@ class OkxExchangeData(ExchangeData):
         self.reverse_kline_periods = {}
         self.status_dict = {}
 
-        # 从 YAML 配置加载 (默认加载 swap)
+        #  YAML  ( swap)
         self._load_from_config("swap")
 
     def _load_from_config(self, asset_type) -> bool:
-        """从 YAML 配置文件加载交易所参数.
+        """ YAML .
 
-        Args:
-            asset_type: 资产类型 key, 如 'swap', 'futures', 'spot'
-        Returns:
-            bool: 是否加载成功
+        Args: asset_type:  key,  'swap', 'futures', 'spot'
+        Returns: bool:
 
         """
         config = _get_okx_config()
@@ -133,6 +132,7 @@ class OkxExchangeData(ExchangeData):
 
     # noinspection PyMethodMayBeStatic
     def get_symbol(self, symbol: str) -> str:
+        """get_symbol method"""
         result = symbol.replace("/", "-").upper()
         if not result.endswith("-SWAP"):
             result += "-SWAP"
@@ -140,29 +140,32 @@ class OkxExchangeData(ExchangeData):
 
     # noinspection PyMethodMayBeStatic
     def get_symbol_re(self, symbol):
+        """get_symbol_re method"""
         return symbol.replace("-", "/").lower().rsplit("/", 1)[0]
 
     # noinspection PyMethodMayBeStatic
     def get_period(self, key: str) -> str:
+        """get_period method"""
         if key not in self.kline_periods:
             return key
         return self.kline_periods[key]
 
     def get_rest_path(self, key: str, **kwargs) -> str:
+        """get_rest_path method"""
         if key not in self.rest_paths or self.rest_paths[key] == "":
             self.raise_path_error(self.exchange_name, key)
         return self.rest_paths[key]
 
     # noinspection PyMethodMayBeStatic
     def str2int(self, time_str):
+        """str2int method"""
         dt = datetime.datetime.strptime(time_str, "%Y-%m-%dT%H:%M:%S.%fZ")
         timestamp = int((time.mktime(dt.timetuple()) + dt.microsecond / 1000000) * 1000)
         return timestamp
 
     def get_wss_path(self, **kwargs) -> str:
-        """拿wss订阅字段
-        Returns:
-            TYPE: Description.
+        """wss
+        Returns: TYPE: Description.
         """
         key = kwargs["topic"]
         if key == "mark_price" or key == "positions":
@@ -200,6 +203,7 @@ class OkxExchangeDataFutures(OkxExchangeData):
     """OKX Futures (expiry-based contracts)."""
 
     def __init__(self) -> None:
+        """__init__ method"""
         super().__init__()
         self._load_from_config("futures")
         # Override instType in wss_paths for FUTURES
@@ -218,9 +222,11 @@ class OkxExchangeDataFutures(OkxExchangeData):
                         arg["instType"] = "FUTURES"
 
     def get_symbol(self, symbol: str) -> str:
+        """get_symbol method"""
         return symbol.replace("/", "-").upper()
 
     def get_symbol_re(self, symbol):
+        """get_symbol_re method"""
         return symbol.replace("-", "/").lower()
 
 
@@ -228,20 +234,22 @@ class OkxExchangeDataSpot(OkxExchangeData):
     """OKX Spot Trading."""
 
     def __init__(self) -> None:
+        """__init__ method"""
         super().__init__()
         self._load_from_config("spot")
 
     def get_symbol(self, symbol: str) -> str:
+        """get_symbol method"""
         return symbol.replace("/", "-").upper()
 
     # noinspection PyMethodMayBeStatic
     def get_symbol_re(self, symbol):
+        """get_symbol_re method"""
         return symbol.replace("-", "/").lower()
 
     def get_wss_path(self, **kwargs) -> str:
-        """拿wss订阅字段
-        Returns:
-            TYPE: Description.
+        """wss
+        Returns: TYPE: Description.
         """
         key = kwargs["topic"]
         if "symbol" in kwargs:

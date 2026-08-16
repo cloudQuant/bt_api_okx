@@ -1,4 +1,5 @@
 # import json
+"""Module-level docstring."""
 from __future__ import annotations
 
 from bt_api_base.containers.balances.balance import BalanceData
@@ -38,6 +39,7 @@ balance_data = {
 
 
 def assert_balance_api(bo):
+    """assert_balance_api function"""
     assert bo.get_event() == "BalanceEvent"
     assert bo.get_exchange_name() == "OKX"
     assert bo.get_asset_type() == "SWAP"
@@ -58,6 +60,7 @@ def assert_balance_api(bo):
 
 
 def assert_one_symbol_account(bo):
+    """assert_one_symbol_account function"""
     assert bo.get_event() == "AccountEvent"
     assert bo.get_exchange_name() == "OKX"
     assert bo.get_asset_type() == "SWAP"
@@ -80,6 +83,7 @@ def assert_one_symbol_account(bo):
 
 
 def test_okx_req_one_symbol_account():
+    """test_okx_req_one_symbol_account function"""
     data = {
         "code": "0",
         "data": [

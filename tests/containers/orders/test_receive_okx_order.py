@@ -1,3 +1,4 @@
+"""Module-level docstring."""
 from __future__ import annotations
 
 from bt_api_base.containers.orders.order import OrderStatus
@@ -5,6 +6,7 @@ from bt_api_okx.containers.orders.okx_order import OkxOrderData
 
 
 def test_receive_okx_order():
+    """test_receive_okx_order function"""
     data = {
         "code": "0",
         "msg": "",

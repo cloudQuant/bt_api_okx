@@ -1,3 +1,4 @@
+"""Module-level docstring."""
 from __future__ import annotations
 
 import json
@@ -10,9 +11,11 @@ from bt_api_base.containers.bars.bar import BarData
 
 
 class OkxBarData(BarData):
+    """Class OkxBarData"""
     def __init__(
         self, bar_info, symbol_name, asset_type, has_been_json_encoded: bool = False
     ) -> None:
+        """__init__ method"""
         super().__init__(bar_info, has_been_json_encoded)
         self.exchange_name = "OKX"
         self.symbol_name = symbol_name
@@ -34,6 +37,7 @@ class OkxBarData(BarData):
         self.has_been_init_data = False
 
     def init_data(self) -> None:
+        """init_data method"""
         if not self.has_been_json_encoded:
             self.bar_data = json.loads(self.bar_info)
             self.has_been_json_encoded = True
@@ -52,6 +56,7 @@ class OkxBarData(BarData):
         self.has_been_init_data = True
 
     def get_all_data(self) -> dict[str, Any]:
+        """get_all_data method"""
         if self.all_data is None:
             self.all_data = {
                 "open_time": self.open_time,
@@ -80,62 +85,82 @@ class OkxBarData(BarData):
         return self.__str__()
 
     def get_event_type(self) -> Any:
+        """get_event_type method"""
         return self.event
 
     def get_exchange_name(self) -> str:
+        """get_exchange_name method"""
         return str(self.exchange_name)
 
     def get_symbol_name(self) -> str:
+        """get_symbol_name method"""
         return str(self.symbol_name)
 
     def get_asset_type(self) -> str:
+        """get_asset_type method"""
         return str(self.asset_type)
 
     def get_server_time(self) -> float:
+        """get_server_time method"""
         return float(self.server_time) if self.server_time is not None else 0.0
 
     def get_local_update_time(self) -> float:
+        """get_local_update_time method"""
         return self.local_update_time
 
     def get_open_time(self) -> Any:
+        """get_open_time method"""
         return self.open_time
 
     def get_open_price(self) -> Any:
+        """get_open_price method"""
         return self.open_price
 
     def get_high_price(self) -> Any:
+        """get_high_price method"""
         return self.high_price
 
     def get_low_price(self) -> Any:
+        """get_low_price method"""
         return self.low_price
 
     def get_close_price(self) -> Any:
+        """get_close_price method"""
         return self.close_price
 
     def get_volume(self) -> Any:
+        """get_volume method"""
         return self.volume
 
     def get_amount(self) -> Any:
+        """get_amount method"""
         return None
 
     def get_close_time(self) -> Any:
+        """get_close_time method"""
         return None
 
     def get_quote_asset_volume(self) -> Any:
+        """get_quote_asset_volume method"""
         return self.quote_asset_volume
 
     def get_base_asset_volume(self) -> Any:
+        """get_base_asset_volume method"""
         return self.base_asset_volume
 
     def get_num_trades(self) -> Any:
+        """get_num_trades method"""
         return None
 
     def get_taker_buy_base_asset_volume(self) -> Any:
+        """get_taker_buy_base_asset_volume method"""
         return None
 
     def get_taker_buy_quote_asset_volume(self) -> Any:
+        """get_taker_buy_quote_asset_volume method"""
         return None
 
     def get_bar_status(self) -> Any:
         # print("bar status:", self.bar_data)
+        """get_bar_status method"""
         return self.bar_status

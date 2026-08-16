@@ -554,7 +554,7 @@ class GridTradingMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
-        """Amend grid order (basic parameters) - 修改网格委托(基础参数)"""
+        """Amend grid order (basic parameters) - ()"""
         request_type = "grid_amend_order_algo_basic"
         params = {
             "algoId": algo_id,
@@ -600,7 +600,7 @@ class GridTradingMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> Any:
-        """Amend grid order (basic parameters) - 修改网格委托(基础参数)"""
+        """Amend grid order (basic parameters) - ()"""
         path, params, extra_data = self._grid_amend_order_algo_basic(
             algo_id,
             inst_id,
@@ -656,7 +656,7 @@ class GridTradingMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
-        """Close futures grid position - 合约网格平仓"""
+        """Close futures grid position - """
         request_type = "grid_close_position"
         params = {
             "algoId": algo_id,
@@ -690,7 +690,7 @@ class GridTradingMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> Any:
-        """Close futures grid position - 合约网格平仓"""
+        """Close futures grid position - """
         path, params, extra_data = self._grid_close_position(
             algo_id, inst_id, ccy, margin, extra_data, **kwargs
         )
@@ -718,7 +718,7 @@ class GridTradingMixin:
     def _grid_cancel_close_order(
         self, algo_id: Any, inst_id: Any, extra_data: Any = None, **kwargs: Any
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
-        """Cancel futures grid close order - 撤销合约网格平仓单"""
+        """Cancel futures grid close order - """
         request_type = "grid_cancel_close_order"
         params = {
             "algoId": algo_id,
@@ -742,7 +742,7 @@ class GridTradingMixin:
     def grid_cancel_close_order(
         self, algo_id: Any, inst_id: Any, extra_data: Any = None, **kwargs: Any
     ) -> Any:
-        """Cancel futures grid close order - 撤销合约网格平仓单"""
+        """Cancel futures grid close order - """
         path, params, extra_data = self._grid_cancel_close_order(
             algo_id, inst_id, extra_data, **kwargs
         )
@@ -769,7 +769,7 @@ class GridTradingMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
-        """Grid order instant trigger - 网格委托立即触发"""
+        """Grid order instant trigger - """
         request_type = "grid_order_instant_trigger"
         params = {
             "algoId": algo_id,
@@ -800,7 +800,7 @@ class GridTradingMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> Any:
-        """Grid order instant trigger - 网格委托立即触发"""
+        """Grid order instant trigger - """
         path, params, extra_data = self._grid_order_instant_trigger(
             algo_id, inst_id, trigger_px, extra_data, **kwargs
         )
@@ -827,7 +827,7 @@ class GridTradingMixin:
     def _grid_orders_algo_details(
         self, algo_id: Any, inst_id: Any, extra_data: Any = None, **kwargs: Any
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
-        """Get grid order details - 获取网格委托详情"""
+        """Get grid order details - """
         request_type = "grid_orders_algo_details"
         params = {
             "algoId": algo_id,
@@ -851,7 +851,7 @@ class GridTradingMixin:
     def grid_orders_algo_details(
         self, algo_id: Any, inst_id: Any, extra_data: Any = None, **kwargs: Any
     ) -> Any:
-        """Get grid order details - 获取网格委托详情"""
+        """Get grid order details - """
         path, params, extra_data = self._grid_orders_algo_details(
             algo_id, inst_id, extra_data, **kwargs
         )
@@ -882,7 +882,7 @@ class GridTradingMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
-        """Get grid sub orders - 获取网格委托子订单"""
+        """Get grid sub orders - """
         request_type = "grid_sub_orders"
         params = {
             "algoId": algo_id,
@@ -925,7 +925,7 @@ class GridTradingMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> Any:
-        """Get grid sub orders - 获取网格委托子订单"""
+        """Get grid sub orders - """
         path, params, extra_data = self._grid_sub_orders(
             algo_id, inst_id, type, ord_id, after, before, limit, extra_data, **kwargs
         )
@@ -961,7 +961,7 @@ class GridTradingMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
-        """Get grid positions - 获取网格委托持仓"""
+        """Get grid positions - """
         request_type = "grid_positions"
         params: dict[str, Any] = {}
         if inst_type:
@@ -993,7 +993,7 @@ class GridTradingMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> Any:
-        """Get grid positions - 获取网格委托持仓"""
+        """Get grid positions - """
         path, params, extra_data = self._grid_positions(
             inst_type, inst_id, algo_id, extra_data, **kwargs
         )
@@ -1027,7 +1027,7 @@ class GridTradingMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
-        """Spot grid withdraw income - 现货网格提取利润"""
+        """Spot grid withdraw income - """
         request_type = "grid_withdraw_income"
         params = {
             "algoId": algo_id,
@@ -1063,7 +1063,7 @@ class GridTradingMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> Any:
-        """Spot grid withdraw income - 现货网格提取利润"""
+        """Spot grid withdraw income - """
         path, params, extra_data = self._grid_withdraw_income(
             algo_id, inst_id, amt, ccy, type, extra_data, **kwargs
         )
@@ -1103,7 +1103,7 @@ class GridTradingMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
-        """Compute margin balance - 计算保证金余额"""
+        """Compute margin balance - """
         request_type = "grid_compute_margin_balance"
         params = {
             "instId": inst_id,
@@ -1149,7 +1149,7 @@ class GridTradingMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> Any:
-        """Compute margin balance - 计算保证金余额"""
+        """Compute margin balance - """
         path, params, extra_data = self._grid_compute_margin_balance(
             inst_id,
             td_mode,
@@ -1209,7 +1209,7 @@ class GridTradingMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
-        """Adjust margin - 调整保证金"""
+        """Adjust margin - """
         request_type = "grid_margin_balance"
         params = {
             "algoId": algo_id,
@@ -1245,7 +1245,7 @@ class GridTradingMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> Any:
-        """Adjust margin - 调整保证金"""
+        """Adjust margin - """
         path, params, extra_data = self._grid_margin_balance(
             algo_id, inst_id, amt, ccy, type, extra_data, **kwargs
         )
@@ -1281,7 +1281,7 @@ class GridTradingMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
-        """Add investment - 增加投入币数量"""
+        """Add investment - """
         request_type = "grid_add_investment"
         params = {
             "algoId": algo_id,
@@ -1317,7 +1317,7 @@ class GridTradingMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> Any:
-        """Add investment - 增加投入币数量"""
+        """Add investment - """
         path, params, extra_data = self._grid_add_investment(
             algo_id, inst_id, amt, ccy, type, extra_data, **kwargs
         )
@@ -1353,7 +1353,7 @@ class GridTradingMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
-        """Get grid AI parameters - 获取网格AI参数"""
+        """Get grid AI parameters - AI"""
         request_type = "grid_get_ai_param"
         params = {
             "instId": inst_id,
@@ -1390,7 +1390,7 @@ class GridTradingMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> Any:
-        """Get grid AI parameters - 获取网格AI参数"""
+        """Get grid AI parameters - AI"""
         path, params, extra_data = self._grid_get_ai_param(
             inst_id, algo_algo_type, max_px, min_px, grid_num, extra_data, **kwargs
         )
@@ -1428,7 +1428,7 @@ class GridTradingMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
-        """Compute minimum investment - 计算最小投入金额"""
+        """Compute minimum investment - """
         request_type = "grid_compute_min_investment"
         params = {
             "instId": inst_id,
@@ -1468,7 +1468,7 @@ class GridTradingMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> Any:
-        """Compute minimum investment - 计算最小投入金额"""
+        """Compute minimum investment - """
         path, params, extra_data = self._grid_compute_min_investment(
             inst_id,
             algo_algo_type,
@@ -1523,7 +1523,7 @@ class GridTradingMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
-        """RSI back testing - RSI回测"""
+        """RSI back testing - RSI"""
         request_type = "grid_rsi_back_testing"
         params = {
             "instId": inst_id,
@@ -1560,7 +1560,7 @@ class GridTradingMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> Any:
-        """RSI back testing - RSI回测"""
+        """RSI back testing - RSI"""
         path, params, extra_data = self._grid_rsi_back_testing(
             inst_id,
             algo_algo_type,
@@ -1604,7 +1604,7 @@ class GridTradingMixin:
     def _grid_max_grid_quantity(
         self, inst_id: Any, algo_algo_type: Any, extra_data: Any = None, **kwargs: Any
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
-        """Get max grid quantity - 最大网格数量"""
+        """Get max grid quantity - """
         request_type = "grid_max_grid_quantity"
         params = {
             "instId": inst_id,
@@ -1628,7 +1628,7 @@ class GridTradingMixin:
     def grid_max_grid_quantity(
         self, inst_id: Any, algo_algo_type: Any, extra_data: Any = None, **kwargs: Any
     ) -> Any:
-        """Get max grid quantity - 最大网格数量"""
+        """Get max grid quantity - """
         path, params, extra_data = self._grid_max_grid_quantity(
             inst_id, algo_algo_type, extra_data, **kwargs
         )

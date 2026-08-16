@@ -34,6 +34,7 @@ class OkxLiquidationOrderData(LiquidationData):
     def __init__(
         self, liquidation_info, symbol_name, asset_type, has_been_json_encoded=False
     ) -> None:
+        """__init__ method"""
         super().__init__(liquidation_info, has_been_json_encoded)
         self.exchange_name = "OKX"
         self.symbol_name = symbol_name
@@ -52,6 +53,7 @@ class OkxLiquidationOrderData(LiquidationData):
         self.has_been_init_data = False
 
     def init_data(self):
+        """init_data method"""
         if not self.has_been_json_encoded:
             self.liquidation_data = json.loads(self.liquidation_info)
             self.has_been_json_encoded = True
@@ -71,18 +73,23 @@ class OkxLiquidationOrderData(LiquidationData):
         return self
 
     def get_exchange_name(self):
+        """get_exchange_name method"""
         return self.exchange_name
 
     def get_asset_type(self):
+        """get_asset_type method"""
         return self.asset_type
 
     def get_symbol_name(self):
+        """get_symbol_name method"""
         return self.symbol_name
 
     def get_server_time(self):
+        """get_server_time method"""
         return self.server_time
 
     def get_local_update_time(self):
+        """get_local_update_time method"""
         return self.local_update_time
 
     def get_inst_id(self):
@@ -134,6 +141,7 @@ class OkxLiquidationOrderData(LiquidationData):
         return self.bankruptcy_price
 
     def get_all_data(self):
+        """get_all_data method"""
         if not self.has_been_init_data:
             self.init_data()
         if self.all_data is None:

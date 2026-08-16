@@ -1,4 +1,5 @@
 # Base classes
+"""Module-level docstring."""
 from __future__ import annotations
 
 from bt_api_okx.feeds.live_okx.account_wss_base import (

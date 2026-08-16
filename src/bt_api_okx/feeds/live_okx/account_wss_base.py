@@ -11,18 +11,24 @@ from bt_api_okx.feeds.live_okx.market_wss_base import OkxWssData
 
 
 class OkxAccountWssData(OkxWssData):
+    """Class OkxAccountWssData"""
     def __init__(self, data_queue: Any, **kwargs: Any) -> None:
+        """__init__ method"""
         super().__init__(data_queue, **kwargs)
         self.wss_url = kwargs.get("wss_url", self._params.account_wss_url)
 
 
 class OkxMarketWssData(OkxWssData):
+    """Class OkxMarketWssData"""
     def __init__(self, data_queue: Any, **kwargs: Any) -> None:
+        """__init__ method"""
         super().__init__(data_queue, **kwargs)
         self.wss_url = kwargs.get("wss_url", self._params.wss_url)
 
 
 class OkxKlineWssData(OkxWssData):
+    """Class OkxKlineWssData"""
     def __init__(self, data_queue: Any, **kwargs: Any) -> None:
+        """__init__ method"""
         super().__init__(data_queue, **kwargs)
         self.wss_url = kwargs.get("wss_url", self._params.kline_wss_url)

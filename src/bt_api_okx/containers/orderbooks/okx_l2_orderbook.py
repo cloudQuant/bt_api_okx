@@ -12,7 +12,7 @@ from bt_api_base.functions.utils import from_dict_get_float, from_dict_get_strin
 
 
 class OkxL2OrderBookData(OrderBookData):
-    """OKX 400深度逐笔推送订单簿 (books-l2-tbt channel).
+    """OKX 400 (books-l2-tbt channel).
 
     The data structure for books-l2-tbt is different from regular books:
     - bids/asks are arrays of [price, size, orders, liquidation]
@@ -22,6 +22,7 @@ class OkxL2OrderBookData(OrderBookData):
     def __init__(
         self, order_book_info, symbol_name, asset_type, has_been_json_encoded=False
     ):
+        """__init__ method"""
         super().__init__(order_book_info, has_been_json_encoded)
         self.exchange_name = "OKX"
         self.local_update_time = time.time()
@@ -44,6 +45,7 @@ class OkxL2OrderBookData(OrderBookData):
         self.has_been_init_data = False
 
     def init_data(self):
+        """init_data method"""
         if not self.has_been_json_encoded:
             self.order_book_info = json.loads(self.order_book_info)
             self.order_book_data = self.order_book_info["data"][0]
@@ -79,6 +81,7 @@ class OkxL2OrderBookData(OrderBookData):
         return self
 
     def get_all_data(self):
+        """get_all_data method"""
         if self.all_data is None:
             self.all_data = {
                 "exchange_name": self.exchange_name,
@@ -108,18 +111,23 @@ class OkxL2OrderBookData(OrderBookData):
         return self.__str__()
 
     def get_exchange_name(self):
+        """get_exchange_name method"""
         return self.exchange_name
 
     def get_local_update_time(self):
+        """get_local_update_time method"""
         return self.local_update_time
 
     def get_symbol_name(self):
+        """get_symbol_name method"""
         return self.symbol_name
 
     def get_asset_type(self):
+        """get_asset_type method"""
         return self.asset_type
 
     def get_server_time(self):
+        """get_server_time method"""
         return self.server_time
 
     def get_action(self):
@@ -131,15 +139,19 @@ class OkxL2OrderBookData(OrderBookData):
         return self.checksum
 
     def get_bid_price_list(self):
+        """get_bid_price_list method"""
         return self.bid_price_list
 
     def get_ask_price_list(self):
+        """get_ask_price_list method"""
         return self.ask_price_list
 
     def get_bid_volume_list(self):
+        """get_bid_volume_list method"""
         return self.bid_volume_list
 
     def get_ask_volume_list(self):
+        """get_ask_volume_list method"""
         return self.ask_volume_list
 
     def get_bid_orders_list(self):
@@ -160,8 +172,10 @@ class OkxL2OrderBookData(OrderBookData):
 
     def get_bid_trade_nums(self):
         # For compatibility with existing code
+        """get_bid_trade_nums method"""
         return self.bid_orders_list
 
     def get_ask_trade_nums(self):
         # For compatibility with existing code
+        """get_ask_trade_nums method"""
         return self.ask_orders_list

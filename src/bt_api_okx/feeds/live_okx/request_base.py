@@ -56,6 +56,7 @@ class OkxRequestData(
     TradingAccountMixin,
     Feed,
 ):
+    """Class OkxRequestData"""
     @classmethod
     def _capabilities(cls: Any) -> set[Capability]:
         return {
@@ -86,6 +87,7 @@ class OkxRequestData(
         }
 
     def __init__(self, data_queue: Any, **kwargs: Any) -> None:
+        """__init__ method"""
         super().__init__(data_queue, **kwargs)
         self.data_queue = data_queue
         self.public_key = kwargs.get("public_key") or kwargs.get("api_key")
@@ -138,7 +140,7 @@ class OkxRequestData(
         return RateLimiter(rules)
 
     def translate_error(self, raw_response: Any) -> None:
-        """将原始 OKX API 响应翻译为 UnifiedError（如有错误），否则返回 None"""
+        """ OKX API  UnifiedError（）， None"""
         if isinstance(raw_response, dict):
             code = raw_response.get("code", raw_response.get("sCode", "0"))
             if str(code) != "0":
@@ -148,10 +150,10 @@ class OkxRequestData(
         return None
 
     def push_data_to_queue(self, data: Any) -> None:
+        """push_data_to_queue method"""
         if self.data_queue is not None:
             self.data_queue.put(data)
-        else:
-            raise QueueNotInitializedError("data_queue not initialized")
+        else: raise QueueNotInitializedError("data_queue not initialized")
 
     # noinspection PyMethodMayBeStatic
     def signature(
@@ -162,6 +164,7 @@ class OkxRequestData(
         secret_key: Any,
         body: Any = None,
     ) -> None:
+        """signature method"""
         body = "" if body is None else str(body)
         message = str(timestamp) + str.upper(method) + request_path + body
         mac = hmac.new(
@@ -176,6 +179,7 @@ class OkxRequestData(
     def get_header(
         self, api_key: Any, sign: Any, timestamp: Any, passphrase: Any
     ) -> None:
+        """get_header method"""
         header = {}
         header["Content-Type"] = "application/json"
         header["OK-ACCESS-KEY"] = api_key
@@ -194,8 +198,7 @@ class OkxRequestData(
         timeout: Any = 10,
     ) -> None:
         """http request function
-        Args:
-            path (TYPE): request url
+        Args: path (TYPE): request url
             params (dict, optional): in url
             body (dict, optional): in request body
             extra_data(dict,None): extra_data, generate by user
@@ -229,8 +232,7 @@ class OkxRequestData(
         self, path, params=None, body=None, extra_data=None, timeout=5
     ) -> RequestData:
         """http request function
-        Args:
-            path (TYPE): request url
+        Args: path (TYPE): request url
             params (dict, optional): in url
             body (dict, optional): in request body
             timeout (int, optional): request timeout(s)

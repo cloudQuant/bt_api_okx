@@ -1,3 +1,4 @@
+"""Module-level docstring."""
 from __future__ import annotations
 
 import json
@@ -9,6 +10,7 @@ from bt_api_okx.containers.orderbooks import OkxOrderBookData
 
 @pytest.mark.orderbook
 def test_okx_swap_req_orderbook():
+    """test_okx_swap_req_orderbook function"""
     data = {
         "code": "0",
         "msg": "",
@@ -36,6 +38,7 @@ def test_okx_swap_req_orderbook():
 
 @pytest.mark.orderbook
 def test_okx_swap_wss_orderbook():
+    """test_okx_swap_wss_orderbook function"""
     data = {
         "arg": {"channel": "books", "instId": "BTC-USDT"},
         "action": "snapshot",

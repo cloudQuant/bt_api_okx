@@ -113,6 +113,7 @@ class TradeMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> Any:
+        """make_order method"""
         path, params, extra_data = self._make_order(
             symbol,
             vol,
@@ -140,6 +141,7 @@ class TradeMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> None:
+        """async_make_order method"""
         path, params, extra_data = self._make_order(
             symbol,
             vol,
@@ -226,6 +228,7 @@ class TradeMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> Any:
+        """amend_order method"""
         path, params, extra_data = self._amend_order(
             symbol, order_id, client_order_id, new_sz, new_px, extra_data, **kwargs
         )
@@ -242,6 +245,7 @@ class TradeMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> None:
+        """async_amend_order method"""
         path, params, extra_data = self._amend_order(
             symbol, order_id, client_order_id, new_sz, new_px, extra_data, **kwargs
         )
@@ -301,6 +305,7 @@ class TradeMixin:
     def cancel_order(
         self, symbol: Any, order_id: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> Any:
+        """cancel_order method"""
         path, params, extra_data = self._cancel_order(
             symbol, order_id, extra_data, **kwargs
         )
@@ -310,6 +315,7 @@ class TradeMixin:
     def async_cancel_order(
         self, symbol: Any, order_id: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> None:
+        """async_cancel_order method"""
         path, params, extra_data = self._cancel_order(
             symbol, order_id, extra_data, **kwargs
         )
@@ -367,6 +373,7 @@ class TradeMixin:
     def query_order(
         self, symbol: Any, order_id: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> Any:
+        """query_order method"""
         path, params, extra_data = self._query_order(
             symbol, order_id, extra_data, **kwargs
         )
@@ -376,6 +383,7 @@ class TradeMixin:
     def async_query_order(
         self, symbol: Any, order_id: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> None:
+        """async_query_order method"""
         path, params, extra_data = self._query_order(
             symbol, order_id, extra_data, **kwargs
         )
@@ -453,6 +461,7 @@ class TradeMixin:
     def get_open_orders(
         self, symbol: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> Any:
+        """get_open_orders method"""
         path, params, extra_data = self._get_open_orders(symbol, extra_data, **kwargs)
         data = self.request(path, params=params, extra_data=extra_data)
         return data
@@ -461,6 +470,7 @@ class TradeMixin:
     def async_get_open_orders(
         self, symbol: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> None:
+        """async_get_open_orders method"""
         path, params, extra_data = self._get_open_orders(symbol, extra_data, **kwargs)
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
@@ -521,6 +531,7 @@ class TradeMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> Any:
+        """get_order_history method"""
         path, params, extra_data = self._get_order_history(
             inst_type,
             symbol,
@@ -604,6 +615,7 @@ class TradeMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> Any:
+        """get_deals method"""
         path, params, extra_data = self._get_deals(
             symbol, count, start_time, end_time, extra_data, **kwargs
         )
@@ -619,6 +631,7 @@ class TradeMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> None:
+        """async_get_deals method"""
         path, params, extra_data = self._get_deals(
             symbol, count, start_time, end_time, extra_data, **kwargs
         )
@@ -691,6 +704,7 @@ class TradeMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> Any:
+        """make_algo_order method"""
         path, params, extra_data = self._make_algo_order(
             symbol, side, ord_type, sz, extra_data, **kwargs
         )
@@ -719,6 +733,7 @@ class TradeMixin:
     def async_get_clear_price(
         self, symbol: Any, extra_data: Any = None, **kwargs: Any
     ) -> None:
+        """async_get_clear_price method"""
         data_type = "get_clear_price"
         path = self._params.get_rest_path(data_type)
         params = {"instId": self._params.get_symbol(symbol)}

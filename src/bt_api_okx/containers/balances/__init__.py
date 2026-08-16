@@ -1,3 +1,4 @@
+"""Module-level docstring."""
 from __future__ import annotations
 
 from bt_api_okx.containers.balances.okx_balance import OkxBalanceData

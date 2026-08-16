@@ -1,3 +1,4 @@
+"""Module-level docstring."""
 from __future__ import annotations
 
 import json
@@ -5,7 +6,7 @@ import time
 
 from bt_api_okx.containers.symbols.okx_symbol import OkxSymbolData
 
-# 测试用OKX品种数据
+# OKX
 json_info = {
     "code": "0",
     "data": [
@@ -48,32 +49,33 @@ json_info = {
 
 
 def test_symbol_instance():
-    # 模拟API返回的原始数据（JSON字符串）
+    # API（JSON）
+    """test_symbol_instance function"""
     raw_data = json.dumps(json_info)
     symbol_instance = OkxSymbolData(raw_data, has_been_json_encoded=False)
     symbol_instance.init_data()
-    # 验证基础属性
+    # 
     assert symbol_instance.get_exchange_name() == "OKX"
     assert symbol_instance.get_symbol_name() == "BTC-EUR"
     assert symbol_instance.get_asset_type() == "SPOT"
     assert symbol_instance.get_base_asset() == "BTC"
     assert symbol_instance.get_quote_asset() == "EUR"
-    # 验证计算属性
+    # 
     assert symbol_instance.get_price_unit() == 1
     assert symbol_instance.get_price_digital() == 1  # 1 / 0.1
     assert symbol_instance.get_qty_unit() == 0.0001
     assert symbol_instance.get_qty_digital() == 10000  # 1 / 0.0001
     assert symbol_instance.get_min_qty() == 0.01
     assert symbol_instance.get_max_qty() == 1000
-    # 验证衍生属性
+    # 
     assert symbol_instance.get_contract_multiplier() == 100.0
     assert symbol_instance.get_max_leverage() == 125.0
     assert symbol_instance.get_symbol_status() == "live"
     assert symbol_instance.get_symbol_trading_type() == "normal"
-    assert symbol_instance.get_contract_type() == ""  # SWAP合约没有ctType
-    # 验证时间相关属性
+    assert symbol_instance.get_contract_type() == ""  # SWAPctType
+    # 
     assert isinstance(symbol_instance.get_local_update_time(), float)
-    assert time.time() - symbol_instance.get_local_update_time() < 5  # 5秒内更新
+    assert time.time() - symbol_instance.get_local_update_time() < 5  # 5
 
 
-# 运行测试的命令：pytest tests/containers/symbols/test_okx_symbol.py -v
+# ：pytest tests/containers/symbols/test_okx_symbol.py -v

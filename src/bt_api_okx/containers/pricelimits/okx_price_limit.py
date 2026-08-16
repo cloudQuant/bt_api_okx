@@ -16,8 +16,7 @@ class OkxPriceLimitData:
 
     Represents the buy/sell limit prices for an instrument.
 
-    Attributes:
-        event: Event type identifier.
+    Attributes: event: Event type identifier.
         price_limit_info: Raw price limit information.
         has_been_json_encoded: Whether data has been JSON decoded.
         exchange_name: Exchange identifier.
@@ -35,8 +34,7 @@ class OkxPriceLimitData:
     ) -> None:
         """Initialize OKX price limit data container.
 
-        Args:
-            price_limit_info: Raw price limit information (JSON string or dict).
+        Args: price_limit_info: Raw price limit information (JSON string or dict).
             symbol_name: Trading symbol name.
             asset_type: Asset type (spot, swap, etc.).
             has_been_json_encoded: Whether data is already JSON decoded.
@@ -60,8 +58,7 @@ class OkxPriceLimitData:
     def init_data(self) -> OkxPriceLimitData:
         """Initialize and parse price limit data.
 
-        Returns:
-            Self for method chaining.
+        Returns: Self for method chaining.
         """
         if not self.has_been_json_encoded:
             if isinstance(self.price_limit_info, str):
@@ -95,8 +92,7 @@ class OkxPriceLimitData:
     def get_all_data(self) -> dict[str, Any]:
         """Get all price limit data as dictionary.
 
-        Returns:
-            Dictionary containing all price limit fields.
+        Returns: Dictionary containing all price limit fields.
         """
         if self.all_data is None:
             self.all_data = {
@@ -114,80 +110,70 @@ class OkxPriceLimitData:
     def get_event(self) -> str:
         """Get event type.
 
-        Returns:
-            Event type string.
+        Returns: Event type string.
         """
         return self.event
 
     def get_exchange_name(self) -> str:
         """Get exchange name.
 
-        Returns:
-            Exchange name string.
+        Returns: Exchange name string.
         """
         return self.exchange_name
 
     def get_local_update_time(self) -> float:
         """Get local update timestamp.
 
-        Returns:
-            Local update time as timestamp.
+        Returns: Local update time as timestamp.
         """
         return self.local_update_time
 
     def get_symbol_name(self) -> str:
         """Get symbol name.
 
-        Returns:
-            Symbol name string.
+        Returns: Symbol name string.
         """
         return self.symbol_name
 
     def get_asset_type(self) -> str:
         """Get asset type.
 
-        Returns:
-            Asset type string.
+        Returns: Asset type string.
         """
         return self.asset_type
 
     def get_server_time(self) -> float | None:
         """Get server timestamp.
 
-        Returns:
-            Server time as float, or None if not initialized.
+        Returns: Server time as float, or None if not initialized.
         """
         return self.server_time
 
     def get_price_limit_symbol_name(self) -> str | None:
         """Get price limit symbol name.
 
-        Returns:
-            Price limit symbol name, or None if not initialized.
+        Returns: Price limit symbol name, or None if not initialized.
         """
         return self.price_limit_symbol_name
 
     def get_buy_limit(self) -> float | None:
         """Get buy limit price.
 
-        Returns:
-            Buy limit price, or None if not initialized.
+        Returns: Buy limit price, or None if not initialized.
         """
         return self.buy_limit
 
     def get_sell_limit(self) -> float | None:
         """Get sell limit price.
 
-        Returns:
-            Sell limit price, or None if not initialized.
+        Returns: Sell limit price, or None if not initialized.
         """
         return self.sell_limit
 
     def __str__(self) -> str:
         """String representation.
 
-        Returns:
-            JSON string of all data.
+        Returns: JSON string of all data.
         """
         self.init_data()
         return json.dumps(self.get_all_data())
@@ -195,7 +181,6 @@ class OkxPriceLimitData:
     def __repr__(self) -> str:
         """Official string representation.
 
-        Returns:
-            Same as __str__.
+        Returns: Same as __str__.
         """
         return self.__str__()

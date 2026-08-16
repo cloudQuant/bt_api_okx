@@ -1,3 +1,4 @@
+"""Module-level docstring."""
 from __future__ import annotations
 
 from bt_api_okx.containers.orderbooks.okx_orderbook import OkxOrderBookData

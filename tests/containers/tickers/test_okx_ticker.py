@@ -1,3 +1,4 @@
+"""Module-level docstring."""
 from __future__ import annotations
 
 import pytest
@@ -7,6 +8,7 @@ from bt_api_okx.containers.tickers import OkxTickerData
 
 @pytest.mark.ticker
 def test_okx_ticker():
+    """test_okx_ticker function"""
     data = {
         "instType": "SWAP",
         "instId": "LTC-USD-200327",

@@ -1,3 +1,4 @@
+"""Module-level docstring."""
 from __future__ import annotations
 
 from typing import Any
@@ -14,7 +15,9 @@ from bt_api_base.logging_factory import get_logger
 
 
 class OkxRequestDataSwap(OkxRequestData):
+    """Class OkxRequestDataSwap"""
     def __init__(self, data_queue: Any, **kwargs: Any) -> None:
+        """__init__ method"""
         super().__init__(data_queue, **kwargs)
         self.asset_type = kwargs.get("asset_type", "SWAP")
         self.logger_name = kwargs.get("logger_name", "okx_swap_feed.log")
@@ -24,24 +27,32 @@ class OkxRequestDataSwap(OkxRequestData):
 
 
 class OkxAccountWssDataSwap(OkxAccountWssData):
+    """Class OkxAccountWssDataSwap"""
     def __init__(self, data_queue: Any, **kwargs: Any) -> None:
+        """__init__ method"""
         super().__init__(data_queue, **kwargs)
         self.asset_type = kwargs.get("asset_type", "SWAP")
 
 
 class OkxMarketWssDataSwap(OkxMarketWssData):
+    """Class OkxMarketWssDataSwap"""
     def __init__(self, data_queue: Any, **kwargs: Any) -> None:
+        """__init__ method"""
         super().__init__(data_queue, **kwargs)
         self.asset_type = kwargs.get("asset_type", "SWAP")
 
 
 class OkxKlineWssDataSwap(OkxKlineWssData):
+    """Class OkxKlineWssDataSwap"""
     def __init__(self, data_queue: Any, **kwargs: Any) -> None:
+        """__init__ method"""
         super().__init__(data_queue, **kwargs)
         self.asset_type = kwargs.get("asset_type", "SWAP")
 
 
 class OkxWssDataSwap(OkxWssData):
+    """Class OkxWssDataSwap"""
     def __init__(self, data_queue: Any, **kwargs: Any) -> None:
+        """__init__ method"""
         super().__init__(data_queue, **kwargs)
         self.asset_type = kwargs.get("asset_type", "SWAP")

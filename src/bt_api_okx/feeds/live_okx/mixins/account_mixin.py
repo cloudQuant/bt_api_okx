@@ -88,6 +88,7 @@ class AccountMixin:
     def get_account(
         self, symbol: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> Any:
+        """get_account method"""
         path, params, extra_data = self._get_account(symbol, extra_data, **kwargs)
         data = self.request(path, params=params, extra_data=extra_data)
         return data
@@ -95,11 +96,13 @@ class AccountMixin:
     def get_balance(
         self, symbol: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> Any:
+        """get_balance method"""
         return self.get_account(symbol, extra_data, **kwargs)
 
     def async_get_account(
         self, symbol: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> None:
+        """async_get_account method"""
         path, params, extra_data = self._get_account(symbol, extra_data, **kwargs)
         self.submit(
             self.async_request(path, extra_data=extra_data),
@@ -107,6 +110,7 @@ class AccountMixin:
         )
 
     def async_get_balance(self, extra_data: Any = None, **kwargs: Any) -> None:
+        """async_get_balance method"""
         path = self._params.get_rest_path("get_balance_assert")
         self.submit(
             self.async_request(path, extra_data=extra_data),
@@ -114,6 +118,7 @@ class AccountMixin:
         )
 
     def async_sub_account(self, extra_data: Any = None) -> None:
+        """async_sub_account method"""
         path = self._params.get_rest_path("sub_account")
         params = {"subAcct": "xxx"}
         self.submit(
@@ -171,6 +176,7 @@ class AccountMixin:
         return target_data, status
 
     def get_position(self, symbol: Any, extra_data: Any = None, **kwargs: Any) -> Any:
+        """get_position method"""
         path, params, extra_data = self._get_position(symbol, extra_data, **kwargs)
         data = self.request(path, params=params, extra_data=extra_data)
         return data
@@ -178,6 +184,7 @@ class AccountMixin:
     def async_get_position(
         self, symbol: Any, extra_data: Any = None, **kwargs: Any
     ) -> None:
+        """async_get_position method"""
         path, params, extra_data = self._get_position(symbol, extra_data, **kwargs)
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
@@ -372,11 +379,13 @@ class AccountMixin:
         return data, status
 
     def get_config(self, extra_data: Any = None) -> Any:
+        """get_config method"""
         path, params, extra_data = self._get_config(extra_data=extra_data)
         data = self.request(path, params=params, extra_data=extra_data)
         return data
 
     def async_get_config(self, extra_data: Any = None) -> None:
+        """async_get_config method"""
         path, params, extra_data = self._get_config(extra_data=extra_data)
         self.submit(
             self.async_request(path, extra_data=extra_data),
@@ -384,12 +393,14 @@ class AccountMixin:
         )
 
     def set_mode(self) -> Any:
+        """set_mode method"""
         params = {"posMode": "long_short_mode"}
         path = self._params.get_rest_path("set_mode")
         data = self.request(path, body=params)
         return data
 
     def set_lever(self, symbol: Any, lever: Any = 10, mgn_mode: Any = "cross") -> Any:
+        """set_lever method"""
         symbol = self._params.get_symbol(symbol)
         params = {"instId": symbol, "lever": lever, "mgnMode": mgn_mode}
         path = self._params.get_rest_path("set_lever")
@@ -403,6 +414,7 @@ class AccountMixin:
         mgn_mode: Any = "cross",
         extra_data: Any = None,
     ) -> None:
+        """async_set_lever method"""
         symbol = self._params.get_symbol(symbol)
         params = {"instId": symbol, "lever": lever, "mgnMode": mgn_mode}
         path = self._params.get_rest_path("set_lever")

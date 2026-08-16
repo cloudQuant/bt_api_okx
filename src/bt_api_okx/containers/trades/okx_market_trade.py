@@ -21,6 +21,7 @@ class OkxMarketTradeData(TradeData):
     def __init__(
         self, trade_info, symbol_name, asset_type, has_been_json_encoded=False
     ):
+        """__init__ method"""
         super().__init__(trade_info, has_been_json_encoded)
         self.exchange_name = "OKX"
         self.local_update_time = time.time()
@@ -30,6 +31,7 @@ class OkxMarketTradeData(TradeData):
         self.has_been_init_data = False
 
     def init_data(self):
+        """init_data method"""
         if not self.has_been_json_encoded:
             self.trade_data = json.loads(self.trade_info)
             self.has_been_json_encoded = True
@@ -68,6 +70,7 @@ class OkxMarketTradeData(TradeData):
         return self
 
     def get_all_data(self):
+        """get_all_data method"""
         if self.all_data is None:
             self.all_data = {
                 "exchange_name": self.exchange_name,
@@ -88,54 +91,71 @@ class OkxMarketTradeData(TradeData):
         return self.all_data
 
     def get_exchange_name(self):
+        """get_exchange_name method"""
         return self.exchange_name
 
     def get_asset_type(self):
+        """get_asset_type method"""
         return self.asset_type
 
     def get_server_time(self):
+        """get_server_time method"""
         return self.server_time
 
     def get_local_update_time(self):
+        """get_local_update_time method"""
         return self.local_update_time
 
     def get_trade_id(self):
+        """get_trade_id method"""
         return self.trade_id
 
     def get_trade_symbol_name(self):
+        """get_trade_symbol_name method"""
         return self.trade_symbol_name
 
     def get_order_id(self):
+        """get_order_id method"""
         return self.order_id
 
     def get_client_order_id(self):
+        """get_client_order_id method"""
         return self.client_order_id
 
     def get_trade_side(self):
+        """get_trade_side method"""
         return self.trade_side
 
     def get_trade_offset(self):
+        """get_trade_offset method"""
         return None
 
     def get_trade_price(self):
+        """get_trade_price method"""
         return self.trade_price
 
     def get_trade_volume(self):
+        """get_trade_volume method"""
         return self.trade_volume
 
     def get_trade_accumulate_volume(self):
+        """get_trade_accumulate_volume method"""
         return self.trade_accumulate_volume
 
     def get_trade_type(self):
+        """get_trade_type method"""
         return self.trade_type
 
     def get_trade_time(self):
+        """get_trade_time method"""
         return self.trade_time
 
     def get_trade_fee(self):
+        """get_trade_fee method"""
         return self.trade_fee
 
     def get_trade_fee_symbol(self):
+        """get_trade_fee_symbol method"""
         return self.trade_fee_symbol
 
     def __str__(self):

@@ -19,6 +19,7 @@ class OkxOpenInterestData:
     def __init__(
         self, open_interest_info, symbol_name, asset_type, has_been_json_encoded=False
     ):
+        """__init__ method"""
         self.event = "OpenInterestEvent"
         self.open_interest_info = open_interest_info
         self.has_been_json_encoded = has_been_json_encoded
@@ -37,6 +38,7 @@ class OkxOpenInterestData:
         self.all_data = None
 
     def init_data(self):
+        """init_data method"""
         if not self.has_been_json_encoded:
             self.open_interest_data = json.loads(self.open_interest_info)
             self.has_been_json_encoded = True
@@ -55,6 +57,7 @@ class OkxOpenInterestData:
         return self
 
     def get_all_data(self):
+        """get_all_data method"""
         if self.all_data is None:
             self.all_data = {
                 "exchange_name": self.exchange_name,
@@ -69,30 +72,39 @@ class OkxOpenInterestData:
         return self.all_data
 
     def get_event(self):
+        """get_event method"""
         return self.event
 
     def get_exchange_name(self):
+        """get_exchange_name method"""
         return self.exchange_name
 
     def get_local_update_time(self):
+        """get_local_update_time method"""
         return self.local_update_time
 
     def get_symbol_name(self):
+        """get_symbol_name method"""
         return self.symbol_name
 
     def get_asset_type(self):
+        """get_asset_type method"""
         return self.asset_type
 
     def get_server_time(self):
+        """get_server_time method"""
         return self.server_time
 
     def get_open_interest_symbol_name(self):
+        """get_open_interest_symbol_name method"""
         return self.open_interest_symbol_name
 
     def get_open_interest(self):
+        """get_open_interest method"""
         return self.open_interest
 
     def get_open_interest_ccy(self):
+        """get_open_interest_ccy method"""
         return self.open_interest_ccy
 
     def __str__(self):

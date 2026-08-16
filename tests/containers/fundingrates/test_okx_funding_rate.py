@@ -1,3 +1,4 @@
+"""Module-level docstring."""
 from __future__ import annotations
 
 import json
@@ -27,6 +28,7 @@ data = {
 
 
 def assert_value(bf):
+    """assert_value function"""
     assert bf.get_pre_funding_rate() is None
     assert bf.get_pre_funding_time() is None
     assert bf.get_next_funding_rate() == 0.0002061194322149
@@ -43,12 +45,14 @@ def assert_value(bf):
 
 
 def test_okx_req_funding_rate():
+    """test_okx_req_funding_rate function"""
     bf = OkxFundingRateData(data["data"][0], "BTC-USDT", "SWAP", True)
     bf.init_data()
     assert_value(bf)
 
 
 def test_okx_wss_funding_rate():
+    """test_okx_wss_funding_rate function"""
     bf = OkxFundingRateData(json.dumps(data), "BTC-USDT", "SWAP", False)
     bf.init_data()
     assert_value(bf)

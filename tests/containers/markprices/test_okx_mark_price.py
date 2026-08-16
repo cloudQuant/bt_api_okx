@@ -1,3 +1,4 @@
+"""Module-level docstring."""
 from __future__ import annotations
 
 import json
@@ -6,6 +7,7 @@ from bt_api_okx.containers.markprices.okx_mark_price import OkxMarkPriceData
 
 
 def test_okx_req_mark_price():
+    """test_okx_req_mark_price function"""
     data = {
         "code": "0",
         "msg": "",
@@ -33,6 +35,7 @@ def test_okx_req_mark_price():
 
 
 def test_okx_wss_mark_price():
+    """test_okx_wss_mark_price function"""
     data = {
         "arg": {"channel": "mark-price", "instId": "BTC-USDT"},
         "data": [

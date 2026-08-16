@@ -1,3 +1,4 @@
+"""Module-level docstring."""
 from __future__ import annotations
 
 import json
@@ -9,16 +10,17 @@ from bt_api_base.functions.utils import from_dict_get_float, from_dict_get_strin
 
 
 class OkxOrderBookData(OrderBookData):
-    """保存订单簿相关信息"""
+    """"""
 
     def __init__(
         self, order_book_info, symbol_name, asset_type, has_been_json_encoded=False
     ) -> None:
+        """__init__ method"""
         super().__init__(order_book_info, has_been_json_encoded)
-        self.exchange_name = "OKX"  # 交易所名称
-        self.local_update_time = time.time()  # 本地时间戳
+        self.exchange_name = "OKX"  # 
+        self.local_update_time = time.time()  # 
         self.symbol_name = symbol_name  # instrument name
-        self.asset_type = asset_type  # order_book的类型
+        self.asset_type = asset_type  # order_book
         self.order_book_data: dict[str, Any] | list[Any] | None = (
             order_book_info if has_been_json_encoded else None
         )
@@ -34,6 +36,7 @@ class OkxOrderBookData(OrderBookData):
         self.has_been_init_data = False
 
     def init_data(self) -> OkxOrderBookData:
+        """init_data method"""
         if not self.has_been_json_encoded:
             raw = self.order_book_info
             parsed = json.loads(raw) if isinstance(raw, str) else raw
@@ -60,6 +63,7 @@ class OkxOrderBookData(OrderBookData):
         return self
 
     def get_all_data(self) -> dict[str, Any]:
+        """get_all_data method"""
         if self.all_data is None:
             self.all_data = {
                 "exchange_name": self.exchange_name,
@@ -85,34 +89,45 @@ class OkxOrderBookData(OrderBookData):
         return self.__str__()
 
     def get_exchange_name(self):
+        """get_exchange_name method"""
         return self.exchange_name
 
     def get_local_update_time(self):
+        """get_local_update_time method"""
         return self.local_update_time
 
     def get_symbol_name(self):
+        """get_symbol_name method"""
         return self.symbol_name
 
     def get_asset_type(self):
+        """get_asset_type method"""
         return self.asset_type
 
     def get_server_time(self):
+        """get_server_time method"""
         return self.server_time
 
     def get_bid_price_list(self):
+        """get_bid_price_list method"""
         return self.bid_price_list
 
     def get_ask_price_list(self):
+        """get_ask_price_list method"""
         return self.ask_price_list
 
     def get_bid_volume_list(self):
+        """get_bid_volume_list method"""
         return self.bid_volume_list
 
     def get_ask_volume_list(self):
+        """get_ask_volume_list method"""
         return self.ask_volume_list
 
     def get_bid_trade_nums(self):
+        """get_bid_trade_nums method"""
         return self.bid_trade_nums
 
     def get_ask_trade_nums(self):
+        """get_ask_trade_nums method"""
         return self.ask_trade_nums

@@ -73,6 +73,7 @@ class MarketDataMixin:
         return target_data, status
 
     def get_tick(self, symbol: Any, extra_data: Any = None, **kwargs: Any) -> Any:
+        """get_tick method"""
         path, params, extra_data = self._get_tick(symbol, extra_data, **kwargs)
         data = self.request(path, params=params, extra_data=extra_data)
         return data
@@ -80,6 +81,7 @@ class MarketDataMixin:
     def async_get_tick(
         self, symbol: Any, extra_data: Any = None, **kwargs: Any
     ) -> None:
+        """async_get_tick method"""
         path, params, extra_data = self._get_tick(symbol, extra_data, **kwargs)
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
@@ -129,6 +131,7 @@ class MarketDataMixin:
     def get_depth(
         self, symbol: Any, size: Any = 20, extra_data: Any = None, **kwargs: Any
     ) -> Any:
+        """get_depth method"""
         path, params, extra_data = self._get_depth(symbol, size, extra_data, **kwargs)
         data = self.request(path, params=params, extra_data=extra_data)
         return data
@@ -136,6 +139,7 @@ class MarketDataMixin:
     def async_get_depth(
         self, symbol: Any, size: Any = 20, extra_data: Any = None, **kwargs: Any
     ) -> None:
+        """async_get_depth method"""
         path, params, extra_data = self._get_depth(symbol, size, extra_data, **kwargs)
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
@@ -207,6 +211,7 @@ class MarketDataMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> Any:
+        """get_kline method"""
         path, params, extra_data = self._get_kline(
             symbol, period, count, start_time, end_time, extra_data, **kwargs
         )
@@ -224,6 +229,7 @@ class MarketDataMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> None:
+        """async_get_kline method"""
         path, params, extra_data = self._get_kline(
             symbol, period, count, before, after, extra_data, **kwargs
         )
@@ -279,6 +285,7 @@ class MarketDataMixin:
     def get_funding_rate(
         self, symbol: Any, extra_data: Any = None, **kwargs: Any
     ) -> Any:
+        """get_funding_rate method"""
         path, params, extra_data = self._get_funding_rate(symbol, extra_data, **kwargs)
         data = self.request(path, params=params, extra_data=extra_data)
         return data
@@ -286,6 +293,7 @@ class MarketDataMixin:
     def async_get_funding_rate(
         self, symbol: Any, extra_data: Any = None, **kwargs: Any
     ) -> None:
+        """async_get_funding_rate method"""
         path, params, extra_data = self._get_funding_rate(symbol, extra_data, **kwargs)
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
@@ -357,6 +365,7 @@ class MarketDataMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> Any:
+        """get_funding_rate_history method"""
         path, params, extra_data = self._get_funding_rate_history(
             symbol, before, after, limit, extra_data, **kwargs
         )
@@ -422,6 +431,7 @@ class MarketDataMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> Any:
+        """get_instruments method"""
         path, params, extra_data = self._get_instruments(
             asset_type, underlying, inst_family, inst_id, extra_data, **kwargs
         )
@@ -471,6 +481,7 @@ class MarketDataMixin:
         return target_data, status
 
     def get_mark_price(self, symbol: Any, extra_data: Any = None, **kwargs: Any) -> Any:
+        """get_mark_price method"""
         path, params, extra_data = self._get_mark_price(symbol, extra_data, **kwargs)
         data = self.request(path, params=params, extra_data=extra_data)
         return data
@@ -478,6 +489,7 @@ class MarketDataMixin:
     def async_get_mark_price(
         self, symbol: Any, extra_data: Any = None, **kwargs: Any
     ) -> None:
+        """async_get_mark_price method"""
         path, params, extra_data = self._get_mark_price(symbol, extra_data, **kwargs)
         self.submit(
             self.async_request(path, params=params, extra_data=extra_data),
@@ -526,6 +538,7 @@ class MarketDataMixin:
         extra_data: Any = None,
         **kwargs: Any,
     ) -> Any:
+        """get_open_interest method"""
         path, params, extra_data = self._get_open_interest(
             inst_type, uly, inst_family, inst_id, extra_data, **kwargs
         )

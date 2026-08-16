@@ -35,6 +35,7 @@ class OkxAccountGreeksData(GreeksData):
     def __init__(
         self, greeks_info, symbol_name, asset_type, has_been_json_encoded=False
     ):
+        """__init__ method"""
         super().__init__(greeks_info, has_been_json_encoded)
         self.exchange_name = "OKX"
         self.symbol_name = symbol_name or "ANY"
@@ -55,6 +56,7 @@ class OkxAccountGreeksData(GreeksData):
         self.has_been_init_data = False
 
     def init_data(self):
+        """init_data method"""
         if not self.has_been_json_encoded:
             self.greeks_data = json.loads(self.greeks_info)
             self.has_been_json_encoded = True
@@ -75,20 +77,25 @@ class OkxAccountGreeksData(GreeksData):
         return self
 
     def get_exchange_name(self):
+        """get_exchange_name method"""
         return self.exchange_name
 
     def get_asset_type(self):
+        """get_asset_type method"""
         return self.asset_type
 
     def get_symbol_name(self):
+        """get_symbol_name method"""
         return self.symbol_name
 
     def get_server_time(self):
+        """get_server_time method"""
         if not self.has_been_init_data:
             self.init_data()
         return self.server_time
 
     def get_local_update_time(self):
+        """get_local_update_time method"""
         return self.local_update_time
 
     def get_pa_delta(self):
@@ -146,6 +153,7 @@ class OkxAccountGreeksData(GreeksData):
         return self.update_time
 
     def get_all_data(self):
+        """get_all_data method"""
         if not self.has_been_init_data:
             self.init_data()
         if self.all_data is None:

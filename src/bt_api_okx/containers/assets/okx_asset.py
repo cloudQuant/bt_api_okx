@@ -18,6 +18,7 @@ class OkxCurrencyData:
     """Container for currency information from OKX."""
 
     def __init__(self, currency_info, has_been_json_encoded=False):
+        """__init__ method"""
         super().__init__()
         self.currency_info = currency_info if has_been_json_encoded else None
         self.raw_data = currency_info
@@ -35,6 +36,7 @@ class OkxCurrencyData:
         self.can_internal = None  # Can internal transfer
 
     def init_data(self):
+        """init_data method"""
         if self.has_been_init_data:
             return self
 
@@ -114,6 +116,7 @@ class OkxAssetBalanceData:
     """Container for asset balance information from OKX."""
 
     def __init__(self, balance_info, has_been_json_encoded=False):
+        """__init__ method"""
         super().__init__()
         self.balance_info = balance_info if has_been_json_encoded else None
         self.raw_data = balance_info
@@ -128,6 +131,7 @@ class OkxAssetBalanceData:
         self.frozen_balance = None  # Frozen balance
 
     def init_data(self):
+        """init_data method"""
         if self.has_been_init_data:
             return self
 
@@ -187,6 +191,7 @@ class OkxAssetValuationData:
     """Container for asset valuation information from OKX."""
 
     def __init__(self, valuation_info, has_been_json_encoded=False):
+        """__init__ method"""
         super().__init__()
         self.valuation_info = valuation_info if has_been_json_encoded else None
         self.raw_data = valuation_info
@@ -201,6 +206,7 @@ class OkxAssetValuationData:
         self.timestamp = None  # Timestamp
 
     def init_data(self):
+        """init_data method"""
         if self.has_been_init_data:
             return self
 
@@ -260,6 +266,7 @@ class OkxTransferStateData:
     """Container for transfer state information from OKX."""
 
     def __init__(self, transfer_info, has_been_json_encoded=False):
+        """__init__ method"""
         super().__init__()
         self.transfer_info = transfer_info if has_been_json_encoded else None
         self.raw_data = transfer_info
@@ -277,6 +284,7 @@ class OkxTransferStateData:
         self.timestamp = None  # Timestamp
 
     def init_data(self):
+        """init_data method"""
         if self.has_been_init_data:
             return self
 
@@ -360,6 +368,7 @@ class OkxDepositInfoData:
         asset_type="SWAP",
         has_been_json_encoded=False,
     ):
+        """__init__ method"""
         super().__init__()
         self.deposit_info = deposit_info if has_been_json_encoded else None
         self.raw_data = deposit_info
@@ -381,6 +390,7 @@ class OkxDepositInfoData:
         self.tx_id = None  # Transaction ID
 
     def init_data(self):
+        """init_data method"""
         if self.has_been_init_data:
             return self
 
@@ -405,12 +415,15 @@ class OkxDepositInfoData:
         return self
 
     def get_exchange_name(self):
+        """get_exchange_name method"""
         return self.exchange_name
 
     def get_symbol_name(self):
+        """get_symbol_name method"""
         return self.symbol_name
 
     def get_asset_type(self):
+        """get_asset_type method"""
         return self.asset_type
 
     def get_currency(self):
@@ -482,6 +495,7 @@ class OkxWithdrawalInfoData:
         asset_type="SWAP",
         has_been_json_encoded=False,
     ):
+        """__init__ method"""
         super().__init__()
         self.withdrawal_info = withdrawal_info if has_been_json_encoded else None
         self.raw_data = withdrawal_info
@@ -503,6 +517,7 @@ class OkxWithdrawalInfoData:
         self.tx_id = None  # Transaction ID
 
     def init_data(self):
+        """init_data method"""
         if self.has_been_init_data:
             return self
 
@@ -527,12 +542,15 @@ class OkxWithdrawalInfoData:
         return self
 
     def get_exchange_name(self):
+        """get_exchange_name method"""
         return self.exchange_name
 
     def get_symbol_name(self):
+        """get_symbol_name method"""
         return self.symbol_name
 
     def get_asset_type(self):
+        """get_asset_type method"""
         return self.asset_type
 
     def get_currency(self):

@@ -28,8 +28,7 @@ class StatusMixin:
         self, state: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
         """Get system status (maintenance, degraded, etc.)
-        Args:
-            state: Status type. "scheduled" for maintenance announcements. Default is empty for current system status.
+        Args: state: Status type. "scheduled" for maintenance announcements. Default is empty for current system status.
             extra_data: extra_data, default is None, can be a dict passed by user
             kwargs: pass key-worded, variable-length arguments.
         """
@@ -68,8 +67,7 @@ class StatusMixin:
         self, state: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> Any:
         """Get system status
-        Args:
-            state: Status type. "scheduled" for maintenance announcements. Default is empty for current system status.
+        Args: state: Status type. "scheduled" for maintenance announcements. Default is empty for current system status.
             extra_data: extra_data, default is None, can be a dict passed by user
         """
         path, params, extra_data = self._get_system_status(state, extra_data, **kwargs)
@@ -80,8 +78,7 @@ class StatusMixin:
         self, state: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async get system status
-        Args:
-            state: Status type. "scheduled" for maintenance announcements. Default is empty for current system status.
+        Args: state: Status type. "scheduled" for maintenance announcements. Default is empty for current system status.
             extra_data: extra_data, default is None, can be a dict passed by user
         """
         path, params, extra_data = self._get_system_status(state, extra_data, **kwargs)
@@ -99,8 +96,7 @@ class StatusMixin:
         **kwargs: Any,
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
         """Get announcements
-        Args:
-            announcement_type: Announcement type. Default is empty for all types.
+        Args: announcement_type: Announcement type. Default is empty for all types.
             page: Page number. Default is 1.
             limit: Number of results per page. Default is 10. Maximum is 100.
             extra_data: extra_data, default is None, can be a dict passed by user
@@ -153,8 +149,7 @@ class StatusMixin:
         **kwargs: Any,
     ) -> Any:
         """Get announcements
-        Args:
-            announcement_type: Announcement type. Default is empty for all types.
+        Args: announcement_type: Announcement type. Default is empty for all types.
             page: Page number. Default is 1.
             limit: Number of results per page. Default is 10. Maximum is 100.
             extra_data: extra_data, default is None, can be a dict passed by user
@@ -174,8 +169,7 @@ class StatusMixin:
         **kwargs: Any,
     ) -> None:
         """Async get announcements
-        Args:
-            announcement_type: Announcement type. Default is empty for all types.
+        Args: announcement_type: Announcement type. Default is empty for all types.
             page: Page number. Default is 1.
             limit: Number of results per page. Default is 10. Maximum is 100.
             extra_data: extra_data, default is None, can be a dict passed by user
@@ -192,8 +186,7 @@ class StatusMixin:
         self, extra_data: Any = None, **kwargs: Any
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
         """Get announcement types
-        Args:
-            extra_data: extra_data, default is None, can be a dict passed by user
+        Args: extra_data: extra_data, default is None, can be a dict passed by user
             kwargs: pass key-worded, variable-length arguments.
         """
         request_type = "get_announcement_types"
@@ -230,8 +223,7 @@ class StatusMixin:
 
     def get_announcement_types(self, extra_data: Any = None, **kwargs: Any) -> Any:
         """Get announcement types
-        Args:
-            extra_data: extra_data, default is None, can be a dict passed by user
+        Args: extra_data: extra_data, default is None, can be a dict passed by user
         """
         path, params, extra_data = self._get_announcement_types(extra_data, **kwargs)
         data = self.request(path, params=params, extra_data=extra_data)
@@ -241,8 +233,7 @@ class StatusMixin:
         self, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async get announcement types
-        Args:
-            extra_data: extra_data, default is None, can be a dict passed by user
+        Args: extra_data: extra_data, default is None, can be a dict passed by user
         """
         path, params, extra_data = self._get_announcement_types(extra_data, **kwargs)
         self.submit(

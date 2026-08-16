@@ -1,3 +1,4 @@
+"""Module-level docstring."""
 from unittest.mock import AsyncMock
 import pytest
 from bt_api_base.containers.requestdatas.request_data import RequestData
@@ -5,6 +6,7 @@ from bt_api_okx.feeds.live_okx.request_base import OkxRequestData
 
 
 def test_okx_defaults_exchange_name() -> None:
+    """test_okx_defaults_exchange_name function"""
     request_data = OkxRequestData(
         None,
         public_key="public-key",
@@ -16,6 +18,7 @@ def test_okx_defaults_exchange_name() -> None:
 
 
 def test_okx_request_allows_missing_extra_data(monkeypatch) -> None:
+    """test_okx_request_allows_missing_extra_data function"""
     request_data = OkxRequestData(
         None,
         public_key="public-key",
@@ -38,6 +41,7 @@ def test_okx_request_allows_missing_extra_data(monkeypatch) -> None:
 
 
 def test_okx_accepts_api_key_and_api_secret_aliases() -> None:
+    """test_okx_accepts_api_key_and_api_secret_aliases function"""
     request_data = OkxRequestData(
         None,
         api_key="public-key",

@@ -1,9 +1,11 @@
+"""Module-level docstring."""
 from __future__ import annotations
 
 from bt_api_okx.containers.trades.okx_trade import OkxRequestTradeData, OkxWssTradeData
 
 
 def test_okx_req_order():
+    """test_okx_req_order function"""
     data = {
         "code": "0",
         "msg": "",
@@ -82,6 +84,7 @@ def test_okx_req_order():
 
 
 def test_okx_wss_trade():
+    """test_okx_wss_trade function"""
     data = {
         "arg": {
             "channel": "orders",
