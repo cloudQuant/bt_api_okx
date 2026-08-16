@@ -43,23 +43,46 @@ class TradeMixin:
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
         request_symbol = self._params.get_symbol(symbol)
         request_type = "make_order"
-        try:
-            vol = round(vol * self._params.symbol_leverage_dict[symbol])
-        except Exception as e:
-            self.request_logger.warning(f"_make_order:{e}")
+        if not kwargs.get("size_in_contracts") and not kwargs.get("skip_size_conversion"):
+            try:
+                vol = round(vol * self._params.symbol_leverage_dict[symbol])
+            except Exception as e:
+                self.request_logger.warning(f"_make_order:{e}")
         side, ord_type = order_type.split("-")
         if post_only:
             ord_type = "post_only"
+        asset_type = str(getattr(self, "asset_type", "") or "").strip().upper()
+        td_mode = kwargs.get("td_mode") or kwargs.get("tdMode")
+        if not td_mode:
+            td_mode = "cash" if asset_type in {"SPOT"} else "cross"
         params = {
             "instId": request_symbol,
-            "tdMode": "cross",
-            "ccy": "USDT",
-            "clOrdId": client_order_id,
+            "tdMode": td_mode,
             "side": side,
             "ordType": ord_type,
-            "px": str(price),
             "sz": str(vol),
         }
+        ccy = kwargs.get("ccy")
+        if ccy not in (None, ""):
+            params["ccy"] = ccy
+        if client_order_id is not None:
+            params["clOrdId"] = client_order_id
+        if ord_type != "market" and price not in (None, ""):
+            params["px"] = str(price)
+        if asset_type == "SPOT" and ord_type == "market":
+            params["tgtCcy"] = kwargs.get("tgt_ccy") or kwargs.get("tgtCcy") or "base_ccy"
+        for param_key, aliases in {
+            "posSide": ("posSide", "pos_side", "position_side", "positionSide"),
+            "reduceOnly": ("reduceOnly", "reduce_only"),
+            "tgtCcy": ("tgtCcy", "tgt_ccy"),
+            "tag": ("tag",),
+        }.items():
+            for alias in aliases:
+                value = kwargs.get(alias)
+                if value in (None, ""):
+                    continue
+                params[param_key] = str(value).lower() if isinstance(value, bool) else str(value)
+                break
         path = self._params.get_rest_path(request_type)
         path = path.replace("<instrument_id>", request_symbol)
         extra_data = update_extra_data(

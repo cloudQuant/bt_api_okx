@@ -25,16 +25,29 @@ class OkxPositionData(PositionData):
         self.margin_type = None
         self.is_isolated = None
         self.leverage = None
+        self.position_id = None
         self.position_symbol_name = None
         self.position_volume = None
         self.position_side = None
         self.avg_price = None
         self.mark_price = None
+        self.index_price = None
+        self.last_price = None
+        self.break_even_price = None
+        self.liquidation_price = None
+        self.position_margin = None
+        self.position_notional_usd = None
         self.initial_margin = None
         self.maintain_margin = None
+        self.position_initial_margin = None
+        self.open_order_initial_margin_value = None
         self.position_fee = None
         self.position_realized_pnl = None
         self.position_unrealized_pnl = None
+        self.position_pnl = None
+        self.unrealized_pnl_last_price = None
+        self.unrealized_pnl_ratio = None
+        self.unrealized_pnl_ratio_last_price = None
         self.position_funding_value = None
         self.all_data = None
         self.has_been_init_data = False
@@ -42,7 +55,11 @@ class OkxPositionData(PositionData):
     def init_data(self):
         """init_data method"""
         if not self.has_been_json_encoded:
-            self.position_data = json.loads(self.position_info)["data"]
+            payload = json.loads(self.position_info)
+            data = payload.get("data") if isinstance(payload, dict) else payload
+            if isinstance(data, list):
+                data = data[0] if data else {}
+            self.position_data = data if isinstance(data, dict) else {}
             self.has_been_json_encoded = True
         if self.has_been_init_data:
             return self
@@ -50,18 +67,33 @@ class OkxPositionData(PositionData):
         self.margin_type = from_dict_get_string(self.position_data, "mgnMode")
         self.is_isolated = self.margin_type == "isolated"
         self.leverage = from_dict_get_float(self.position_data, "lever")
+        self.position_id = from_dict_get_string(self.position_data, "posId")
         self.position_symbol_name = from_dict_get_string(self.position_data, "instId")
         self.position_volume = from_dict_get_float(self.position_data, "pos")
         self.position_side = from_dict_get_string(self.position_data, "posSide")
         self.avg_price = from_dict_get_float(self.position_data, "avgPx")
         self.mark_price = from_dict_get_float(self.position_data, "markPx")
+        self.index_price = from_dict_get_float(self.position_data, "idxPx")
+        self.last_price = from_dict_get_float(self.position_data, "last")
+        self.break_even_price = from_dict_get_float(self.position_data, "bePx")
+        self.liquidation_price = from_dict_get_float(self.position_data, "liqPx")
+        self.position_margin = from_dict_get_float(self.position_data, "margin")
+        self.position_notional_usd = from_dict_get_float(self.position_data, "notionalUsd")
         self.initial_margin = from_dict_get_float(self.position_data, "imr")
         self.maintain_margin = from_dict_get_float(self.position_data, "mmr")
+        self.position_initial_margin = self.initial_margin
+        self.open_order_initial_margin_value = from_dict_get_float(self.position_data, "ordFrozen")
         self.position_fee = from_dict_get_float(self.position_data, "fee")
         self.position_realized_pnl = from_dict_get_float(
             self.position_data, "realizedPnl"
         )
         self.position_unrealized_pnl = from_dict_get_float(self.position_data, "upl")
+        self.position_pnl = from_dict_get_float(self.position_data, "pnl")
+        self.unrealized_pnl_last_price = from_dict_get_float(self.position_data, "uplLastPx")
+        self.unrealized_pnl_ratio = from_dict_get_float(self.position_data, "uplRatio")
+        self.unrealized_pnl_ratio_last_price = from_dict_get_float(
+            self.position_data, "uplRatioLastPx"
+        )
         self.position_funding_value = from_dict_get_float(
             self.position_data, "fundingFee"
         )
@@ -72,6 +104,7 @@ class OkxPositionData(PositionData):
         """get_all_data method"""
         if self.all_data is None:
             self.all_data = {
+                "exchange_name": self.exchange_name,
                 "exchange_nae": self.exchange_name,
                 "symbol_name": self.symbol_name,
                 "asset_type": self.asset_type,
@@ -80,16 +113,36 @@ class OkxPositionData(PositionData):
                 "margin_type": self.margin_type,
                 "is_isolated": self.is_isolated,
                 "leverage": self.leverage,
+                "position_id": self.position_id,
                 "position_symbol_name": self.position_symbol_name,
                 "position_volume": self.position_volume,
                 "position_side": self.position_side,
                 "avg_price": self.avg_price,
                 "mark_price": self.mark_price,
+                "index_price": self.index_price,
+                "last_price": self.last_price,
+                "break_even_price": self.break_even_price,
+                "liquidation_price": self.liquidation_price,
+                "position_margin": self.position_margin,
+                "margin": self.position_margin,
+                "position_notional_usd": self.position_notional_usd,
+                "notionalUsd": self.position_notional_usd,
+                "market_value": self.position_notional_usd,
                 "initial_margin": self.initial_margin,
                 "maintain_margin": self.maintain_margin,
+                "position_initial_margin": self.position_initial_margin,
+                "open_order_initial_margin": self.open_order_initial_margin_value,
                 "position_fee": self.position_fee,
                 "position_realized_pnl": self.position_realized_pnl,
                 "position_unrealized_pnl": self.position_unrealized_pnl,
+                "position_pnl": self.position_pnl,
+                "pnl": self.position_pnl,
+                "unrealized_pnl_last_price": self.unrealized_pnl_last_price,
+                "uplLastPx": self.unrealized_pnl_last_price,
+                "unrealized_pnl_ratio": self.unrealized_pnl_ratio,
+                "uplRatio": self.unrealized_pnl_ratio,
+                "unrealized_pnl_ratio_last_price": self.unrealized_pnl_ratio_last_price,
+                "uplRatioLastPx": self.unrealized_pnl_ratio_last_price,
                 "position_funding_value": self.position_funding_value,
             }
         return self.all_data
@@ -115,8 +168,10 @@ class OkxPositionData(PositionData):
         return
 
     def get_position_id(self):
-        """# id"""
-        return
+
+        """# 持仓id"""
+        return self.position_id
+
 
     def get_is_isolated(self):
         """# """
@@ -163,8 +218,10 @@ class OkxPositionData(PositionData):
         return self.mark_price
 
     def get_liquidation_price(self):
-        """# """
-        return
+
+        """# 清算价格"""
+        return self.liquidation_price
+
 
     def get_initial_margin(self):
         """# """
@@ -175,12 +232,14 @@ class OkxPositionData(PositionData):
         return self.maintain_margin
 
     def open_order_initial_margin(self):
-        """# ()"""
-        return
+
+        """# 当前挂单所需起始保证金(基于最新标记价格)"""
+        return self.open_order_initial_margin_value
 
     def get_position_initial_margin(self):
-        """# ()"""
-        return
+        """# 持仓所需起始保证金(基于最新标记价格)"""
+        return self.position_initial_margin
+
 
     def get_position_fee(self):
         """# position"""

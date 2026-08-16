@@ -95,7 +95,7 @@ def test_okx_position():
     assert bo.get_server_time() == 1619507761462.0
     assert bo.get_exchange_name() == "OKX"
     assert bo.get_asset_type() == "PERPETUAL"
-    assert bo.get_position_id() is None
+    assert bo.get_position_id() == "307173036051017730"
     assert bo.get_account_id() is None
     assert bo.get_is_isolated() is True
     assert bo.get_margin_type() == "isolated"
@@ -108,7 +108,7 @@ def test_okx_position():
     assert bo.get_trade_num() is None
     assert bo.get_avg_price() == 2566.31
     assert bo.get_mark_price() == 2353.849
-    assert bo.get_liquidation_price() is None
+    assert bo.get_liquidation_price() == 2352.8496681818233
     assert bo.get_initial_margin() is None
     assert bo.get_maintain_margin() == 0.0000311811092368
     assert bo.open_order_initial_margin() is None
@@ -117,6 +117,17 @@ def test_okx_position():
     assert bo.get_position_realized_pnl() == 0.001
     assert bo.get_position_unrealized_pnl() == -0.0000009932766034
     assert bo.get_position_funding_value() == 0.0
+    all_data = bo.get_all_data()
+    assert all_data["exchange_name"] == "OKX"
+    assert all_data["exchange_nae"] == "OKX"
+    assert all_data["position_id"] == "307173036051017730"
+    assert all_data["liquidation_price"] == 2352.8496681818233
+    assert all_data["position_notional_usd"] == 2276.2546609009605
+    assert all_data["notionalUsd"] == 2276.2546609009605
+    assert all_data["market_value"] == 2276.2546609009605
+    assert all_data["margin"] == 0.0003896645377994
+    assert all_data["pnl"] == 0.0011
+    assert all_data["uplRatio"] == -0.0025490556801078
 
 
 if __name__ == "__main__":
