@@ -12,6 +12,8 @@ import json
 import time
 from typing import Any
 
+from bt_api_okx.feeds.live_okx.request_base import _utc_now_iso8601
+
 from bt_api_okx.containers.accounts.okx_account import OkxAccountData
 from bt_api_okx.containers.assets.okx_asset import (
     OkxDepositInfoData,
@@ -83,7 +85,7 @@ class OkxWssData(MyWebsocketApp):
                 "Skipping auth (no credentials) — public channels only"
             )
             return
-        timestamp = str(round(time.time()))
+        timestamp = _utc_now_iso8601()
         sign_content = f"{timestamp}GET/users/self/verify"
         sign = self.sign(sign_content)
         auth = {

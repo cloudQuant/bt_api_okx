@@ -51,3 +51,27 @@ def test_okx_accepts_api_key_and_api_secret_aliases() -> None:
 
     assert request_data.public_key == "public-key"
     assert request_data.private_key == "secret-key"
+
+
+def test_okx_sign_golden_vector() -> None:
+    """OKX V5 签名黄金向量：Base64(HMAC-SHA256(timestamp+method+path+body, secret))。
+
+    复算命令：
+    python3 -c "import hmac,hashlib,base64; s='F0E1D2C3B4A5968778695A4B3C2D1E0F'; pre='2020-12-08T09:08:57.715ZGET/api/v5/account/balance'; print(base64.b64encode(hmac.new(s.encode(),pre.encode(),hashlib.sha256).digest()).decode())"
+    """
+    from bt_api_okx.feeds.live_okx.request_base import _sign
+
+    secret = "F0E1D2C3B4A5968778695A4B3C2D1E0F"
+    timestamp = "2020-12-08T09:08:57.715Z"
+    assert _sign(secret, timestamp, "GET", "/api/v5/account/balance", "") == (
+        "ymzav0cu8v4AhecjpRnt8sRQ8vOk/6+BT89eeU/sIjQ="
+    )
+
+
+def test_okx_timestamp_is_iso8601() -> None:
+    """OK-ACCESS-TIMESTAMP 必须是 ISO 8601 毫秒格式（非 epoch 浮点）。"""
+    import re
+
+    from bt_api_okx.feeds.live_okx.request_base import _utc_now_iso8601
+
+    assert re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z", _utc_now_iso8601())

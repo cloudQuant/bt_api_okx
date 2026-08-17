@@ -10,6 +10,7 @@ import base64
 import hmac
 import json
 import time
+from datetime import datetime, timezone
 from typing import Any
 from urllib import parse
 
@@ -39,6 +40,19 @@ from bt_api_base.rate_limiter import (
     RateLimitScope,
     RateLimitType,
 )
+
+
+def _utc_now_iso8601() -> str:
+    """按 OKX V5 规范生成 ISO 8601 毫秒时间戳(UTC)。"""
+    now = datetime.now(timezone.utc)
+    return now.strftime("%Y-%m-%dT%H:%M:%S.") + f"{now.microsecond // 1000:03d}" + "Z"
+
+
+def _sign(secret: str, timestamp: str, method: str, request_path: str, body: str) -> str:
+    """OKX V5 签名: Base64(HMAC-SHA256(timestamp+method+requestPath+body, secret))。"""
+    message = timestamp + method.upper() + request_path + body
+    mac = hmac.new(secret.encode("utf-8"), message.encode("utf-8"), digestmod="sha256")
+    return base64.b64encode(mac.digest()).decode()
 
 
 class OkxRequestData(
@@ -213,7 +227,7 @@ class OkxRequestData(
         url = f"{self._params.rest_url}{path}?{req}"  # ?{req}
         if params:
             path = f"{path}?{req}"
-        timestamp = round(time.time(), 3)
+        timestamp = _utc_now_iso8601()
         body_str = json.dumps(body, separators=(",", ":")) if body is not None else None
         signature_ = self.signature(
             timestamp,
@@ -247,7 +261,7 @@ class OkxRequestData(
         url = f"{self._params.rest_url}{path}?{req}"  # ?{req}
         if params:
             path = f"{path}?{req}"
-        timestamp = round(time.time(), 3)
+        timestamp = _utc_now_iso8601()
         body_str = json.dumps(body, separators=(",", ":")) if body is not None else None
         signature_ = self.signature(
             timestamp,
