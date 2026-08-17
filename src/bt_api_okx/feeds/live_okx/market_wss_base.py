@@ -106,9 +106,12 @@ class OkxWssData(MyWebsocketApp):
         self.wss_logger.info(
             f"===== {time.strftime('%Y-%m-%d %H:%M:%S')} {self._params.exchange_name} Websocket Connected ====="
         )
-        self.author()
-        time.sleep(0.3)
-        self._init()
+        if self._uses_private_wss() and self.public_key and self.private_key:
+            # 私有 WSS：先发 login，订阅推迟到 login 成功回执（避免固定 sleep 的时序脆弱）
+            self.author()
+        else:
+            # 公开 WSS 或无凭据：无需登录，直接订阅
+            self._init()
 
     def _init(self) -> None:
         for topics in self.topics:
@@ -1046,6 +1049,7 @@ class OkxWssData(MyWebsocketApp):
                     self.wss_logger.info(
                         f"===== {self._params.exchange_name} Data Websocket Connected ====="
                     )
+                    self._init()  # 登录成功后再订阅
                 else:
                     self.ws.restart()
             elif rsp["event"] == "subscribe":
