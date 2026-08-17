@@ -163,6 +163,12 @@ class OkxRequestData(
                 )
         return None
 
+    def _raise_if_error(self, raw_response: Any) -> None:
+        """API 响应含错误(code != "0")时抛出翻译后的 UnifiedError。"""
+        error = self.translate_error(raw_response)
+        if error is not None:
+            raise error
+
     def push_data_to_queue(self, data: Any) -> None:
         """push_data_to_queue method"""
         if self.data_queue is not None:
@@ -240,6 +246,7 @@ class OkxRequestData(
             self.public_key, signature_, timestamp, self.passphrase
         )
         res = self.http_request(method, url, headers, body, timeout)
+        self._raise_if_error(res)
         return RequestData(res, extra_data)
 
     async def async_request(
@@ -274,6 +281,7 @@ class OkxRequestData(
             self.public_key, signature_, timestamp, self.passphrase
         )
         res = await self.async_http_request(method, url, headers, body_str, timeout)
+        self._raise_if_error(res)
         return RequestData(res, extra_data)
 
     def async_callback(self, future: Any) -> None:

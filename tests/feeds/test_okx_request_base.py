@@ -75,3 +75,30 @@ def test_okx_timestamp_is_iso8601() -> None:
     from bt_api_okx.feeds.live_okx.request_base import _utc_now_iso8601
 
     assert re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z", _utc_now_iso8601())
+
+
+def _make_okx_request_data() -> OkxRequestData:
+    return OkxRequestData(None, public_key="pk", private_key="sk", passphrase="pp")
+
+
+def test_okx_error_response_raises_translated_error() -> None:
+    """API 错误(code != "0")必须翻译为 UnifiedError 并抛出。"""
+    from bt_api_base.error import UnifiedError
+
+    request_data = _make_okx_request_data()
+    with pytest.raises(UnifiedError):
+        request_data._raise_if_error({"code": "1", "msg": "Operation failed."})
+
+
+def test_okx_error_response_raises_rate_limit() -> None:
+    from bt_api_base.error import UnifiedError
+
+    request_data = _make_okx_request_data()
+    with pytest.raises(UnifiedError):
+        request_data._raise_if_error({"code": "50011", "msg": "Rate limit exceeded."})
+
+
+def test_okx_success_response_does_not_raise() -> None:
+    """成功响应(code == "0")不抛异常。"""
+    request_data = _make_okx_request_data()
+    request_data._raise_if_error({"code": "0", "data": []})
