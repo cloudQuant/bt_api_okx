@@ -20,3 +20,9 @@ okx = "bt_api_okx.plugin:register_plugin"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+markers = [
+    "kline: Kline/bar data tests",
+    "network: Tests requiring network access",
+]

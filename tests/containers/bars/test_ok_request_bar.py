@@ -11,6 +11,7 @@ from bt_api_okx.containers.bars import OkxBarData
 
 
 @pytest.mark.kline
+@pytest.mark.network
 def test_get_history_bar():
     """test_get_history_bar function"""
     url = (
