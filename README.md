@@ -29,6 +29,53 @@
 
 ## Features
 
+### Demo trading environment
+
+Configure demo trading explicitly through the public `BtApi` entry point:
+
+```python
+import os
+from bt_api_py import BtApi
+
+api = BtApi({"OKX___SWAP": {
+    "environment": "demo",
+    "api_key": os.environ["OKX_DEMO_API_KEY"],
+    "api_secret": os.environ["OKX_DEMO_API_SECRET"],
+    "passphrase": os.environ["OKX_DEMO_PASSPHRASE"],
+}})
+try:
+    instruments = api.get_exchange_info("OKX___SWAP", "BTC-USDT-SWAP")
+finally:
+    api.close()
+```
+
+`environment="demo"` sets `x-simulated-trading: 1` on synchronous and
+asynchronous REST requests, and selects `wspap.okx.com` for public, private,
+and business WebSockets. Omitting the environment preserves production defaults.
+Boolean `demo=True`, `simulated_trading=True`, or `testnet=True` are supported
+aliases; unknown or conflicting settings are rejected. Production WebSocket
+overrides are rejected when demo is selected. `rest_url` may select only an
+official OKX REST domain (`openapi`, `www`, `us`, `eea`, or `tr`); the demo
+header remains enabled.
+
+Create the API key within OKX's **Demo Trading API** account settings. Real
+account keys and demo keys are distinct. Public instruments, depth, and funding
+queries can run without keys. Set `subscribe_account=False` for market-only
+WebSocket subscriptions when credentials are present.
+
+The feed maps limit `time_in_force="IOC"`/`"FOK"` to the corresponding OKX
+order type and supports `reduce_only` and explicit `size_in_contracts=True`.
+Check current instrument `ctVal`, `ctMult`, `lotSz`, `minSz`, and `tickSz` before
+constructing orders. Mutating REST calls send once; an uncertain response must
+be reconciled using the client order ID before attempting another order.
+
+Offline routing/signature tests and public demo data queries have been checked.
+Authenticated order/fill acceptance requires the user's demo keys; public data
+success does not prove private trading or profitability.
+
+References: [OKX demo API documentation](https://www.okx.com/docs-v5/en/#overview-demo-trading-services),
+[WebSocket login specification](https://app.okx.com/docs-v5/en/#overview-websocket-login).
+
 ### 2 Asset Types
 
 | Asset Type | Code | REST | WebSocket | Description |

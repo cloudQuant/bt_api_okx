@@ -6,6 +6,7 @@ import datetime
 import json
 import time
 from typing import Any
+from pathlib import Path
 
 from bt_api_base.containers.exchanges.exchange_data import ExchangeData
 from bt_api_base.logging_factory import get_logger
@@ -28,7 +29,9 @@ def _get_okx_config() -> Any | None:
             load_exchange_config,
         )
 
-        config_path = get_exchange_config_path("okx.yaml")
+        config_path = Path(__file__).resolve().parents[1] / "configs" / "okx.yaml"
+        if not config_path.exists():
+            config_path = get_exchange_config_path("okx.yaml")
         if config_path.exists():
             _okx_config = load_exchange_config(str(config_path))
         _okx_config_loaded = True
@@ -49,7 +52,7 @@ class OkxExchangeData(ExchangeData):
         """."""
         super().__init__()
         self.exchange_name = "OkxSwap"
-        self.rest_url = "https://www.okx.com"
+        self.rest_url = "https://openapi.okx.com"
         self.account_wss_url = "wss://ws.okx.com:8443/ws/v5/private"
         self.wss_url = "wss://ws.okx.com:8443/ws/v5/public"
         self.kline_wss_url = "wss://ws.okx.com:8443/ws/v5/business"
@@ -185,7 +188,9 @@ class OkxExchangeData(ExchangeData):
             # print("symbol", symbol, "k = ", k, "v = ", v)
             req["args"][0][k] = req["args"][0][k].replace("<symbol>", symbol)
             parts = symbol.split("-")
-            currency = parts[1] if len(parts) > 1 and "USDT" in symbol else parts[0]
+            currency = kwargs.get("currency")
+            if not currency:
+                currency = parts[1] if len(parts) > 1 and "USDT" in symbol else parts[0]
             req["args"][0][k] = req["args"][0][k].replace("<currency>", currency)
             req["args"][0][k] = req["args"][0][k].replace(
                 "<period>", kwargs.get("period", "")

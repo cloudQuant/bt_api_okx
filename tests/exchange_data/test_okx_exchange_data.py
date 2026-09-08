@@ -15,7 +15,7 @@ class TestOkxExchangeData:
         exchange = OkxExchangeData()
 
         assert exchange.exchange_name == "OkxSwap"
-        assert exchange.rest_url == "https://www.okx.com"
+        assert exchange.rest_url == "https://openapi.okx.com"
         assert exchange.wss_url == "wss://ws.okx.com:8443/ws/v5/public"
 
     def test_symbol_leverage_dict(self):

@@ -37,7 +37,7 @@ class AccountMixinPart1:
                     "symbol_name": "ALL",
                     "asset_type": self.asset_type,
                     "exchange_name": self.exchange_name,
-                    "normalize_function": AccountMixin._get_account_normalize_function,
+                    "normalize_function": self._get_account_normalize_function,
                 },
             )
         else:
@@ -128,10 +128,13 @@ class AccountMixinPart1:
         :param kwargs: pass key-worded, variable-length arguments.
         :return: RequestData
         """
-        _request_symbol = self._params.get_symbol(symbol)
+        request_symbol = self._params.get_symbol(symbol) if symbol else None
         request_type = "get_position"
         path = self._params.get_rest_path(request_type)
-        params = {"instType": "", "instId": symbol, "posId": ""}
+        params = {"instId": request_symbol} if request_symbol else {}
+        for key in ("instType", "posId"):
+            if kwargs.get(key):
+                params[key] = kwargs[key]
         extra_data = update_extra_data(
             extra_data,
             **{
@@ -139,7 +142,7 @@ class AccountMixinPart1:
                 "symbol_name": symbol,
                 "asset_type": self.asset_type,
                 "exchange_name": self.exchange_name,
-                "normalize_function": AccountMixin._get_position_normalize_function,
+                "normalize_function": self._get_position_normalize_function,
             },
         )
         if kwargs is not None:
@@ -157,15 +160,16 @@ class AccountMixinPart1:
         if len(data) > 0:
             data_list = [
                 OkxPositionData(
-                    data[0], extra_data["symbol_name"], extra_data["asset_type"], True
+                    item, extra_data["symbol_name"] or item.get("instId"), extra_data["asset_type"], True
                 )
+                for item in data
             ]
             target_data = data_list
         else:
             target_data = []
         return target_data, status
 
-    def get_position(self, symbol: Any, extra_data: Any = None, **kwargs: Any) -> Any:
+    def get_position(self, symbol: Any = None, extra_data: Any = None, **kwargs: Any) -> Any:
         """get_position method"""
         path, params, extra_data = self._get_position(symbol, extra_data, **kwargs)
         data = self.request(path, params=params, extra_data=extra_data)
@@ -234,7 +238,7 @@ class AccountMixinPart1:
                 "symbol_name": inst_id or uly or "ALL",
                 "asset_type": inst_type or self.asset_type,
                 "exchange_name": self.exchange_name,
-                "normalize_function": AccountMixin._get_positions_history_normalize_function,
+                "normalize_function": self._get_positions_history_normalize_function,
             },
         )
         if kwargs is not None:
@@ -336,7 +340,7 @@ class AccountMixinPart1:
                 "symbol_name": "ALL",
                 "asset_type": self.asset_type,
                 "exchange_name": self.exchange_name,
-                "normalize_function": AccountMixin._get_config_normalize_function,
+                "normalize_function": self._get_config_normalize_function,
             },
         )
         return path, params, extra_data
@@ -373,4 +377,3 @@ class AccountMixinPart1:
         path, params, extra_data = self._get_config(extra_data=extra_data)
         data = self.request(path, params=params, extra_data=extra_data)
         return data
-

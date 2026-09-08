@@ -26,3 +26,6 @@ markers = [
     "kline: Kline/bar data tests",
     "network: Tests requiring network access",
 ]
+
+[tool.setuptools.package-data]
+bt_api_okx = ["configs/*.yaml"]

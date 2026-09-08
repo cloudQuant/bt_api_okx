@@ -8,7 +8,7 @@ api_doc: https://www.okx.com/docs-v5/en/
 
 base_urls:
   rest:
-    default: https://www.okx.com
+    default: https://openapi.okx.com
   wss:
     public: wss://ws.okx.com:8443/ws/v5/public
     private: wss://ws.okx.com:8443/ws/v5/private
@@ -453,8 +453,7 @@ asset_types:
         instId: "<symbol>"
       account:
         channel: account
-        instType: SWAP
-        instId: "<symbol>"
+        ccy: "<currency>"
       positions:
         channel: positions
         instType: SWAP
@@ -551,8 +550,7 @@ asset_types:
         instId: "<symbol>"
       account:
         channel: account
-        instType: FUTURES
-        instId: "<symbol>"
+        ccy: "<currency>"
       positions:
         channel: positions
         instType: FUTURES
@@ -599,8 +597,7 @@ asset_types:
         ccy: "<currency>"
       account:
         channel: account
-        instType: SPOT
-        instId: "<symbol>"
+        ccy: "<currency>"
       positions:
         channel: positions
         instType: SPOT

@@ -22,7 +22,7 @@ class OkxRequestDataSpot(OkxRequestData):
         super().__init__(data_queue, **kwargs)
         self.asset_type = kwargs.get("asset_type", "SPOT")
         self.logger_name = kwargs.get("logger_name", "okx_spot_feed.log")
-        self._params = OkxExchangeDataSpot()
+        self._params = self._configure_exchange_data(OkxExchangeDataSpot())
         self.request_logger = get_logger("okx_spot_feed")
         self.async_logger = get_logger("okx_spot_feed")
 

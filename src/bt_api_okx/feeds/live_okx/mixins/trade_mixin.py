@@ -8,18 +8,16 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-from bt_api_okx.containers.bars.okx_bar import OkxBarData
-from bt_api_okx.containers.orders.okx_order import OkxOrderData
-from bt_api_okx.containers.trades.okx_trade import OkxRequestTradeData
-from bt_api_okx.feeds.live_okx.mixins.normalizers import generic_normalize_function
+from bt_api_base.exceptions import InvalidOrderError
 from bt_api_base.functions.utils import update_extra_data
 
-
+from bt_api_okx.containers.orders.okx_order import OkxOrderData
+from bt_api_okx.containers.trades.okx_trade import OkxRequestTradeData
 from bt_api_okx.feeds.live_okx.mixins.algo_mixin import AlgoMixin
 from bt_api_okx.feeds.live_okx.mixins.batch_mixin import BatchMixin
 from bt_api_okx.feeds.live_okx.mixins.convert_mixin import ConvertMixin
-from bt_api_okx.feeds.live_okx.mixins.misc_trade_mixin import MiscTradeMixin
 from bt_api_okx.feeds.live_okx.mixins.index_candles_mixin import IndexCandlesMixin
+from bt_api_okx.feeds.live_okx.mixins.misc_trade_mixin import MiscTradeMixin
 
 
 class TradeMixin(IndexCandlesMixin, AlgoMixin, BatchMixin, ConvertMixin, MiscTradeMixin):
@@ -53,9 +51,31 @@ class TradeMixin(IndexCandlesMixin, AlgoMixin, BatchMixin, ConvertMixin, MiscTra
         if not kwargs.get("size_in_contracts") and not kwargs.get("skip_size_conversion"):
             try:
                 vol = round(vol * self._params.symbol_leverage_dict[symbol])
+            except KeyError:
+                # No base->contract multiplier for this symbol. Sending the
+                # unconverted base size as an OKX contract count would change
+                # the notional by ctVal; refuse the order instead.
+                raise InvalidOrderError(
+                    self.exchange_name,
+                    str(symbol),
+                    "no base->contract size conversion configured for symbol",
+                ) from None
             except Exception as e:
                 self.request_logger.warning(f"_make_order:{e}")
         side, ord_type = order_type.split("-")
+        time_in_force = str(kwargs.get("time_in_force", "GTC")).upper()
+        if post_only and time_in_force != "GTC":
+            raise InvalidOrderError(
+                self.exchange_name,
+                str(symbol),
+                "post_only is incompatible with IOC/FOK",
+            )
+        if ord_type == "limit" and time_in_force in {"IOC", "FOK"}:
+            ord_type = time_in_force.lower()
+        elif time_in_force not in {"GTC", "IOC", "FOK"}:
+            raise InvalidOrderError(
+                self.exchange_name, str(symbol), "Unsupported OKX time_in_force"
+            )
         if post_only:
             ord_type = "post_only"
         asset_type = str(getattr(self, "asset_type", "") or "").strip().upper()
@@ -671,10 +691,6 @@ class TradeMixin(IndexCandlesMixin, AlgoMixin, BatchMixin, ConvertMixin, MiscTra
         )
 
     # ==================== Algo Trading APIs ====================
-
-
-
-
 
 
 

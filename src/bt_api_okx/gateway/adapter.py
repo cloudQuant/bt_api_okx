@@ -8,6 +8,7 @@ import time
 from collections import defaultdict
 from typing import Any
 
+from bt_api_base.feeds.capability import Capability, NotSupportedError
 from bt_api_base.gateway.adapters.base import BaseGatewayAdapter
 from bt_api_base.gateway.models import GatewayTick
 from bt_api_base.gateway.protocol import CHANNEL_EVENT, CHANNEL_MARKET
@@ -454,43 +455,11 @@ class OkxGatewayAdapter(BaseGatewayAdapter):
             return {}
 
     def place_order(self, payload: dict[str, Any]) -> dict[str, Any]:
-        """place_order method"""
-        self._ensure_account_stream()
-        symbol = payload.get("data_name") or payload.get("symbol") or ""
-        volume = float(payload.get("volume") or payload.get("size") or 0)
-        price = payload.get("price")
-        if price is not None:
-            price = float(price)
-        side = str(payload.get("side") or "buy").lower()
-        order_type = str(payload.get("order_type") or "limit").lower()
-        offset = str(payload.get("offset") or "open").lower()
-        order_type_str = f"{side}-{order_type}"
-        client_order_id = payload.get("client_order_id")
-        pos_side = _first_value(payload, "posSide", "position_side", "positionSide")
-        reduce_only = _first_value(payload, "reduceOnly", "reduce_only")
-        td_mode = _first_value(payload, "tdMode", "td_mode")
-
-        result = self.feed.make_order(
-            symbol=symbol,
-            vol=volume,
-            price=price,
-            order_type=order_type_str,
-            offset=offset,
-            client_order_id=client_order_id,
-            size_in_contracts=True,
-            posSide=pos_side,
-            reduceOnly=reduce_only,
-            tdMode=td_mode,
+        """Reject standalone writes until private-stream readiness is verifiable."""
+        raise NotSupportedError(
+            Capability.MAKE_ORDER,
+            "OkxGatewayAdapter: authenticated private subscriptions are not verifiable",
         )
-        data = result.get_data() if hasattr(result, "get_data") else result
-        if isinstance(data, list) and len(data) > 0:
-            item = data[0]
-            if isinstance(item, dict):
-                return item
-            return {"raw": str(item)}
-        if isinstance(data, dict):
-            return data
-        return {"raw": str(data)}
 
     def cancel_order(self, payload: dict[str, Any]) -> dict[str, Any]:
         """cancel_order method"""

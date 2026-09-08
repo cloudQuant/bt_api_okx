@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from bt_api_okx.feeds.live_okx.mixins.trade_mixin import TradeMixin
+import pytest
+from bt_api_base.feeds.capability import Capability, NotSupportedError
 from bt_api_okx.gateway import adapter as adapter_module
 
 
@@ -43,130 +44,31 @@ class _FakeResult:
         return self._input_data
 
 
-class _OrderParams:
-    symbol_leverage_dict = {"BTC-USDT-SWAP": 100}
-
-    @staticmethod
-    def get_symbol(symbol):
-        return symbol
-
-    @staticmethod
-    def get_rest_path(_request_type):
-        return "/api/v5/trade/order"
-
-
-class _NoopLogger:
-    @staticmethod
-    def warning(_message):
-        return None
-
-
-class _GatewayOrderFeed(_FakeFeed, TradeMixin):
-    exchange_name = "OKX"
-
-    def __init__(self, asset_type="SWAP") -> None:
-        super().__init__()
-        self.asset_type = asset_type
-        self._params = _OrderParams()
-        self.request_logger = _NoopLogger()
-        self.last_body = None
-
-    def request(self, path, body=None, extra_data=None):
-        self.last_body = dict(body or {})
-        return _FakeResult([{"ordId": "okx-order-1", "path": path}])
-
-
-def test_gateway_place_order_sends_okx_contract_size_without_legacy_multiplier(monkeypatch) -> None:
-    feed = _GatewayOrderFeed()
+def test_gateway_place_order_rejects_before_unverified_private_stream_or_rest_write(
+    monkeypatch,
+) -> None:
+    feed = _FakeFeed()
+    feed.make_order = lambda **_kwargs: pytest.fail("REST order write must not be reached")
     monkeypatch.setattr(adapter_module, "_create_feed", lambda _queue, _kwargs: feed)
     adapter = adapter_module.OkxGatewayAdapter(asset_type="SWAP")
-    adapter._ensure_account_stream = lambda: None
+    stream_attempts: list[bool] = []
+    adapter._ensure_account_stream = lambda: stream_attempts.append(True)
 
-    result = adapter.place_order(
-        {
-            "symbol": "BTC-USDT-SWAP",
-            "size": 1,
-            "price": 60000,
-            "side": "buy",
-            "order_type": "limit",
-        }
-    )
+    with pytest.raises(NotSupportedError) as exc_info:
+        adapter.place_order(
+            {
+                "symbol": "BTC-USDT-SWAP",
+                "size": 1,
+                "price": 60000,
+                "side": "buy",
+                "order_type": "limit",
+                "time_in_force": "IOC",
+            }
+        )
 
-    assert result["ordId"] == "okx-order-1"
-    assert feed.last_body["instId"] == "BTC-USDT-SWAP"
-    assert float(feed.last_body["sz"]) == 1.0
-    assert feed.last_body["px"] == "60000.0"
-
-
-def test_gateway_market_order_omits_okx_price_field(monkeypatch) -> None:
-    feed = _GatewayOrderFeed()
-    monkeypatch.setattr(adapter_module, "_create_feed", lambda _queue, _kwargs: feed)
-    adapter = adapter_module.OkxGatewayAdapter(asset_type="SWAP")
-    adapter._ensure_account_stream = lambda: None
-
-    adapter.place_order(
-        {
-            "symbol": "BTC-USDT-SWAP",
-            "size": 2,
-            "price": 0,
-            "side": "sell",
-            "order_type": "market",
-        }
-    )
-
-    assert float(feed.last_body["sz"]) == 2.0
-    assert feed.last_body["ordType"] == "market"
-    assert "px" not in feed.last_body
-
-
-def test_gateway_close_order_forwards_position_side_and_reduce_only(monkeypatch) -> None:
-    feed = _GatewayOrderFeed()
-    monkeypatch.setattr(adapter_module, "_create_feed", lambda _queue, _kwargs: feed)
-    adapter = adapter_module.OkxGatewayAdapter(asset_type="SWAP")
-    adapter._ensure_account_stream = lambda: None
-
-    adapter.place_order(
-        {
-            "symbol": "BTC-USDT-SWAP",
-            "size": 3,
-            "price": 0,
-            "side": "sell",
-            "order_type": "market",
-            "offset": "close",
-            "position_side": "long",
-            "reduce_only": True,
-            "td_mode": "isolated",
-        }
-    )
-
-    assert feed.last_body["side"] == "sell"
-    assert feed.last_body["ordType"] == "market"
-    assert feed.last_body["posSide"] == "long"
-    assert feed.last_body["reduceOnly"] == "true"
-    assert feed.last_body["tdMode"] == "isolated"
-
-
-def test_gateway_spot_market_order_uses_base_quantity_and_cash_mode(monkeypatch) -> None:
-    feed = _GatewayOrderFeed(asset_type="SPOT")
-    monkeypatch.setattr(adapter_module, "_create_feed", lambda _queue, _kwargs: feed)
-    adapter = adapter_module.OkxGatewayAdapter(asset_type="SPOT")
-    adapter._ensure_account_stream = lambda: None
-
-    adapter.place_order(
-        {
-            "symbol": "BTC-USDT",
-            "size": 0.1,
-            "price": 0,
-            "side": "buy",
-            "order_type": "market",
-        }
-    )
-
-    assert feed.last_body["instId"] == "BTC-USDT"
-    assert float(feed.last_body["sz"]) == 0.1
-    assert feed.last_body["tdMode"] == "cash"
-    assert feed.last_body["tgtCcy"] == "base_ccy"
-    assert "px" not in feed.last_body
+    assert exc_info.value.capability is Capability.MAKE_ORDER
+    assert "authenticated private subscriptions are not verifiable" in str(exc_info.value)
+    assert stream_attempts == []
 
 
 class _LazyOrder:

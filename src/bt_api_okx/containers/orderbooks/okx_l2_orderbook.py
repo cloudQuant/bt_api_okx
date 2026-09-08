@@ -5,10 +5,14 @@ OKX L2 OrderBook Data Container - 400 depth tick-by-tick orderbook.
 from __future__ import annotations
 
 import json
-import time
 
 from bt_api_base.containers.orderbooks.orderbook import OrderBookData
-from bt_api_base.functions.utils import from_dict_get_float, from_dict_get_string
+from bt_api_base.event_clock import capture_receive_clock
+from bt_api_base.functions.utils import (
+    from_dict_get_float,
+    from_dict_get_int,
+    from_dict_get_string,
+)
 
 
 class OkxL2OrderBookData(OrderBookData):
@@ -19,19 +23,27 @@ class OkxL2OrderBookData(OrderBookData):
     - Action field indicates 'snapshot', 'update' or partial update
     """
 
-    def __init__(
-        self, order_book_info, symbol_name, asset_type, has_been_json_encoded=False
-    ):
+    def __init__(self, order_book_info, symbol_name, asset_type, has_been_json_encoded=False):
         """__init__ method"""
         super().__init__(order_book_info, has_been_json_encoded)
         self.exchange_name = "OKX"
-        self.local_update_time = time.time()
+        (
+            self.local_update_time,
+            self.received_monotonic_ns,
+            self.clock_domain_id,
+        ) = capture_receive_clock()
         self.symbol_name = symbol_name
         self.asset_type = asset_type
         self.order_book_data = order_book_info if has_been_json_encoded else None
         self.order_book_symbol_name = None
         self.server_time = None
         self.action = None
+        self.sequence_id = None
+        self.previous_sequence = None
+        self.snapshot_or_delta = "snapshot"
+        self.continuity_status = "unverified"
+        self.stale = False
+        self.stale_reason = None
         self.bid_price_list = None
         self.ask_price_list = None
         self.bid_volume_list = None
@@ -62,6 +74,14 @@ class OkxL2OrderBookData(OrderBookData):
         self.action = from_dict_get_string(data, "action")
         self.server_time = from_dict_get_float(data, "ts")
         self.checksum = from_dict_get_string(data, "checksum")
+        self.sequence_id = from_dict_get_int(data, "seqId")
+        self.previous_sequence = from_dict_get_int(data, "prevSeqId")
+        self.snapshot_or_delta = str(
+            data.get("snapshot_or_delta") or ("snapshot" if self.action == "snapshot" else "delta")
+        )
+        self.continuity_status = str(data.get("continuity_status") or "unverified")
+        self.stale = bool(data.get("stale", False))
+        self.stale_reason = data.get("stale_reason")
 
         # books-l2-tbt has bids/asks in format: [price, size, orders, liquidation]
         bids = data.get("bids", [])
@@ -92,6 +112,14 @@ class OkxL2OrderBookData(OrderBookData):
                 "server_time": self.server_time,
                 "action": self.action,
                 "checksum": self.checksum,
+                "sequence_id": self.sequence_id,
+                "previous_sequence": self.previous_sequence,
+                "snapshot_or_delta": self.snapshot_or_delta,
+                "continuity_status": self.continuity_status,
+                "stale": self.stale,
+                "stale_reason": self.stale_reason,
+                "received_monotonic_ns": self.received_monotonic_ns,
+                "clock_domain_id": self.clock_domain_id,
                 "bid_price_list": self.bid_price_list,
                 "ask_price_list": self.ask_price_list,
                 "bid_volume_list": self.bid_volume_list,
@@ -137,6 +165,14 @@ class OkxL2OrderBookData(OrderBookData):
     def get_checksum(self):
         """Get the checksum for data integrity validation."""
         return self.checksum
+
+    def get_sequence_id(self):
+        """Get OKX ``seqId`` for order-book continuity checks."""
+        return self.sequence_id
+
+    def get_previous_sequence(self):
+        """Get OKX ``prevSeqId`` for order-book continuity checks."""
+        return self.previous_sequence
 
     def get_bid_price_list(self):
         """get_bid_price_list method"""

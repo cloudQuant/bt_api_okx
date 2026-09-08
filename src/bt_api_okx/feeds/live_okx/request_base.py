@@ -9,17 +9,26 @@ from __future__ import annotations
 import base64
 import hmac
 import json
-import time
 from datetime import datetime, timezone
 from typing import Any
 from urllib import parse
 
-from bt_api_okx.exchange_data import OkxExchangeDataSwap
 from bt_api_base.containers.requestdatas.request_data import RequestData
 from bt_api_base.error import OKXErrorTranslator
 from bt_api_base.exceptions import QueueNotInitializedError
 from bt_api_base.feeds.capability import Capability
 from bt_api_base.feeds.feed import Feed
+from bt_api_base.feeds.transport_safety import sanitize_text
+from bt_api_base.logging_factory import get_logger
+from bt_api_base.rate_limiter import (
+    RateLimiter,
+    RateLimitRule,
+    RateLimitScope,
+    RateLimitType,
+)
+
+from bt_api_okx.environment import configure_environment, verify_environment
+from bt_api_okx.exchange_data import OkxExchangeDataSwap
 from bt_api_okx.feeds.live_okx.mixins.account_mixin import AccountMixin
 from bt_api_okx.feeds.live_okx.mixins.copy_trading_mixin import CopyTradingMixin
 from bt_api_okx.feeds.live_okx.mixins.funding_mixin import FundingMixin
@@ -33,18 +42,27 @@ from bt_api_okx.feeds.live_okx.mixins.status_mixin import StatusMixin
 from bt_api_okx.feeds.live_okx.mixins.sub_account_mixin import SubAccountMixin
 from bt_api_okx.feeds.live_okx.mixins.trade_mixin import TradeMixin
 from bt_api_okx.feeds.live_okx.mixins.trading_account_mixin import TradingAccountMixin
-from bt_api_base.logging_factory import get_logger
-from bt_api_base.rate_limiter import (
-    RateLimiter,
-    RateLimitRule,
-    RateLimitScope,
-    RateLimitType,
-)
+
+
+def strict_credential_alias(parameters, names):
+    supplied = []
+    for name in names:
+        if name not in parameters or parameters[name] is None:
+            continue
+        value = parameters[name]
+        if value == "":
+            continue
+        if not isinstance(value, str) or not value.strip() or value != value.strip():
+            raise ValueError("OKX credentials must be non-empty trimmed strings")
+        supplied.append(value)
+    if len(set(supplied)) > 1:
+        raise ValueError("OKX credential aliases conflict")
+    return supplied[0] if supplied else None
 
 
 def _utc_now_iso8601() -> str:
     """按 OKX V5 规范生成 ISO 8601 毫秒时间戳(UTC)。"""
-    now = datetime.now(timezone.utc)
+    now = datetime.now(timezone.utc)  # noqa: UP017 - package supports Python 3.9
     return now.strftime("%Y-%m-%dT%H:%M:%S.") + f"{now.microsecond // 1000:03d}" + "Z"
 
 
@@ -71,6 +89,7 @@ class OkxRequestData(
     Feed,
 ):
     """Class OkxRequestData"""
+
     @classmethod
     def _capabilities(cls: Any) -> set[Capability]:
         return {
@@ -102,26 +121,63 @@ class OkxRequestData(
 
     def __init__(self, data_queue: Any, **kwargs: Any) -> None:
         """__init__ method"""
+        self._environment_options = dict(kwargs)
         super().__init__(data_queue, **kwargs)
         self.data_queue = data_queue
-        self.public_key = kwargs.get("public_key") or kwargs.get("api_key")
-        self.private_key = (
-            kwargs.get("private_key")
-            or kwargs.get("secret_key")
-            or kwargs.get("api_secret")
+        self.public_key = strict_credential_alias(kwargs, ("public_key", "api_key"))
+        self.private_key = strict_credential_alias(
+            kwargs, ("private_key", "secret_key", "api_secret")
         )
-        self.passphrase = kwargs.get("passphrase")
+        self.passphrase = strict_credential_alias(kwargs, ("passphrase",))
         self.topics = kwargs.get("topics", {})
         self.exchange_name = kwargs.get("exchange_name", "OKX___SWAP")
         self.asset_type = kwargs.get("asset_type", "SWAP")
         self.logger_name = kwargs.get("logger_name", "okx_swap_feed.log")
-        self._params = OkxExchangeDataSwap()
+        self._params = self._configure_exchange_data(OkxExchangeDataSwap())
         self.request_logger = get_logger("okx_swap_feed")
         self.async_logger = get_logger("okx_swap_feed")
         self._error_translator = OKXErrorTranslator()
-        self._rate_limiter = kwargs.get(
-            "rate_limiter", self._create_default_rate_limiter()
+        self._rate_limiter = kwargs.get("rate_limiter", self._create_default_rate_limiter())
+
+    def get_exchange_info(self, symbol=None, extra_data=None, **kwargs):
+        """Return the exchange's instrument rules, including contract value and lot size."""
+        inst_id = self._params.get_symbol(symbol) if symbol else None
+        return self.get_public_instruments(
+            inst_type=self.asset_type, inst_id=inst_id, extra_data=extra_data, **kwargs
         )
+
+    def get_account_instruments(self, symbol, extra_data=None, **kwargs):
+        """Return instruments enabled for this account without changing account state."""
+        inst_id = self._params.get_symbol(symbol)
+        return self.get_instruments(
+            asset_type=self.asset_type,
+            inst_id=inst_id,
+            extra_data=extra_data,
+            **kwargs,
+        )
+
+    def get_leverage_info(self, symbol, margin_mode="cross", extra_data=None, **kwargs):
+        """Return configured leverage rows for an account instrument."""
+        inst_id = self._params.get_symbol(symbol)
+        path, params, request_extra = self._get_lever(
+            self.asset_type,
+            inst_id=inst_id,
+            mgn_mode=margin_mode,
+            extra_data=extra_data,
+            **kwargs,
+        )
+        # Unlike several other account endpoints, leverage-info does not accept
+        # instType.  Keep using the generated request builder for normalization
+        # metadata, but send only the parameters in the OKX V5 contract.
+        params.pop("instType", None)
+        return self.request(path, params=params, extra_data=request_extra)
+
+    def _configure_exchange_data(self, params):
+        return configure_environment(params, self._environment_options)
+
+    def get_environment_info(self):
+        """Return the plugin's current endpoint proof without credentials."""
+        return verify_environment(self._params)
 
     @staticmethod
     def _create_default_rate_limiter() -> RateLimiter:
@@ -154,13 +210,11 @@ class OkxRequestData(
         return RateLimiter(rules)
 
     def translate_error(self, raw_response: Any) -> None:
-        """ OKX API  UnifiedError（）， None"""
+        """OKX API  UnifiedError（）， None"""
         if isinstance(raw_response, dict):
             code = raw_response.get("code", raw_response.get("sCode", "0"))
             if str(code) != "0":
-                return self._error_translator.translate(
-                    raw_response, self.exchange_name
-                )
+                return self._error_translator.translate(raw_response, self.exchange_name)
         return None
 
     def _raise_if_error(self, raw_response: Any) -> None:
@@ -173,7 +227,8 @@ class OkxRequestData(
         """push_data_to_queue method"""
         if self.data_queue is not None:
             self.data_queue.put(data)
-        else: raise QueueNotInitializedError("data_queue not initialized")
+        else:
+            raise QueueNotInitializedError("data_queue not initialized")
 
     # noinspection PyMethodMayBeStatic
     def signature(
@@ -196,9 +251,7 @@ class OkxRequestData(
         return base64.b64encode(d).decode()
 
     # noinspection PyMethodMayBeStatic
-    def get_header(
-        self, api_key: Any, sign: Any, timestamp: Any, passphrase: Any
-    ) -> None:
+    def get_header(self, api_key: Any, sign: Any, timestamp: Any, passphrase: Any) -> None:
         """get_header method"""
         header = {}
         header["Content-Type"] = "application/json"
@@ -206,7 +259,7 @@ class OkxRequestData(
         header["OK-ACCESS-SIGN"] = sign
         header["OK-ACCESS-TIMESTAMP"] = str(timestamp)
         header["OK-ACCESS-PASSPHRASE"] = passphrase
-        header["x-simulated-trading"] = "0"
+        header["x-simulated-trading"] = "1" if self._params.simulated_trading else "0"
         return header
 
     def request(
@@ -230,22 +283,37 @@ class OkxRequestData(
             extra_data = {}
         method, path = path.split(" ", 1)
         req = parse.urlencode(params)
-        url = f"{self._params.rest_url}{path}?{req}"  # ?{req}
+        url = f"{self._params.rest_url}{path}" + (f"?{req}" if req else "")
         if params:
             path = f"{path}?{req}"
+        public = path.startswith(("/api/v5/public/", "/api/v5/market/", "/api/v5/system/"))
+        if not public and not all(
+            isinstance(value, str) and value.strip()
+            for value in (self.public_key, self.private_key, self.passphrase)
+        ):
+            raise ValueError("OKX private requests require API key, secret and passphrase")
         timestamp = _utc_now_iso8601()
-        body_str = json.dumps(body, separators=(",", ":")) if body is not None else None
+        body_str = (
+            json.dumps(body, separators=(",", ":"), ensure_ascii=False, allow_nan=False)
+            if body is not None
+            else None
+        )
         signature_ = self.signature(
             timestamp,
             method,
             path,
-            self.private_key,
+            self.private_key or "",
             body_str,
         )
-        headers = self.get_header(
-            self.public_key, signature_, timestamp, self.passphrase
-        )
-        res = self.http_request(method, url, headers, body, timeout)
+        headers = self.get_header(self.public_key, signature_, timestamp, self.passphrase)
+        if public:
+            headers = {
+                key: value for key, value in headers.items() if not key.startswith("OK-ACCESS-")
+            }
+        if method.upper() == "GET":
+            res = self.http_request(method, url, headers, body, timeout)
+        else:
+            res = self.http_request(method, url, headers, body, timeout, max_retries=1)
         self._raise_if_error(res)
         return RequestData(res, extra_data)
 
@@ -265,21 +333,33 @@ class OkxRequestData(
             extra_data = {}
         method, path = path.split(" ", 1)
         req = parse.urlencode(params)
-        url = f"{self._params.rest_url}{path}?{req}"  # ?{req}
+        url = f"{self._params.rest_url}{path}" + (f"?{req}" if req else "")
         if params:
             path = f"{path}?{req}"
+        public = path.startswith(("/api/v5/public/", "/api/v5/market/", "/api/v5/system/"))
+        if not public and not all(
+            isinstance(value, str) and value.strip()
+            for value in (self.public_key, self.private_key, self.passphrase)
+        ):
+            raise ValueError("OKX private requests require API key, secret and passphrase")
         timestamp = _utc_now_iso8601()
-        body_str = json.dumps(body, separators=(",", ":")) if body is not None else None
+        body_str = (
+            json.dumps(body, separators=(",", ":"), ensure_ascii=False, allow_nan=False)
+            if body is not None
+            else None
+        )
         signature_ = self.signature(
             timestamp,
             method,
             path,
-            self.private_key,
+            self.private_key or "",
             body_str,
         )
-        headers = self.get_header(
-            self.public_key, signature_, timestamp, self.passphrase
-        )
+        headers = self.get_header(self.public_key, signature_, timestamp, self.passphrase)
+        if public:
+            headers = {
+                key: value for key, value in headers.items() if not key.startswith("OK-ACCESS-")
+            }
         res = await self.async_http_request(method, url, headers, body_str, timeout)
         self._raise_if_error(res)
         return RequestData(res, extra_data)
@@ -294,7 +374,13 @@ class OkxRequestData(
             result = future.result()
             self.push_data_to_queue(result)
         except Exception as e:
-            self.async_logger.warning(f"async_callback::{e}")
+            self.async_logger.warning(
+                "async_callback::%s",
+                sanitize_text(
+                    e,
+                    sensitive_values=(self.public_key, self.private_key, self.passphrase),
+                ),
+            )
 
     @staticmethod
     def _generic_normalize_function(input_data: Any, extra_data: Any) -> None:

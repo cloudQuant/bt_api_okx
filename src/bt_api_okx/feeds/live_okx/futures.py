@@ -21,7 +21,7 @@ class OkxRequestDataFutures(OkxRequestData):
         super().__init__(data_queue, **kwargs)
         self.asset_type = kwargs.get("asset_type", "FUTURES")
         self.logger_name = kwargs.get("logger_name", "okx_futures_feed.log")
-        self._params = OkxExchangeDataFutures()
+        self._params = self._configure_exchange_data(OkxExchangeDataFutures())
         self.request_logger = get_logger("okx_futures_feed")
         self.async_logger = get_logger("okx_futures_feed")
 

@@ -21,7 +21,7 @@ class OkxRequestDataSwap(OkxRequestData):
         super().__init__(data_queue, **kwargs)
         self.asset_type = kwargs.get("asset_type", "SWAP")
         self.logger_name = kwargs.get("logger_name", "okx_swap_feed.log")
-        self._params = OkxExchangeDataSwap()
+        self._params = self._configure_exchange_data(OkxExchangeDataSwap())
         self.request_logger = get_logger("okx_swap_feed")
         self.async_logger = get_logger("okx_swap_feed")
 

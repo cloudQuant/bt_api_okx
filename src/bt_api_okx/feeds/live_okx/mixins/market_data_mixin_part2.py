@@ -64,7 +64,7 @@ class MarketDataMixinPart2:
                 "symbol_name": inst_id or "ALL",
                 "asset_type": inst_type,
                 "exchange_name": self.exchange_name,
-                "normalize_function": MarketDataMixin._get_premium_history_normalize_function,
+                "normalize_function": self._get_premium_history_normalize_function,
             },
         )
         if kwargs is not None:
@@ -153,7 +153,7 @@ class MarketDataMixinPart2:
                 "symbol_name": "ALL",
                 "asset_type": self.asset_type,
                 "exchange_name": self.exchange_name,
-                "normalize_function": MarketDataMixin._get_economic_calendar_normalize_function,
+                "normalize_function": self._get_economic_calendar_normalize_function,
             },
         )
         if kwargs is not None:
@@ -224,7 +224,7 @@ class MarketDataMixinPart2:
                 "symbol_name": "ALL",
                 "asset_type": self.asset_type,
                 "exchange_name": self.exchange_name,
-                "normalize_function": MarketDataMixin._get_exchange_rate_normalize_function,
+                "normalize_function": self._get_exchange_rate_normalize_function,
             },
         )
         if kwargs is not None:
@@ -276,7 +276,7 @@ class MarketDataMixinPart2:
                 "symbol_name": index,
                 "asset_type": self.asset_type,
                 "exchange_name": self.exchange_name,
-                "normalize_function": MarketDataMixin._get_index_components_normalize_function,
+                "normalize_function": self._get_index_components_normalize_function,
             },
         )
         if kwargs is not None:
@@ -350,7 +350,7 @@ class MarketDataMixinPart2:
                 "symbol_name": inst_id or "ALL",
                 "asset_type": inst_type,
                 "exchange_name": self.exchange_name,
-                "normalize_function": MarketDataMixin._get_estimated_price_normalize_function,
+                "normalize_function": self._get_estimated_price_normalize_function,
             },
         )
         if kwargs is not None:
@@ -429,7 +429,7 @@ class MarketDataMixinPart2:
                 "symbol_name": ccy or "ALL",
                 "asset_type": self.asset_type,
                 "exchange_name": self.exchange_name,
-                "normalize_function": MarketDataMixin._get_discount_rate_normalize_function,
+                "normalize_function": self._get_discount_rate_normalize_function,
             },
         )
         if kwargs is not None:
@@ -499,7 +499,7 @@ class MarketDataMixinPart2:
                 "symbol_name": ccy or "ALL",
                 "asset_type": self.asset_type,
                 "exchange_name": self.exchange_name,
-                "normalize_function": MarketDataMixin._get_interest_rate_loan_quota_normalize_function,
+                "normalize_function": self._get_interest_rate_loan_quota_normalize_function,
             },
         )
         if kwargs is not None:

@@ -78,7 +78,7 @@ class MarketDataMixinPart3:
                 "symbol_name": uly or "ALL",
                 "asset_type": inst_type,
                 "exchange_name": self.exchange_name,
-                "normalize_function": MarketDataMixin._get_underlying_normalize_function,
+                "normalize_function": self._get_underlying_normalize_function,
             },
         )
         if kwargs is not None:
@@ -161,7 +161,7 @@ class MarketDataMixinPart3:
                 "symbol_name": inst_id or "ALL",
                 "asset_type": inst_type,
                 "exchange_name": self.exchange_name,
-                "normalize_function": MarketDataMixin._get_insurance_fund_normalize_function,
+                "normalize_function": self._get_insurance_fund_normalize_function,
             },
         )
         if kwargs is not None:
@@ -254,7 +254,7 @@ class MarketDataMixinPart3:
                 "symbol_name": inst_id,
                 "asset_type": inst_type,
                 "exchange_name": self.exchange_name,
-                "normalize_function": MarketDataMixin._convert_contract_coin_normalize_function,
+                "normalize_function": self._convert_contract_coin_normalize_function,
             },
         )
         if kwargs is not None:
@@ -339,7 +339,7 @@ class MarketDataMixinPart3:
                 "symbol_name": inst_id or "ALL",
                 "asset_type": inst_type,
                 "exchange_name": self.exchange_name,
-                "normalize_function": MarketDataMixin._get_instrument_tick_bands_normalize_function,
+                "normalize_function": self._get_instrument_tick_bands_normalize_function,
             },
         )
         if kwargs is not None:
@@ -503,7 +503,7 @@ class MarketDataMixinPart3:
                 "symbol_name": symbol,
                 "asset_type": self.asset_type,
                 "exchange_name": self.exchange_name,
-                "normalize_function": MarketDataMixin._get_depth_normalize_function,
+                "normalize_function": self._get_depth_normalize_function,
             },
         )
         if kwargs is not None:
@@ -563,7 +563,7 @@ class MarketDataMixinPart3:
                 "symbol_name": symbol,
                 "asset_type": self.asset_type,
                 "exchange_name": self.exchange_name,
-                "normalize_function": MarketDataMixin._get_kline_normalize_function,
+                "normalize_function": self._get_kline_normalize_function,
             },
         )
         if kwargs is not None:
