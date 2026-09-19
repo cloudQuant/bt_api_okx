@@ -278,8 +278,8 @@ class OkxGatewayAdapter(BaseGatewayAdapter):
         self.kwargs = normalized
         self.q: queue.Queue[Any] = queue.Queue()
         self.feed = _create_feed(self.q, normalized)
-        self.market_stream = None
-        self.account_stream = None
+        self.market_stream: Any = None
+        self.account_stream: Any = None
         self.aliases: dict[str, set[str]] = defaultdict(set)
         self.last_price: dict[str, float] = {}
         self._latest_ticks: dict[str, dict[str, Any]] = {}

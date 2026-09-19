@@ -10,7 +10,7 @@ import base64
 import hmac
 import json
 from datetime import datetime, timezone
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from urllib import parse
 
 from bt_api_base.containers.requestdatas.request_data import RequestData
@@ -42,6 +42,9 @@ from bt_api_okx.feeds.live_okx.mixins.status_mixin import StatusMixin
 from bt_api_okx.feeds.live_okx.mixins.sub_account_mixin import SubAccountMixin
 from bt_api_okx.feeds.live_okx.mixins.trade_mixin import TradeMixin
 from bt_api_okx.feeds.live_okx.mixins.trading_account_mixin import TradingAccountMixin
+
+if TYPE_CHECKING:  # pragma: no cover
+    from bt_api_base.error import UnifiedError
 
 
 def strict_credential_alias(parameters, names):
@@ -209,7 +212,7 @@ class OkxRequestData(
         ]
         return RateLimiter(rules)
 
-    def translate_error(self, raw_response: Any) -> None:
+    def translate_error(self, raw_response: Any) -> UnifiedError | None:
         """OKX API  UnifiedError（）， None"""
         if isinstance(raw_response, dict):
             code = raw_response.get("code", raw_response.get("sCode", "0"))
@@ -238,7 +241,7 @@ class OkxRequestData(
         request_path: Any,
         secret_key: Any,
         body: Any = None,
-    ) -> None:
+    ) -> str:
         """signature method"""
         body = "" if body is None else str(body)
         message = str(timestamp) + str.upper(method) + request_path + body
@@ -251,7 +254,7 @@ class OkxRequestData(
         return base64.b64encode(d).decode()
 
     # noinspection PyMethodMayBeStatic
-    def get_header(self, api_key: Any, sign: Any, timestamp: Any, passphrase: Any) -> None:
+    def get_header(self, api_key: Any, sign: Any, timestamp: Any, passphrase: Any) -> dict[str, Any]:
         """get_header method"""
         header = {}
         header["Content-Type"] = "application/json"

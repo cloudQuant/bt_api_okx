@@ -36,7 +36,7 @@ def _make_client() -> tuple:
         None,
         public_key="pk",
         private_key="sk",
-        passphrase="pp",  # noqa: S106 - inert test fixture
+        passphrase="pp",  # inert test fixture（S106 已由 pyproject 的 per-file-ignores 豁免）
         wss_url="wss://ws.okx.com:8443/ws/v5/private",
         exchange_data=_FakeExchangeData(),
     )

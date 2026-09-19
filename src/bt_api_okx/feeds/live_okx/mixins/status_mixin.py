@@ -8,10 +8,10 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-from bt_api_base.functions.utils import update_extra_data
+from bt_api_okx.feeds.live_okx.mixins.rest_call_mixin import RestCallMixin
 
 
-class StatusMixin:
+class StatusMixin(RestCallMixin):
     """Mixin providing OKX API methods."""
 
     _params: Any
@@ -32,24 +32,17 @@ class StatusMixin:
             extra_data: extra_data, default is None, can be a dict passed by user
             kwargs: pass key-worded, variable-length arguments.
         """
-        request_type = "get_system_status"
         params: dict[str, Any] = {}
         if state is not None:
             params["state"] = state
-        path = self._params.get_rest_path(request_type)
-        extra_data = update_extra_data(
+        return self._finish(
+            "get_system_status",
+            params,
             extra_data,
-            **{
-                "request_type": request_type,
-                "symbol_name": "SYSTEM",
-                "asset_type": self.asset_type,
-                "exchange_name": self.exchange_name,
-                "normalize_function": StatusMixin._get_system_status_normalize_function,
-            },
+            "SYSTEM",
+            StatusMixin._get_system_status_normalize_function,
+            kwargs,
         )
-        if kwargs is not None:
-            extra_data.update(kwargs)
-        return path, params, extra_data
 
     @staticmethod
     def _get_system_status_normalize_function(
@@ -70,9 +63,7 @@ class StatusMixin:
         Args: state: Status type. "scheduled" for maintenance announcements. Default is empty for current system status.
             extra_data: extra_data, default is None, can be a dict passed by user
         """
-        path, params, extra_data = self._get_system_status(state, extra_data, **kwargs)
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("get_system_status", state, extra_data, **kwargs)
 
     def async_get_system_status(
         self, state: Any = None, extra_data: Any = None, **kwargs: Any
@@ -81,11 +72,7 @@ class StatusMixin:
         Args: state: Status type. "scheduled" for maintenance announcements. Default is empty for current system status.
             extra_data: extra_data, default is None, can be a dict passed by user
         """
-        path, params, extra_data = self._get_system_status(state, extra_data, **kwargs)
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("get_system_status", state, extra_data, **kwargs)
 
     def _get_announcements(
         self,
@@ -102,7 +89,6 @@ class StatusMixin:
             extra_data: extra_data, default is None, can be a dict passed by user
             kwargs: pass key-worded, variable-length arguments.
         """
-        request_type = "get_announcements"
         params: dict[str, Any] = {}
         if announcement_type is not None:
             params["announcementType"] = announcement_type
@@ -110,20 +96,14 @@ class StatusMixin:
             params["page"] = str(page)
         if limit is not None:
             params["limit"] = str(limit)
-        path = self._params.get_rest_path(request_type)
-        extra_data = update_extra_data(
+        return self._finish(
+            "get_announcements",
+            params,
             extra_data,
-            **{
-                "request_type": request_type,
-                "symbol_name": "SYSTEM",
-                "asset_type": self.asset_type,
-                "exchange_name": self.exchange_name,
-                "normalize_function": StatusMixin._get_announcements_normalize_function,
-            },
+            "SYSTEM",
+            StatusMixin._get_announcements_normalize_function,
+            kwargs,
         )
-        if kwargs is not None:
-            extra_data.update(kwargs)
-        return path, params, extra_data
 
     @staticmethod
     def _get_announcements_normalize_function(
@@ -154,11 +134,7 @@ class StatusMixin:
             limit: Number of results per page. Default is 10. Maximum is 100.
             extra_data: extra_data, default is None, can be a dict passed by user
         """
-        path, params, extra_data = self._get_announcements(
-            announcement_type, page, limit, extra_data, **kwargs
-        )
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("get_announcements", announcement_type, page, limit, extra_data, **kwargs)
 
     def async_get_announcements(
         self,
@@ -174,13 +150,7 @@ class StatusMixin:
             limit: Number of results per page. Default is 10. Maximum is 100.
             extra_data: extra_data, default is None, can be a dict passed by user
         """
-        path, params, extra_data = self._get_announcements(
-            announcement_type, page, limit, extra_data, **kwargs
-        )
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("get_announcements", announcement_type, page, limit, extra_data, **kwargs)
 
     def _get_announcement_types(
         self, extra_data: Any = None, **kwargs: Any
@@ -189,22 +159,15 @@ class StatusMixin:
         Args: extra_data: extra_data, default is None, can be a dict passed by user
             kwargs: pass key-worded, variable-length arguments.
         """
-        request_type = "get_announcement_types"
         params: dict[str, Any] = {}
-        path = self._params.get_rest_path(request_type)
-        extra_data = update_extra_data(
+        return self._finish(
+            "get_announcement_types",
+            params,
             extra_data,
-            **{
-                "request_type": request_type,
-                "symbol_name": "SYSTEM",
-                "asset_type": self.asset_type,
-                "exchange_name": self.exchange_name,
-                "normalize_function": StatusMixin._get_announcement_types_normalize_function,
-            },
+            "SYSTEM",
+            StatusMixin._get_announcement_types_normalize_function,
+            kwargs,
         )
-        if kwargs is not None:
-            extra_data.update(kwargs)
-        return path, params, extra_data
 
     @staticmethod
     def _get_announcement_types_normalize_function(
@@ -225,9 +188,7 @@ class StatusMixin:
         """Get announcement types
         Args: extra_data: extra_data, default is None, can be a dict passed by user
         """
-        path, params, extra_data = self._get_announcement_types(extra_data, **kwargs)
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("get_announcement_types", extra_data, **kwargs)
 
     def async_get_announcement_types(
         self, extra_data: Any = None, **kwargs: Any
@@ -235,8 +196,4 @@ class StatusMixin:
         """Async get announcement types
         Args: extra_data: extra_data, default is None, can be a dict passed by user
         """
-        path, params, extra_data = self._get_announcement_types(extra_data, **kwargs)
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("get_announcement_types", extra_data, **kwargs)

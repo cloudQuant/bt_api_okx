@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import pytest
-
 from bt_api_okx.exchange_data import OkxExchangeData
 
 

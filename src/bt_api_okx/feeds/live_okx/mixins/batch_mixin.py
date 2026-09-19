@@ -5,42 +5,30 @@ Auto-generated from request_base.py
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from typing import Any
 
-from bt_api_okx.containers.bars.okx_bar import OkxBarData
-from bt_api_okx.containers.orders.okx_order import OkxOrderData
-from bt_api_okx.containers.trades.okx_trade import OkxRequestTradeData
-from bt_api_okx.feeds.live_okx.mixins.normalizers import generic_normalize_function
 from bt_api_base.functions.utils import update_extra_data
 
+from bt_api_okx.feeds.live_okx.mixins.normalizers import generic_normalize_function
+from bt_api_okx.feeds.live_okx.mixins.rest_call_mixin import RestCallMixin
 
-from bt_api_okx.feeds.live_okx.mixins.index_candles_mixin import IndexCandlesMixin
 
-
-class BatchMixin:
+class BatchMixin(RestCallMixin):
     """BatchMixin 方法集合。"""
 
     def _make_orders(
         self, orders_data: Any, extra_data: Any = None, **kwargs: Any
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
         """Make multiple orders (batch)"""
-        request_type = "make_orders"
         params = orders_data
-        path = self._params.get_rest_path(request_type)
-        extra_data = update_extra_data(
+        return self._finish(
+            "make_orders",
+            params,
             extra_data,
-            **{
-                "request_type": request_type,
-                "symbol_name": "BATCH",
-                "asset_type": self.asset_type,
-                "exchange_name": self.exchange_name,
-                "normalize_function": generic_normalize_function,
-            },
+            "BATCH",
+            generic_normalize_function,
+            kwargs,
         )
-        if kwargs is not None:
-            extra_data.update(kwargs)
-        return path, params, extra_data
 
     def make_orders(
         self, orders_data: Any, extra_data: Any = None, **kwargs: Any
@@ -64,22 +52,15 @@ class BatchMixin:
         self, orders_data: Any, extra_data: Any = None, **kwargs: Any
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
         """Cancel multiple orders (batch)"""
-        request_type = "cancel_orders"
         params = orders_data
-        path = self._params.get_rest_path(request_type)
-        extra_data = update_extra_data(
+        return self._finish(
+            "cancel_orders",
+            params,
             extra_data,
-            **{
-                "request_type": request_type,
-                "symbol_name": "BATCH",
-                "asset_type": self.asset_type,
-                "exchange_name": self.exchange_name,
-                "normalize_function": generic_normalize_function,
-            },
+            "BATCH",
+            generic_normalize_function,
+            kwargs,
         )
-        if kwargs is not None:
-            extra_data.update(kwargs)
-        return path, params, extra_data
 
     def cancel_orders(
         self, orders_data: Any, extra_data: Any = None, **kwargs: Any
@@ -107,22 +88,15 @@ class BatchMixin:
         self, orders_data: Any, extra_data: Any = None, **kwargs: Any
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
         """Amend multiple orders (batch)"""
-        request_type = "amend_orders"
         params = orders_data
-        path = self._params.get_rest_path(request_type)
-        extra_data = update_extra_data(
+        return self._finish(
+            "amend_orders",
+            params,
             extra_data,
-            **{
-                "request_type": request_type,
-                "symbol_name": "BATCH",
-                "asset_type": self.asset_type,
-                "exchange_name": self.exchange_name,
-                "normalize_function": generic_normalize_function,
-            },
+            "BATCH",
+            generic_normalize_function,
+            kwargs,
         )
-        if kwargs is not None:
-            extra_data.update(kwargs)
-        return path, params, extra_data
 
     def amend_orders(
         self, orders_data: Any, extra_data: Any = None, **kwargs: Any
@@ -199,19 +173,7 @@ class BatchMixin:
         **kwargs: Any,
     ) -> Any:
         """Get fills"""
-        path, params, extra_data = self._get_fills(
-            inst_type,
-            uly,
-            inst_id,
-            order_id,
-            after,
-            before,
-            limit,
-            extra_data,
-            **kwargs,
-        )
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("get_fills", inst_type, uly, inst_id, order_id, after, before, limit, extra_data, **kwargs,)
 
     def async_get_fills(
         self,
@@ -226,21 +188,7 @@ class BatchMixin:
         **kwargs: Any,
     ) -> None:
         """Async get fills"""
-        path, params, extra_data = self._get_fills(
-            inst_type,
-            uly,
-            inst_id,
-            order_id,
-            after,
-            before,
-            limit,
-            extra_data,
-            **kwargs,
-        )
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("get_fills", inst_type, uly, inst_id, order_id, after, before, limit, extra_data, **kwargs,)
 
     def _close_position(
         self,
@@ -254,7 +202,6 @@ class BatchMixin:
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
         """Close position"""
         request_symbol = self._params.get_symbol(symbol)
-        request_type = "close_position"
         params = {
             "instId": request_symbol,
         }
@@ -266,20 +213,14 @@ class BatchMixin:
             params["ccy"] = ccy
         if auto_cxl:
             params["autoCxl"] = True
-        path = self._params.get_rest_path(request_type)
-        extra_data = update_extra_data(
+        return self._finish(
+            "close_position",
+            params,
             extra_data,
-            **{
-                "request_type": request_type,
-                "symbol_name": symbol,
-                "asset_type": self.asset_type,
-                "exchange_name": self.exchange_name,
-                "normalize_function": generic_normalize_function,
-            },
+            symbol,
+            generic_normalize_function,
+            kwargs,
         )
-        if kwargs is not None:
-            extra_data.update(kwargs)
-        return path, params, extra_data
 
     def close_position(
         self,
@@ -374,19 +315,7 @@ class BatchMixin:
         **kwargs: Any,
     ) -> Any:
         """Get fills history"""
-        path, params, extra_data = self._get_fills_history(
-            inst_type,
-            uly,
-            inst_id,
-            order_id,
-            after,
-            before,
-            limit,
-            extra_data,
-            **kwargs,
-        )
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("get_fills_history", inst_type, uly, inst_id, order_id, after, before, limit, extra_data, **kwargs,)
 
     def async_get_fills_history(
         self,
@@ -401,21 +330,7 @@ class BatchMixin:
         **kwargs: Any,
     ) -> None:
         """Async get fills history"""
-        path, params, extra_data = self._get_fills_history(
-            inst_type,
-            uly,
-            inst_id,
-            order_id,
-            after,
-            before,
-            limit,
-            extra_data,
-            **kwargs,
-        )
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("get_fills_history", inst_type, uly, inst_id, order_id, after, before, limit, extra_data, **kwargs,)
 
     def _get_order_history_archive(
         self,
@@ -470,11 +385,7 @@ class BatchMixin:
         **kwargs: Any,
     ) -> Any:
         """Get order history archive"""
-        path, params, extra_data = self._get_order_history_archive(
-            inst_type, uly, inst_id, after, before, limit, extra_data, **kwargs
-        )
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("get_order_history_archive", inst_type, uly, inst_id, after, before, limit, extra_data, **kwargs)
 
     def async_get_order_history_archive(
         self,
@@ -488,34 +399,21 @@ class BatchMixin:
         **kwargs: Any,
     ) -> None:
         """Async get order history archive"""
-        path, params, extra_data = self._get_order_history_archive(
-            inst_type, uly, inst_id, after, before, limit, extra_data, **kwargs
-        )
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("get_order_history_archive", inst_type, uly, inst_id, after, before, limit, extra_data, **kwargs)
 
     def _cancel_all_after(
         self, time_slug: Any, extra_data: Any = None, **kwargs: Any
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
         """Cancel all orders after time"""
-        request_type = "cancel_all_after"
         params = {"timeOut": str(time_slug)}
-        path = self._params.get_rest_path(request_type)
-        extra_data = update_extra_data(
+        return self._finish(
+            "cancel_all_after",
+            params,
             extra_data,
-            **{
-                "request_type": request_type,
-                "symbol_name": "ALL",
-                "asset_type": self.asset_type,
-                "exchange_name": self.exchange_name,
-                "normalize_function": generic_normalize_function,
-            },
+            "ALL",
+            generic_normalize_function,
+            kwargs,
         )
-        if kwargs is not None:
-            extra_data.update(kwargs)
-        return path, params, extra_data
 
     def cancel_all_after(
         self, time_slug: Any, extra_data: Any = None, **kwargs: Any

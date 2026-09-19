@@ -8,10 +8,10 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-from bt_api_base.functions.utils import update_extra_data
+from bt_api_okx.feeds.live_okx.mixins.rest_call_mixin import RestCallMixin
 
 
-class SpreadTradingMixin:
+class SpreadTradingMixin(RestCallMixin):
     """Mixin providing OKX API methods."""
 
     _params: Any
@@ -53,7 +53,6 @@ class SpreadTradingMixin:
         :param kwargs: pass key-worded, variable-length arguments.
         :return: path, params, extra_data
         """
-        request_type = "sprd_order"
         params = {
             "sprdId": sprd_id,
             "side": side,
@@ -71,20 +70,14 @@ class SpreadTradingMixin:
             params["tag"] = tag
         if pos_side:
             params["posSide"] = pos_side
-        path = self._params.get_rest_path(request_type)
-        extra_data = update_extra_data(
+        return self._finish(
+            "sprd_order",
+            params,
             extra_data,
-            **{
-                "request_type": request_type,
-                "symbol_name": sprd_id,
-                "asset_type": self.asset_type,
-                "exchange_name": self.exchange_name,
-                "normalize_function": SpreadTradingMixin._sprd_order_normalize_function,
-            },
+            sprd_id,
+            SpreadTradingMixin._sprd_order_normalize_function,
+            kwargs,
         )
-        if kwargs is not None:
-            extra_data.update(kwargs)
-        return path, params, extra_data
 
     @staticmethod
     def _sprd_order_normalize_function(
@@ -193,26 +186,19 @@ class SpreadTradingMixin:
         :param kwargs: pass key-worded, variable-length arguments.
         :return: path, params, extra_data
         """
-        request_type = "sprd_cancel_order"
         params = {"sprdId": sprd_id}
         if order_id:
             params["ordId"] = order_id
         if client_order_id:
             params["clOrdId"] = client_order_id
-        path = self._params.get_rest_path(request_type)
-        extra_data = update_extra_data(
+        return self._finish(
+            "sprd_cancel_order",
+            params,
             extra_data,
-            **{
-                "request_type": request_type,
-                "symbol_name": sprd_id,
-                "asset_type": self.asset_type,
-                "exchange_name": self.exchange_name,
-                "normalize_function": SpreadTradingMixin._sprd_cancel_order_normalize_function,
-            },
+            sprd_id,
+            SpreadTradingMixin._sprd_cancel_order_normalize_function,
+            kwargs,
         )
-        if kwargs is not None:
-            extra_data.update(kwargs)
-        return path, params, extra_data
 
     @staticmethod
     def _sprd_cancel_order_normalize_function(
@@ -280,26 +266,19 @@ class SpreadTradingMixin:
         :param kwargs: pass key-worded, variable-length arguments.
         :return: path, params, extra_data
         """
-        request_type = "sprd_get_order"
         params = {"sprdId": sprd_id}
         if order_id:
             params["ordId"] = order_id
         if client_order_id:
             params["clOrdId"] = client_order_id
-        path = self._params.get_rest_path(request_type)
-        extra_data = update_extra_data(
+        return self._finish(
+            "sprd_get_order",
+            params,
             extra_data,
-            **{
-                "request_type": request_type,
-                "symbol_name": sprd_id,
-                "asset_type": self.asset_type,
-                "exchange_name": self.exchange_name,
-                "normalize_function": SpreadTradingMixin._sprd_get_order_normalize_function,
-            },
+            sprd_id,
+            SpreadTradingMixin._sprd_get_order_normalize_function,
+            kwargs,
         )
-        if kwargs is not None:
-            extra_data.update(kwargs)
-        return path, params, extra_data
 
     @staticmethod
     def _sprd_get_order_normalize_function(
@@ -341,11 +320,7 @@ class SpreadTradingMixin:
         **kwargs: Any,
     ) -> Any:
         """Get spread order details"""
-        path, params, extra_data = self._sprd_get_order(
-            sprd_id, order_id, client_order_id, extra_data, **kwargs
-        )
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("sprd_get_order", sprd_id, order_id, client_order_id, extra_data, **kwargs)
 
     def async_sprd_get_order(
         self,
@@ -356,13 +331,7 @@ class SpreadTradingMixin:
         **kwargs: Any,
     ) -> None:
         """Async get spread order details"""
-        path, params, extra_data = self._sprd_get_order(
-            sprd_id, order_id, client_order_id, extra_data, **kwargs
-        )
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("sprd_get_order", sprd_id, order_id, client_order_id, extra_data, **kwargs)
 
     def _sprd_get_orders_pending(
         self,
@@ -385,7 +354,6 @@ class SpreadTradingMixin:
         :param kwargs: pass key-worded, variable-length arguments.
         :return: path, params, extra_data
         """
-        request_type = "sprd_get_orders_pending"
         params: dict[str, Any] = {}
         if sprd_id:
             params["sprdId"] = sprd_id
@@ -397,20 +365,14 @@ class SpreadTradingMixin:
             params["before"] = before
         if limit:
             params["limit"] = limit
-        path = self._params.get_rest_path(request_type)
-        extra_data = update_extra_data(
+        return self._finish(
+            "sprd_get_orders_pending",
+            params,
             extra_data,
-            **{
-                "request_type": request_type,
-                "symbol_name": sprd_id or "ALL",
-                "asset_type": self.asset_type,
-                "exchange_name": self.exchange_name,
-                "normalize_function": SpreadTradingMixin._sprd_get_orders_pending_normalize_function,
-            },
+            sprd_id or "ALL",
+            SpreadTradingMixin._sprd_get_orders_pending_normalize_function,
+            kwargs,
         )
-        if kwargs is not None:
-            extra_data.update(kwargs)
-        return path, params, extra_data
 
     @staticmethod
     def _sprd_get_orders_pending_normalize_function(
@@ -455,11 +417,7 @@ class SpreadTradingMixin:
         **kwargs: Any,
     ) -> Any:
         """Get pending spread orders"""
-        path, params, extra_data = self._sprd_get_orders_pending(
-            sprd_id, inst_type, after, before, limit, extra_data, **kwargs
-        )
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("sprd_get_orders_pending", sprd_id, inst_type, after, before, limit, extra_data, **kwargs)
 
     def async_sprd_get_orders_pending(
         self,
@@ -472,13 +430,7 @@ class SpreadTradingMixin:
         **kwargs: Any,
     ) -> None:
         """Async get pending spread orders"""
-        path, params, extra_data = self._sprd_get_orders_pending(
-            sprd_id, inst_type, after, before, limit, extra_data, **kwargs
-        )
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("sprd_get_orders_pending", sprd_id, inst_type, after, before, limit, extra_data, **kwargs)
 
     def _sprd_get_orders_history(
         self,
@@ -503,7 +455,6 @@ class SpreadTradingMixin:
         :param kwargs: pass key-worded, variable-length arguments.
         :return: path, params, extra_data
         """
-        request_type = "sprd_get_orders_history"
         params: dict[str, Any] = {}
         if sprd_id:
             params["sprdId"] = sprd_id
@@ -517,20 +468,14 @@ class SpreadTradingMixin:
             params["before"] = before
         if limit:
             params["limit"] = limit
-        path = self._params.get_rest_path(request_type)
-        extra_data = update_extra_data(
+        return self._finish(
+            "sprd_get_orders_history",
+            params,
             extra_data,
-            **{
-                "request_type": request_type,
-                "symbol_name": sprd_id or "ALL",
-                "asset_type": self.asset_type,
-                "exchange_name": self.exchange_name,
-                "normalize_function": SpreadTradingMixin._sprd_get_orders_history_normalize_function,
-            },
+            sprd_id or "ALL",
+            SpreadTradingMixin._sprd_get_orders_history_normalize_function,
+            kwargs,
         )
-        if kwargs is not None:
-            extra_data.update(kwargs)
-        return path, params, extra_data
 
     @staticmethod
     def _sprd_get_orders_history_normalize_function(
@@ -577,11 +522,7 @@ class SpreadTradingMixin:
         **kwargs: Any,
     ) -> Any:
         """Get spread order history"""
-        path, params, extra_data = self._sprd_get_orders_history(
-            sprd_id, inst_type, state, after, before, limit, extra_data, **kwargs
-        )
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("sprd_get_orders_history", sprd_id, inst_type, state, after, before, limit, extra_data, **kwargs)
 
     def async_sprd_get_orders_history(
         self,
@@ -595,13 +536,7 @@ class SpreadTradingMixin:
         **kwargs: Any,
     ) -> None:
         """Async get spread order history"""
-        path, params, extra_data = self._sprd_get_orders_history(
-            sprd_id, inst_type, state, after, before, limit, extra_data, **kwargs
-        )
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("sprd_get_orders_history", sprd_id, inst_type, state, after, before, limit, extra_data, **kwargs)
 
     def _sprd_get_trades(
         self,
@@ -622,7 +557,6 @@ class SpreadTradingMixin:
         :param kwargs: pass key-worded, variable-length arguments.
         :return: path, params, extra_data
         """
-        request_type = "sprd_get_trades"
         params: dict[str, Any] = {}
         if sprd_id:
             params["sprdId"] = sprd_id
@@ -632,20 +566,14 @@ class SpreadTradingMixin:
             params["before"] = before
         if limit:
             params["limit"] = limit
-        path = self._params.get_rest_path(request_type)
-        extra_data = update_extra_data(
+        return self._finish(
+            "sprd_get_trades",
+            params,
             extra_data,
-            **{
-                "request_type": request_type,
-                "symbol_name": sprd_id or "ALL",
-                "asset_type": self.asset_type,
-                "exchange_name": self.exchange_name,
-                "normalize_function": SpreadTradingMixin._sprd_get_trades_normalize_function,
-            },
+            sprd_id or "ALL",
+            SpreadTradingMixin._sprd_get_trades_normalize_function,
+            kwargs,
         )
-        if kwargs is not None:
-            extra_data.update(kwargs)
-        return path, params, extra_data
 
     @staticmethod
     def _sprd_get_trades_normalize_function(
@@ -685,11 +613,7 @@ class SpreadTradingMixin:
         **kwargs: Any,
     ) -> Any:
         """Get spread trade history"""
-        path, params, extra_data = self._sprd_get_trades(
-            sprd_id, after, before, limit, extra_data, **kwargs
-        )
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("sprd_get_trades", sprd_id, after, before, limit, extra_data, **kwargs)
 
     def async_sprd_get_trades(
         self,
@@ -701,10 +625,4 @@ class SpreadTradingMixin:
         **kwargs: Any,
     ) -> None:
         """Async get spread trade history"""
-        path, params, extra_data = self._sprd_get_trades(
-            sprd_id, after, before, limit, extra_data, **kwargs
-        )
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("sprd_get_trades", sprd_id, after, before, limit, extra_data, **kwargs)

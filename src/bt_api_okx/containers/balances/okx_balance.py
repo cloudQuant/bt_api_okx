@@ -17,7 +17,7 @@ class OkxBalanceData(BalanceData):
         super().__init__(balance_info, has_been_json_encoded)
         self.exchange_name = "OKX"
         self.symbol_name = symbol_name
-        self.local_update_time = time.time()  # 
+        self.local_update_time = time.time()  #
         self.asset_type = asset_type
         self.balance_data = balance_info if has_been_json_encoded else None
         self.interest = None

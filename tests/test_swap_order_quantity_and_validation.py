@@ -13,7 +13,6 @@ Regression tests for two silent-failure paths in OKX order placement:
 from __future__ import annotations
 
 import pytest
-
 from bt_api_base.exceptions import InvalidOrderError
 from bt_api_okx.feeds.live_okx.mixins.trade_mixin import TradeMixin
 

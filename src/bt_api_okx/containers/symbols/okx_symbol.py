@@ -20,7 +20,7 @@ class OkxSymbolData(SymbolData):
         """__init__ method"""
         super().__init__(symbol_info, has_been_json_encoded)
         self.event = "OkxSymbolEvent"
-        self.local_update_time = time.time()  # 
+        self.local_update_time = time.time()  #
         self.exchange_name = "OKX"
         self.symbol_name = None
         self.asset_type = None

@@ -6,7 +6,6 @@ import time
 import pytest
 import rapidjson
 import requests
-
 from bt_api_okx.containers.bars import OkxBarData
 
 

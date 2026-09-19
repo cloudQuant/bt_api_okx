@@ -5,8 +5,9 @@ import json
 import time
 
 from bt_api_base.containers.accounts.account import AccountData
-from bt_api_okx.containers.balances.okx_balance import OkxBalanceData
 from bt_api_base.functions.utils import from_dict_get_float
+
+from bt_api_okx.containers.balances.okx_balance import OkxBalanceData
 
 
 class OkxAccountData(AccountData):
@@ -18,7 +19,7 @@ class OkxAccountData(AccountData):
         super().__init__(account_info, has_been_json_encoded)
         self.exchange_name = "OKX"
         self.symbol_name = symbol_name
-        self.local_update_time = time.time()  # 
+        self.local_update_time = time.time()  #
         self.asset_type = asset_type
         self.account_data = account_info if has_been_json_encoded else None
         self.balances = None

@@ -5,8 +5,8 @@ import copy
 import datetime
 import json
 import time
-from typing import Any
 from pathlib import Path
+from typing import Any
 
 from bt_api_base.containers.exchanges.exchange_data import ExchangeData
 from bt_api_base.logging_factory import get_logger
@@ -65,11 +65,11 @@ class OkxExchangeData(ExchangeData):
             "OP-USDT": 1,
         }
 
-        self.rest_paths = {}
-        self.wss_paths = {}
-        self.kline_periods = {}
-        self.reverse_kline_periods = {}
-        self.status_dict = {}
+        self.rest_paths: dict[str, str] = {}
+        self.wss_paths: dict[str, str] = {}
+        self.kline_periods: dict[str, str] = {}
+        self.reverse_kline_periods: dict[str, str] = {}
+        self.status_dict: dict[str, str] = {}
 
         #  YAML  ( swap)
         self._load_from_config("swap")

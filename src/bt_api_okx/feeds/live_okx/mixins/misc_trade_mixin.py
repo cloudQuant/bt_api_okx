@@ -5,23 +5,15 @@ Auto-generated from request_base.py
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from typing import Any
 
-from bt_api_okx.containers.bars.okx_bar import OkxBarData
-from bt_api_okx.containers.orders.okx_order import OkxOrderData
-from bt_api_okx.containers.trades.okx_trade import OkxRequestTradeData
-from bt_api_okx.feeds.live_okx.mixins.normalizers import generic_normalize_function
 from bt_api_base.functions.utils import update_extra_data
 
-
-from bt_api_okx.feeds.live_okx.mixins.algo_mixin import AlgoMixin
-from bt_api_okx.feeds.live_okx.mixins.batch_mixin import BatchMixin
-from bt_api_okx.feeds.live_okx.mixins.convert_mixin import ConvertMixin
-from bt_api_okx.feeds.live_okx.mixins.index_candles_mixin import IndexCandlesMixin
+from bt_api_okx.feeds.live_okx.mixins.normalizers import generic_normalize_function
+from bt_api_okx.feeds.live_okx.mixins.rest_call_mixin import RestCallMixin
 
 
-class MiscTradeMixin:
+class MiscTradeMixin(RestCallMixin):
     """杂项交易方法集合。"""
 
     def async_get_clear_price(
@@ -53,36 +45,23 @@ class MiscTradeMixin:
         :param kwargs: pass key-worded, variable-length arguments.
         :return: path, params, extra_data
         """
-        request_type = "get_24h_volume"
         params: dict[str, Any] = {}
-        path = self._params.get_rest_path(request_type)
-        extra_data = update_extra_data(
+        return self._finish(
+            "get_24h_volume",
+            params,
             extra_data,
-            **{
-                "request_type": request_type,
-                "symbol_name": "ALL",
-                "asset_type": self.asset_type,
-                "exchange_name": self.exchange_name,
-                "normalize_function": generic_normalize_function,
-            },
+            "ALL",
+            generic_normalize_function,
+            kwargs,
         )
-        if kwargs is not None:
-            extra_data.update(kwargs)
-        return path, params, extra_data
 
     def get_24h_volume(self, extra_data: Any = None, **kwargs: Any) -> Any:
         """Get platform 24h total volume"""
-        path, params, extra_data = self._get_24h_volume(extra_data, **kwargs)
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("get_24h_volume", extra_data, **kwargs)
 
     def async_get_24h_volume(self, extra_data: Any = None, **kwargs: Any) -> None:
         """Async get platform 24h total volume"""
-        path, params, extra_data = self._get_24h_volume(extra_data, **kwargs)
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("get_24h_volume", extra_data, **kwargs)
 
     # ==================== Call Auction Details ====================
 
@@ -103,7 +82,6 @@ class MiscTradeMixin:
         :param kwargs: pass key-worded, variable-length arguments.
         :return: path, params, extra_data
         """
-        request_type = "get_call_auction_details"
         params: dict[str, Any] = {}
         if inst_type:
             params["instType"] = inst_type
@@ -111,20 +89,14 @@ class MiscTradeMixin:
             params["uly"] = uly
         if inst_id:
             params["instId"] = inst_id
-        path = self._params.get_rest_path(request_type)
-        extra_data = update_extra_data(
+        return self._finish(
+            "get_call_auction_details",
+            params,
             extra_data,
-            **{
-                "request_type": request_type,
-                "symbol_name": inst_id or "ALL",
-                "asset_type": self.asset_type,
-                "exchange_name": self.exchange_name,
-                "normalize_function": generic_normalize_function,
-            },
+            inst_id or "ALL",
+            generic_normalize_function,
+            kwargs,
         )
-        if kwargs is not None:
-            extra_data.update(kwargs)
-        return path, params, extra_data
 
     def get_call_auction_details(
         self,
@@ -135,11 +107,7 @@ class MiscTradeMixin:
         **kwargs: Any,
     ) -> Any:
         """Get call auction details"""
-        path, params, extra_data = self._get_call_auction_details(
-            inst_type, uly, inst_id, extra_data, **kwargs
-        )
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("get_call_auction_details", inst_type, uly, inst_id, extra_data, **kwargs)
 
     def async_get_call_auction_details(
         self,
@@ -150,13 +118,7 @@ class MiscTradeMixin:
         **kwargs: Any,
     ) -> None:
         """Async get call auction details"""
-        path, params, extra_data = self._get_call_auction_details(
-            inst_type, uly, inst_id, extra_data, **kwargs
-        )
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("get_call_auction_details", inst_type, uly, inst_id, extra_data, **kwargs)
 
     # ==================== Index Price ====================
 

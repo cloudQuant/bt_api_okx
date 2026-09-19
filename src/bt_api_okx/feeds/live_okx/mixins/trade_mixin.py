@@ -220,7 +220,6 @@ class TradeMixin(IndexCandlesMixin, AlgoMixin, BatchMixin, ConvertMixin, MiscTra
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
         """Amend an incomplete order"""
         request_symbol = self._params.get_symbol(symbol)
-        request_type = "amend_order"
         params = {
             "instId": request_symbol,
         }
@@ -232,20 +231,14 @@ class TradeMixin(IndexCandlesMixin, AlgoMixin, BatchMixin, ConvertMixin, MiscTra
             params["newSz"] = str(new_sz)
         if new_px is not None:
             params["newPx"] = str(new_px)
-        path = self._params.get_rest_path(request_type)
-        extra_data = update_extra_data(
+        return self._finish(
+            "amend_order",
+            params,
             extra_data,
-            **{
-                "request_type": request_type,
-                "symbol_name": symbol,
-                "asset_type": self.asset_type,
-                "exchange_name": self.exchange_name,
-                "normalize_function": TradeMixin._amend_order_normalize_function,
-            },
+            symbol,
+            TradeMixin._amend_order_normalize_function,
+            kwargs,
         )
-        if kwargs is not None:
-            extra_data.update(kwargs)
-        return path, params, extra_data
 
     @staticmethod
     def _amend_order_normalize_function(
@@ -424,23 +417,13 @@ class TradeMixin(IndexCandlesMixin, AlgoMixin, BatchMixin, ConvertMixin, MiscTra
         self, symbol: Any, order_id: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> Any:
         """query_order method"""
-        path, params, extra_data = self._query_order(
-            symbol, order_id, extra_data, **kwargs
-        )
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("query_order", symbol, order_id, extra_data, **kwargs)
 
     def async_query_order(
         self, symbol: Any, order_id: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """async_query_order method"""
-        path, params, extra_data = self._query_order(
-            symbol, order_id, extra_data, **kwargs
-        )
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("query_order", symbol, order_id, extra_data, **kwargs)
 
     def _get_open_orders(
         self, symbol: Any = None, extra_data: Any = None, **kwargs: Any
@@ -512,20 +495,14 @@ class TradeMixin(IndexCandlesMixin, AlgoMixin, BatchMixin, ConvertMixin, MiscTra
         self, symbol: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> Any:
         """get_open_orders method"""
-        path, params, extra_data = self._get_open_orders(symbol, extra_data, **kwargs)
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("get_open_orders", symbol, extra_data, **kwargs)
 
     # noinspection PyBroadException
     def async_get_open_orders(
         self, symbol: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """async_get_open_orders method"""
-        path, params, extra_data = self._get_open_orders(symbol, extra_data, **kwargs)
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("get_open_orders", symbol, extra_data, **kwargs)
 
     def _get_order_history(
         self,
@@ -540,7 +517,6 @@ class TradeMixin(IndexCandlesMixin, AlgoMixin, BatchMixin, ConvertMixin, MiscTra
         **kwargs: Any,
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
         """Get order history (last 7 days)"""
-        request_type = "get_order_history"
         params = {"instType": inst_type}
         if symbol:
             params["instId"] = self._params.get_symbol(symbol)
@@ -554,20 +530,14 @@ class TradeMixin(IndexCandlesMixin, AlgoMixin, BatchMixin, ConvertMixin, MiscTra
             params["before"] = before
         if limit:
             params["limit"] = limit
-        path = self._params.get_rest_path(request_type)
-        extra_data = update_extra_data(
+        return self._finish(
+            "get_order_history",
+            params,
             extra_data,
-            **{
-                "request_type": request_type,
-                "symbol_name": symbol or "ALL",
-                "asset_type": self.asset_type,
-                "exchange_name": self.exchange_name,
-                "normalize_function": TradeMixin._get_open_orders_normalize_function,
-            },
+            symbol or "ALL",
+            TradeMixin._get_open_orders_normalize_function,
+            kwargs,
         )
-        if kwargs is not None:
-            extra_data.update(kwargs)
-        return path, params, extra_data
 
     def get_order_history(
         self,
@@ -582,19 +552,7 @@ class TradeMixin(IndexCandlesMixin, AlgoMixin, BatchMixin, ConvertMixin, MiscTra
         **kwargs: Any,
     ) -> Any:
         """get_order_history method"""
-        path, params, extra_data = self._get_order_history(
-            inst_type,
-            symbol,
-            ord_type,
-            state,
-            after,
-            before,
-            limit,
-            extra_data,
-            **kwargs,
-        )
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("get_order_history", inst_type, symbol, ord_type, state, after, before, limit, extra_data, **kwargs,)
 
     def _get_deals(
         self,
@@ -666,11 +624,7 @@ class TradeMixin(IndexCandlesMixin, AlgoMixin, BatchMixin, ConvertMixin, MiscTra
         **kwargs: Any,
     ) -> Any:
         """get_deals method"""
-        path, params, extra_data = self._get_deals(
-            symbol, count, start_time, end_time, extra_data, **kwargs
-        )
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("get_deals", symbol, count, start_time, end_time, extra_data, **kwargs)
 
     def async_get_deals(
         self,
@@ -682,13 +636,7 @@ class TradeMixin(IndexCandlesMixin, AlgoMixin, BatchMixin, ConvertMixin, MiscTra
         **kwargs: Any,
     ) -> None:
         """async_get_deals method"""
-        path, params, extra_data = self._get_deals(
-            symbol, count, start_time, end_time, extra_data, **kwargs
-        )
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("get_deals", symbol, count, start_time, end_time, extra_data, **kwargs)
 
     # ==================== Algo Trading APIs ====================
 

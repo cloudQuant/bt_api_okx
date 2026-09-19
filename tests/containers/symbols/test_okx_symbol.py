@@ -54,20 +54,20 @@ def test_symbol_instance():
     raw_data = json.dumps(json_info)
     symbol_instance = OkxSymbolData(raw_data, has_been_json_encoded=False)
     symbol_instance.init_data()
-    # 
+    #
     assert symbol_instance.get_exchange_name() == "OKX"
     assert symbol_instance.get_symbol_name() == "BTC-EUR"
     assert symbol_instance.get_asset_type() == "SPOT"
     assert symbol_instance.get_base_asset() == "BTC"
     assert symbol_instance.get_quote_asset() == "EUR"
-    # 
+    #
     assert symbol_instance.get_price_unit() == 1
     assert symbol_instance.get_price_digital() == 1  # 1 / 0.1
     assert symbol_instance.get_qty_unit() == 0.0001
     assert symbol_instance.get_qty_digital() == 10000  # 1 / 0.0001
     assert symbol_instance.get_min_qty() == 0.01
     assert symbol_instance.get_max_qty() == 1000
-    # 
+    #
     assert symbol_instance.get_contract_multiplier() == 100.0
     all_data = symbol_instance.get_all_data()
     assert all_data["contract_notional_value"] is None
@@ -80,7 +80,7 @@ def test_symbol_instance():
     assert symbol_instance.get_symbol_status() == "live"
     assert symbol_instance.get_symbol_trading_type() == "normal"
     assert symbol_instance.get_contract_type() == ""  # SWAPctType
-    # 
+    #
     assert isinstance(symbol_instance.get_local_update_time(), float)
     assert time.time() - symbol_instance.get_local_update_time() < 5  # 5
 

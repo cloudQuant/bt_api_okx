@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import pytest
-
 from bt_api_okx.containers.symbols.okx_symbol import OkxSymbolData
 
 

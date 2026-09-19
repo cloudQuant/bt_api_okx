@@ -4,11 +4,11 @@ from types import SimpleNamespace
 from unittest.mock import Mock
 
 import pytest
-from bt_api_okx.feeds.live_okx.mixins.account_mixin_part2 import AccountMixinPart2
+from bt_api_okx.feeds.live_okx.mixins.account_mixin import AccountMixin
 
 
 def _fee_harness():
-    harness = AccountMixinPart2()
+    harness = AccountMixin()
     harness.exchange_name = "OKX___SWAP"
     harness._params = SimpleNamespace(
         get_rest_path=lambda request_type: f"/{request_type}",
@@ -27,7 +27,7 @@ def test_fee_normalizer_preserves_native_maker_and_taker_rates():
         "takerU": "-0.0004",
     }
 
-    result, status = AccountMixinPart2._get_fee_normalize_function(
+    result, status = AccountMixin._get_fee_normalize_function(
         {"code": "0", "data": [row]},
         {"symbol_name": "BTC-USDT-SWAP", "asset_type": "SWAP"},
     )

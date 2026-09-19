@@ -1,12 +1,14 @@
 """
 OKX API - MarketDataMixin
-Auto-generated from request_base.py
+
+由机械切分的 ``*_partN`` 模块合并而来（迭代07 结构治理）。
 """
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from typing import Any
+
+from bt_api_base.functions.utils import update_extra_data
 
 from bt_api_okx.containers.bars.okx_bar import OkxBarData
 from bt_api_okx.containers.fundingrates.okx_funding_rate import OkxFundingRateData
@@ -15,14 +17,1852 @@ from bt_api_okx.containers.orderbooks.okx_orderbook import OkxOrderBookData
 from bt_api_okx.containers.symbols.okx_symbol import OkxSymbolData
 from bt_api_okx.containers.tickers.okx_ticker import OkxTickerData
 from bt_api_okx.feeds.live_okx.mixins.normalizers import generic_normalize_function
-from bt_api_base.functions.utils import update_extra_data
+from bt_api_okx.feeds.live_okx.mixins.rest_call_mixin import RestCallMixin
 
 
-from bt_api_okx.feeds.live_okx.mixins.market_data_mixin_part1 import MarketDataMixinPart1
-from bt_api_okx.feeds.live_okx.mixins.market_data_mixin_part2 import MarketDataMixinPart2
-from bt_api_okx.feeds.live_okx.mixins.market_data_mixin_part3 import MarketDataMixinPart3
-from bt_api_okx.feeds.live_okx.mixins.market_data_mixin_part4 import MarketDataMixinPart4
+class MarketDataMixin(RestCallMixin):
+    """MarketDataMixin 方法集合（OKX REST 端点）。"""
+    def _get_tick(
+        self, symbol: Any, extra_data: Any = None, **kwargs: Any
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        request_type = "get_tick"
+        path = self._params.get_rest_path(request_type)
+        params = {
+            "instId": self._params.get_symbol(symbol),
+        }
+        extra_data = update_extra_data(
+            extra_data,
+            **{
+                "request_type": request_type,
+                "symbol_name": symbol,
+                "asset_type": self.asset_type,
+                "exchange_name": self.exchange_name,
+                "normalize_function": self._get_tick_normalize_function,
+            },
+        )
+        if kwargs is not None:
+            extra_data.update(kwargs)
+        return path, params, extra_data
 
+    @staticmethod
+    def _get_tick_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
+        status = input_data["code"] == "0"
+        if "data" not in input_data or not input_data["data"]:
+            return [], status
+        data = input_data["data"][0]
+        if len(data) > 0:
+            data_list = [
+                OkxTickerData(
+                    data, extra_data["symbol_name"], extra_data["asset_type"], True
+                )
+            ]
+            target_data = data_list
+        else:
+            target_data = []
+        return target_data, status
 
-class MarketDataMixin(MarketDataMixinPart1, MarketDataMixinPart2, MarketDataMixinPart3, MarketDataMixinPart4):
-    """MarketDataMixin 聚合。"""
+    def get_tick(self, symbol: Any, extra_data: Any = None, **kwargs: Any) -> Any:
+        """get_tick method"""
+        return self._rest("get_tick", symbol, extra_data, **kwargs)
+
+    def async_get_tick(
+        self, symbol: Any, extra_data: Any = None, **kwargs: Any
+    ) -> None:
+        """async_get_tick method"""
+        return self._rest_async("get_tick", symbol, extra_data, **kwargs)
+
+    def _get_depth(
+        self, symbol: Any, size: Any = 20, extra_data: Any = None, **kwargs: Any
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        request_symbol = self._params.get_symbol(symbol)
+        params = {"instId": request_symbol, "sz": size}
+        return self._finish(
+            "get_depth",
+            params,
+            extra_data,
+            symbol,
+            self._get_depth_normalize_function,
+            kwargs,
+        )
+
+    @staticmethod
+    def _get_depth_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
+        status = input_data["code"] == "0"
+        if "data" not in input_data or not input_data["data"]:
+            return [], status
+        data = input_data["data"][0]
+        if len(data) > 0:
+            data_list = [
+                OkxOrderBookData(
+                    data, extra_data["symbol_name"], extra_data["asset_type"], True
+                )
+            ]
+            target_data = data_list
+        else:
+            target_data = []
+        return target_data, status
+
+    def get_depth(
+        self, symbol: Any, size: Any = 20, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
+        """get_depth method"""
+        return self._rest("get_depth", symbol, size, extra_data, **kwargs)
+
+    def async_get_depth(
+        self, symbol: Any, size: Any = 20, extra_data: Any = None, **kwargs: Any
+    ) -> None:
+        """async_get_depth method"""
+        return self._rest_async("get_depth", symbol, size, extra_data, **kwargs)
+
+    def _get_kline(
+        self,
+        symbol: Any,
+        period: Any,
+        count: Any = 100,
+        start_time: Any = 0,
+        end_time: Any = 0,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        request_symbol = self._params.get_symbol(symbol)
+        params = {
+            "instId": request_symbol,
+            "bar": self._params.get_period(period),
+        }
+        if count and count != 100:
+            params["limit"] = count
+        if end_time:
+            params.update({"after": end_time})
+        if start_time:
+            params.update({"before": start_time})
+        return self._finish(
+            "get_kline",
+            params,
+            extra_data,
+            symbol,
+            self._get_kline_normalize_function,
+            kwargs,
+        )
+
+    @staticmethod
+    def _get_kline_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
+        status = input_data["code"] == "0"
+        if "data" not in input_data:
+            return [], status
+        data = sorted(input_data["data"], key=lambda x: x[0])
+        if len(data) > 0:
+            data_list = [
+                OkxBarData(i, extra_data["symbol_name"], extra_data["asset_type"], True)
+                for i in data
+            ]
+            target_data = data_list
+        else:
+            target_data = []
+        return target_data, status
+
+    def get_kline(
+        self,
+        symbol: Any,
+        period: Any,
+        count: Any = 100,
+        start_time: Any = None,
+        end_time: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """get_kline method"""
+        return self._rest("get_kline", symbol, period, count, start_time, end_time, extra_data, **kwargs)
+
+    def async_get_kline(
+        self,
+        symbol: Any,
+        period: Any,
+        count: Any = 100,
+        before: Any = 0,
+        after: Any = 0,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """async_get_kline method"""
+        return self._rest_async("get_kline", symbol, period, count, before, after, extra_data, **kwargs)
+
+    def _get_funding_rate(
+        self, symbol: Any, extra_data: Any = None, **kwargs: Any
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        request_symbol = self._params.get_symbol(symbol)
+        params = {
+            "instId": request_symbol,
+        }
+        return self._finish(
+            "get_funding_rate",
+            params,
+            extra_data,
+            symbol,
+            self._get_funding_rate_normalize_function,
+            kwargs,
+        )
+
+    @staticmethod
+    def _get_funding_rate_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
+        status = input_data["code"] == "0"
+        if "data" not in input_data or not input_data["data"]:
+            return [], status
+        data = input_data["data"][0]
+        if len(data) > 0:
+            data_list = [
+                OkxFundingRateData(
+                    data, extra_data["symbol_name"], extra_data["asset_type"], True
+                )
+            ]
+            target_data = data_list
+        else:
+            target_data = []
+        return target_data, status
+
+    def get_funding_rate(
+        self, symbol: Any, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
+        """get_funding_rate method"""
+        return self._rest("get_funding_rate", symbol, extra_data, **kwargs)
+
+    def async_get_funding_rate(
+        self, symbol: Any, extra_data: Any = None, **kwargs: Any
+    ) -> None:
+        """async_get_funding_rate method"""
+        return self._rest_async("get_funding_rate", symbol, extra_data, **kwargs)
+
+    def _get_funding_rate_history(
+        self,
+        symbol: Any,
+        before: Any = "",
+        after: Any = "",
+        limit: Any = "100",
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Get funding rate history"""
+        request_symbol = self._params.get_symbol(symbol)
+        params = {
+            "instId": request_symbol,
+        }
+        if before:
+            params["before"] = before
+        if after:
+            params["after"] = after
+        if limit:
+            params["limit"] = limit
+        return self._finish(
+            "get_funding_rate_history",
+            params,
+            extra_data,
+            symbol,
+            self._get_funding_rate_history_normalize_function,
+            kwargs,
+        )
+
+    @staticmethod
+    def _get_funding_rate_history_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
+        status = input_data["code"] == "0"
+        if "data" not in input_data or not input_data["data"]:
+            return [], status
+        data = input_data["data"]
+        if len(data) > 0:
+            data_list = [
+                OkxFundingRateData(
+                    i, extra_data["symbol_name"], extra_data["asset_type"], True
+                )
+                for i in data
+            ]
+            target_data = data_list
+        else:
+            target_data = []
+        return target_data, status
+
+    def get_funding_rate_history(
+        self,
+        symbol: Any,
+        before: Any = "",
+        after: Any = "",
+        limit: Any = "100",
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """get_funding_rate_history method"""
+        return self._rest("get_funding_rate_history", symbol, before, after, limit, extra_data, **kwargs)
+
+    def _get_instruments(
+        self,
+        asset_type: Any = None,
+        underlying: Any = None,
+        inst_family: Any = None,
+        inst_id: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        params: dict[str, Any] = {}
+        if asset_type:
+            params["instType"] = asset_type
+        if underlying:
+            params["uly"] = underlying
+        if inst_family:
+            params["instFamily"] = inst_family
+        if inst_id:
+            params["instId"] = inst_id
+        return self._finish(
+            "get_instruments",
+            params,
+            extra_data,
+            "ALL",
+            self._get_instruments_normalize_function,
+            kwargs,
+        )
+
+    @staticmethod
+    def _get_instruments_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
+        status = input_data["code"] == "0"
+        if "data" not in input_data:
+            return [], status
+        data = input_data["data"]
+        if isinstance(data, list):
+            target_data = [OkxSymbolData(i, True) for i in data]
+        elif isinstance(data, dict):
+            target_data = [OkxSymbolData(data, True)]
+        else:
+            target_data = []
+        return target_data, status
+
+    def get_instruments(
+        self,
+        asset_type: Any = None,
+        underlying: Any = None,
+        inst_family: Any = None,
+        inst_id: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """get_instruments method"""
+        return self._rest("get_instruments", asset_type, underlying, inst_family, inst_id, extra_data, **kwargs)
+
+    def _get_mark_price(
+        self, symbol: Any, extra_data: Any = None, **kwargs: Any
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        request_type = "get_mark_price"
+        request_symbol = self._params.get_symbol(symbol)
+        params = {
+            "instId": request_symbol,
+        }
+        path = self._params.get_rest_path(request_type)
+        extra_data = update_extra_data(
+            extra_data,
+            **{
+                "request_type": request_type,
+                "symbol_name": symbol,
+                "asset_type": "SPOT",
+                "exchange_name": self.exchange_name,
+                "normalize_function": self._get_mark_price_normalize_function,
+            },
+        )
+        if kwargs is not None:
+            extra_data.update(kwargs)
+        return path, params, extra_data
+
+    @staticmethod
+    def _get_mark_price_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
+        status = input_data["code"] == "0"
+        if "data" not in input_data or not input_data["data"]:
+            return [], status
+        data = input_data["data"][0]
+        if len(data) > 0:
+            data_list = [
+                OkxMarkPriceData(
+                    data, extra_data["symbol_name"], extra_data["asset_type"], True
+                )
+            ]
+            target_data = data_list
+        else:
+            target_data = []
+        return target_data, status
+
+    def get_mark_price(self, symbol: Any, extra_data: Any = None, **kwargs: Any) -> Any:
+        """get_mark_price method"""
+        return self._rest("get_mark_price", symbol, extra_data, **kwargs)
+
+    def async_get_mark_price(
+        self, symbol: Any, extra_data: Any = None, **kwargs: Any
+    ) -> None:
+        """async_get_mark_price method"""
+        return self._rest_async("get_mark_price", symbol, extra_data, **kwargs)
+
+    def _get_open_interest(
+        self,
+        inst_type: Any = "SWAP",
+        uly: Any = None,
+        inst_family: Any = None,
+        inst_id: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Get open interest data"""
+        params = {"instType": inst_type}
+        if uly:
+            params["uly"] = uly
+        if inst_family:
+            params["instFamily"] = inst_family
+        if inst_id:
+            params["instId"] = inst_id
+        return self._finish(
+            "get_open_interest",
+            params,
+            extra_data,
+            inst_id or "ALL",
+            generic_normalize_function,
+            kwargs,
+        )
+
+    def get_open_interest(
+        self,
+        inst_type: Any = "SWAP",
+        uly: Any = None,
+        inst_family: Any = None,
+        inst_id: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """get_open_interest method"""
+        return self._rest("get_open_interest", inst_type, uly, inst_family, inst_id, extra_data, **kwargs)
+
+    def async_get_open_interest(
+        self,
+        inst_type: Any = "SWAP",
+        uly: Any = None,
+        inst_family: Any = None,
+        inst_id: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async get open interest data"""
+        return self._rest_async("get_open_interest", inst_type, uly, inst_family, inst_id, extra_data, **kwargs)
+
+    def _get_premium_history(
+        self,
+        inst_type: Any,
+        uly: Any = None,
+        inst_id: Any = None,
+        after: Any = None,
+        before: Any = None,
+        limit: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """
+        Get premium history
+        :param inst_type: Instrument type: `FUTURES`, `SWAP` (required)
+        :param uly: Underlying
+        :param inst_id: Instrument ID
+        :param after: Pagination (older data), request before this timestamp
+        :param before: Pagination (newer data), request after this timestamp
+        :param limit: Number of results, default 100, max 100
+        :param extra_data: extra_data, default is None, can be a dict passed by user
+        :param kwargs: pass key-worded, variable-length arguments.
+        :return: path, params, extra_data
+        """
+        request_type = "get_premium_history"
+        params = {"instType": inst_type}
+        if uly:
+            params["uly"] = uly
+        if inst_id:
+            params["instId"] = inst_id
+        if after:
+            params["after"] = after
+        if before:
+            params["before"] = before
+        if limit:
+            params["limit"] = limit
+        path = self._params.get_rest_path(request_type)
+        extra_data = update_extra_data(
+            extra_data,
+            **{
+                "request_type": request_type,
+                "symbol_name": inst_id or "ALL",
+                "asset_type": inst_type,
+                "exchange_name": self.exchange_name,
+                "normalize_function": self._get_premium_history_normalize_function,
+            },
+        )
+        if kwargs is not None:
+            extra_data.update(kwargs)
+        return path, params, extra_data
+
+    @staticmethod
+    def _get_premium_history_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
+        status = input_data["code"] == "0"
+        if "data" not in input_data:
+            return [], status
+        data = input_data["data"]
+        target_data = data if len(data) > 0 else []
+        return target_data, status
+
+    def get_premium_history(
+        self,
+        inst_type: Any,
+        uly: Any = None,
+        inst_id: Any = None,
+        after: Any = None,
+        before: Any = None,
+        limit: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Get premium history"""
+        return self._rest("get_premium_history", inst_type, uly, inst_id, after, before, limit, extra_data, **kwargs)
+
+    def async_get_premium_history(
+        self,
+        inst_type: Any,
+        uly: Any = None,
+        inst_id: Any = None,
+        after: Any = None,
+        before: Any = None,
+        limit: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async get premium history"""
+        return self._rest_async("get_premium_history", inst_type, uly, inst_id, after, before, limit, extra_data, **kwargs)
+
+    def _get_economic_calendar(
+        self,
+        after: Any = None,
+        before: Any = None,
+        limit: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """
+        Get economic calendar
+        :param after: Pagination (older data), request before this timestamp
+        :param before: Pagination (newer data), request after this timestamp
+        :param limit: Number of results, default 20, max 100
+        :param extra_data: extra_data, default is None, can be a dict passed by user
+        :param kwargs: pass key-worded, variable-length arguments.
+        :return: path, params, extra_data
+        """
+        params: dict[str, Any] = {}
+        if after:
+            params["after"] = after
+        if before:
+            params["before"] = before
+        if limit:
+            params["limit"] = limit
+        return self._finish(
+            "get_economic_calendar",
+            params,
+            extra_data,
+            "ALL",
+            self._get_economic_calendar_normalize_function,
+            kwargs,
+        )
+
+    @staticmethod
+    def _get_economic_calendar_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
+        status = input_data["code"] == "0"
+        if "data" not in input_data:
+            return [], status
+        data = input_data["data"]
+        target_data = data if len(data) > 0 else []
+        return target_data, status
+
+    def get_economic_calendar(
+        self,
+        after: Any = None,
+        before: Any = None,
+        limit: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Get economic calendar"""
+        return self._rest("get_economic_calendar", after, before, limit, extra_data, **kwargs)
+
+    def async_get_economic_calendar(
+        self,
+        after: Any = None,
+        before: Any = None,
+        limit: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async get economic calendar"""
+        return self._rest_async("get_economic_calendar", after, before, limit, extra_data, **kwargs)
+
+    def _get_exchange_rate(
+        self, extra_data: Any = None, **kwargs: Any
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """
+        Get exchange rate
+        :param extra_data: extra_data, default is None, can be a dict passed by user
+        :param kwargs: pass key-worded, variable-length arguments.
+        :return: path, params, extra_data
+        """
+        params: dict[str, Any] = {}
+        return self._finish(
+            "get_exchange_rate",
+            params,
+            extra_data,
+            "ALL",
+            self._get_exchange_rate_normalize_function,
+            kwargs,
+        )
+
+    @staticmethod
+    def _get_exchange_rate_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
+        status = input_data["code"] == "0"
+        if "data" not in input_data:
+            return [], status
+        data = input_data["data"]
+        target_data = data if len(data) > 0 else []
+        return target_data, status
+
+    def get_exchange_rate(self, extra_data: Any = None, **kwargs: Any) -> Any:
+        """Get exchange rate"""
+        return self._rest("get_exchange_rate", extra_data, **kwargs)
+
+    def async_get_exchange_rate(self, extra_data: Any = None, **kwargs: Any) -> None:
+        """Async get exchange rate"""
+        return self._rest_async("get_exchange_rate", extra_data, **kwargs)
+
+    def _get_index_components(
+        self, index: Any, extra_data: Any = None, **kwargs: Any
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """
+        Get index components
+        :param index: Index name, e.g. "BTC-USD"
+        :param extra_data: extra_data, default is None, can be a dict passed by user
+        :param kwargs: pass key-worded, variable-length arguments.
+        :return: path, params, extra_data
+        """
+        params = {"index": index}
+        return self._finish(
+            "get_index_components",
+            params,
+            extra_data,
+            index,
+            self._get_index_components_normalize_function,
+            kwargs,
+        )
+
+    @staticmethod
+    def _get_index_components_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
+        status = input_data["code"] == "0"
+        if "data" not in input_data:
+            return {}, status
+        data = input_data["data"]
+        # The API returns a dict with 'components', 'index', 'last', 'ts' keys.
+        target_data = (data[0] if isinstance(data, list) else data) if data else {}
+        return target_data, status
+
+    def get_index_components(
+        self, index: Any, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
+        """Get index components"""
+        return self._rest("get_index_components", index, extra_data, **kwargs)
+
+    def async_get_index_components(
+        self, index: Any, extra_data: Any = None, **kwargs: Any
+    ) -> None:
+        """Async get index components"""
+        return self._rest_async("get_index_components", index, extra_data, **kwargs)
+
+    def _get_estimated_price(
+        self,
+        inst_type: Any,
+        uly: Any = None,
+        inst_id: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """
+        Get estimated delivery/exercise price
+        :param inst_type: Instrument type: `FUTURES`, `OPTION` (required)
+        :param uly: Underlying
+        :param inst_id: Instrument ID
+        :param extra_data: extra_data, default is None, can be a dict passed by user
+        :param kwargs: pass key-worded, variable-length arguments.
+        :return: path, params, extra_data
+        """
+        request_type = "get_estimated_price"
+        params = {"instType": inst_type}
+        if uly:
+            params["uly"] = uly
+        if inst_id:
+            params["instId"] = inst_id
+        path = self._params.get_rest_path(request_type)
+        extra_data = update_extra_data(
+            extra_data,
+            **{
+                "request_type": request_type,
+                "symbol_name": inst_id or "ALL",
+                "asset_type": inst_type,
+                "exchange_name": self.exchange_name,
+                "normalize_function": self._get_estimated_price_normalize_function,
+            },
+        )
+        if kwargs is not None:
+            extra_data.update(kwargs)
+        return path, params, extra_data
+
+    @staticmethod
+    def _get_estimated_price_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
+        status = input_data["code"] == "0"
+        if "data" not in input_data:
+            return [], status
+        data = input_data["data"]
+        target_data = data if len(data) > 0 else []
+        return target_data, status
+
+    def get_estimated_price(
+        self,
+        inst_type: Any,
+        uly: Any = None,
+        inst_id: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Get estimated delivery/exercise price"""
+        return self._rest("get_estimated_price", inst_type, uly, inst_id, extra_data, **kwargs)
+
+    def async_get_estimated_price(
+        self,
+        inst_type: Any,
+        uly: Any = None,
+        inst_id: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async get estimated delivery/exercise price"""
+        return self._rest_async("get_estimated_price", inst_type, uly, inst_id, extra_data, **kwargs)
+
+    def _get_discount_rate(
+        self,
+        ccy: Any = None,
+        discount_level: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """
+        Get discount rate and interest-free quota
+        :param ccy: Currency, e.g. `BTC`
+        :param discount_level: Discount level, default is `lv1`
+        :param extra_data: extra_data, default is None, can be a dict passed by user
+        :param kwargs: pass key-worded, variable-length arguments.
+        :return: path, params, extra_data
+        """
+        params: dict[str, Any] = {}
+        if ccy:
+            params["ccy"] = ccy
+        if discount_level:
+            params["discountLevel"] = discount_level
+        return self._finish(
+            "get_discount_rate",
+            params,
+            extra_data,
+            ccy or "ALL",
+            self._get_discount_rate_normalize_function,
+            kwargs,
+        )
+
+    @staticmethod
+    def _get_discount_rate_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
+        status = input_data["code"] == "0"
+        if "data" not in input_data:
+            return [], status
+        data = input_data["data"]
+        target_data = data if len(data) > 0 else []
+        return target_data, status
+
+    def get_discount_rate(
+        self,
+        ccy: Any = None,
+        discount_level: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Get discount rate and interest-free quota"""
+        return self._rest("get_discount_rate", ccy, discount_level, extra_data, **kwargs)
+
+    def async_get_discount_rate(
+        self,
+        ccy: Any = None,
+        discount_level: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async get discount rate and interest-free quota"""
+        return self._rest_async("get_discount_rate", ccy, discount_level, extra_data, **kwargs)
+
+    def _get_interest_rate_loan_quota(
+        self, ccy: Any = None, extra_data: Any = None, **kwargs: Any
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """
+        Get interest rate and loan quota
+        :param ccy: Currency, e.g. `BTC`
+        :param extra_data: extra_data, default is None, can be a dict passed by user
+        :param kwargs: pass key-worded, variable-length arguments.
+        :return: path, params, extra_data
+        """
+        params: dict[str, Any] = {}
+        if ccy:
+            params["ccy"] = ccy
+        return self._finish(
+            "get_interest_rate_loan_quota",
+            params,
+            extra_data,
+            ccy or "ALL",
+            self._get_interest_rate_loan_quota_normalize_function,
+            kwargs,
+        )
+
+    @staticmethod
+    def _get_interest_rate_loan_quota_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
+        status = input_data["code"] == "0"
+        if "data" not in input_data:
+            return [], status
+        data = input_data["data"]
+        target_data = data if len(data) > 0 else []
+        return target_data, status
+
+    def get_interest_rate_loan_quota(
+        self, ccy: Any = None, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
+        """Get interest rate and loan quota"""
+        return self._rest("get_interest_rate_loan_quota", ccy, extra_data, **kwargs)
+
+    def async_get_interest_rate_loan_quota(
+        self, ccy: Any = None, extra_data: Any = None, **kwargs: Any
+    ) -> None:
+        """Async get interest rate and loan quota"""
+        return self._rest_async("get_interest_rate_loan_quota", ccy, extra_data, **kwargs)
+
+    def _get_interest_rate(
+        self,
+        ccy: Any = None,
+        inst_type: Any = None,
+        mgn_mode: Any = None,
+        uly: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """
+        Get interest rate for borrowing
+        :param ccy: Currency, e.g. `BTC`
+        :param inst_type: Instrument type, e.g. SPOT, MARGIN, SWAP, FUTURES, OPTION
+        :param mgn_mode: Margin mode, cross or isolated
+        :param uly: Underlying, e.g. BTC-USD
+        :param extra_data: extra_data, default is None, can be a dict passed by user
+        :param kwargs: pass key-worded, variable-length arguments.
+        :return: path, params, extra_data
+        """
+        request_type = "get_interest_rate"
+        params: dict[str, Any] = {}
+        if ccy:
+            params["ccy"] = ccy
+        if inst_type:
+            params["instType"] = inst_type
+        if mgn_mode:
+            params["mgnMode"] = mgn_mode
+        if uly:
+            params["uly"] = uly
+        path = self._params.get_rest_path(request_type)
+        extra_data = update_extra_data(
+            extra_data,
+            **{
+                "request_type": request_type,
+                "symbol_name": ccy or uly or "ALL",
+                "asset_type": inst_type or self.asset_type,
+                "exchange_name": self.exchange_name,
+                "normalize_function": generic_normalize_function,
+            },
+        )
+        if kwargs is not None:
+            extra_data.update(kwargs)
+        return path, params, extra_data
+
+    def get_interest_rate(
+        self,
+        ccy: Any = None,
+        inst_type: Any = None,
+        mgn_mode: Any = None,
+        uly: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Get interest rate for borrowing"""
+        return self._rest("get_interest_rate", ccy, inst_type, mgn_mode, uly, extra_data, **kwargs)
+
+    def async_get_interest_rate(
+        self,
+        ccy: Any = None,
+        inst_type: Any = None,
+        mgn_mode: Any = None,
+        uly: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async get interest rate for borrowing"""
+        return self._rest_async("get_interest_rate", ccy, inst_type, mgn_mode, uly, extra_data, **kwargs)
+
+    def _get_underlying(
+        self, inst_type: Any, uly: Any = None, extra_data: Any = None, **kwargs: Any
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """
+        Get underlying index
+        :param inst_type: Instrument type: `FUTURES`, `SWAP`, `OPTION` (required)
+        :param uly: Underlying
+        :param extra_data: extra_data, default is None, can be a dict passed by user
+        :param kwargs: pass key-worded, variable-length arguments.
+        :return: path, params, extra_data
+        """
+        request_type = "get_underlying"
+        params = {"instType": inst_type}
+        if uly:
+            params["uly"] = uly
+        path = self._params.get_rest_path(request_type)
+        extra_data = update_extra_data(
+            extra_data,
+            **{
+                "request_type": request_type,
+                "symbol_name": uly or "ALL",
+                "asset_type": inst_type,
+                "exchange_name": self.exchange_name,
+                "normalize_function": self._get_underlying_normalize_function,
+            },
+        )
+        if kwargs is not None:
+            extra_data.update(kwargs)
+        return path, params, extra_data
+
+    @staticmethod
+    def _get_underlying_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
+        status = input_data["code"] == "0"
+        if "data" not in input_data:
+            return [], status
+        data = input_data["data"]
+        target_data = data if len(data) > 0 else []
+        return target_data, status
+
+    def get_underlying(
+        self, inst_type: Any, uly: Any = None, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
+        """Get underlying index"""
+        return self._rest("get_underlying", inst_type, uly, extra_data, **kwargs)
+
+    def async_get_underlying(
+        self, inst_type: Any, uly: Any = None, extra_data: Any = None, **kwargs: Any
+    ) -> None:
+        """Async get underlying index"""
+        return self._rest_async("get_underlying", inst_type, uly, extra_data, **kwargs)
+
+    def _get_insurance_fund(
+        self,
+        inst_type: Any,
+        uly: Any = None,
+        inst_id: Any = None,
+        after: Any = None,
+        before: Any = None,
+        limit: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """
+        Get insurance fund balance
+        :param inst_type: Instrument type: `MARGIN`, `FUTURES`, `SWAP`, `OPTION` (required)
+        :param uly: Underlying
+        :param inst_id: Instrument ID
+        :param after: Pagination (older data)
+        :param before: Pagination (newer data)
+        :param limit: Default 100, max 100
+        :param extra_data: extra_data, default is None, can be a dict passed by user
+        :param kwargs: pass key-worded, variable-length arguments.
+        :return: path, params, extra_data
+        """
+        request_type = "get_insurance_fund"
+        params = {"instType": inst_type}
+        if uly:
+            params["uly"] = uly
+        if inst_id:
+            params["instId"] = inst_id
+        if after:
+            params["after"] = after
+        if before:
+            params["before"] = before
+        if limit:
+            params["limit"] = limit
+        path = self._params.get_rest_path(request_type)
+        extra_data = update_extra_data(
+            extra_data,
+            **{
+                "request_type": request_type,
+                "symbol_name": inst_id or "ALL",
+                "asset_type": inst_type,
+                "exchange_name": self.exchange_name,
+                "normalize_function": self._get_insurance_fund_normalize_function,
+            },
+        )
+        if kwargs is not None:
+            extra_data.update(kwargs)
+        return path, params, extra_data
+
+    @staticmethod
+    def _get_insurance_fund_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
+        status = input_data["code"] == "0"
+        if "data" not in input_data:
+            return [], status
+        data = input_data["data"]
+        target_data = data if len(data) > 0 else []
+        return target_data, status
+
+    def get_insurance_fund(
+        self,
+        inst_type: Any,
+        uly: Any = None,
+        inst_id: Any = None,
+        after: Any = None,
+        before: Any = None,
+        limit: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Get insurance fund balance"""
+        return self._rest("get_insurance_fund", inst_type, uly, inst_id, after, before, limit, extra_data, **kwargs)
+
+    def async_get_insurance_fund(
+        self,
+        inst_type: Any,
+        uly: Any = None,
+        inst_id: Any = None,
+        after: Any = None,
+        before: Any = None,
+        limit: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async get insurance fund balance"""
+        return self._rest_async("get_insurance_fund", inst_type, uly, inst_id, after, before, limit, extra_data, **kwargs)
+
+    def _convert_contract_coin(
+        self,
+        inst_type: Any,
+        uly: Any,
+        inst_id: Any,
+        amount: Any,
+        unit: Any,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """
+        Convert contract unit
+        :param inst_type: Instrument type: `FUTURES`, `SWAP` (required)
+        :param uly: Underlying (required)
+        :param inst_id: Instrument ID (required)
+        :param amount: Quantity to be converted (required)
+        :param unit: Unit of amount to be converted: `ccy`, `ct` (required)
+        :param extra_data: extra_data, default is None, can be a dict passed by user
+        :param kwargs: pass key-worded, variable-length arguments.
+        :return: path, params, extra_data
+        """
+        request_type = "convert_contract_coin"
+        params = {
+            "instType": inst_type,
+            "uly": uly,
+            "instId": inst_id,
+            "amount": amount,
+            "unit": unit,
+        }
+        path = self._params.get_rest_path(request_type)
+        extra_data = update_extra_data(
+            extra_data,
+            **{
+                "request_type": request_type,
+                "symbol_name": inst_id,
+                "asset_type": inst_type,
+                "exchange_name": self.exchange_name,
+                "normalize_function": self._convert_contract_coin_normalize_function,
+            },
+        )
+        if kwargs is not None:
+            extra_data.update(kwargs)
+        return path, params, extra_data
+
+    @staticmethod
+    def _convert_contract_coin_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
+        status = input_data["code"] == "0"
+        if "data" not in input_data:
+            return [], status
+        data = input_data["data"]
+        target_data = data if len(data) > 0 else []
+        return target_data, status
+
+    def convert_contract_coin(
+        self,
+        inst_type: Any,
+        uly: Any,
+        inst_id: Any,
+        amount: Any,
+        unit: Any,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Convert contract unit"""
+        return self._rest("convert_contract_coin", inst_type, uly, inst_id, amount, unit, extra_data, **kwargs)
+
+    def async_convert_contract_coin(
+        self,
+        inst_type: Any,
+        uly: Any,
+        inst_id: Any,
+        amount: Any,
+        unit: Any,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async convert contract unit"""
+        return self._rest_async("convert_contract_coin", inst_type, uly, inst_id, amount, unit, extra_data, **kwargs)
+
+    def _get_instrument_tick_bands(
+        self,
+        inst_type: Any,
+        uly: Any = None,
+        inst_id: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """
+        Get instrument minimum tick size
+        :param inst_type: Instrument type: `SPOT`, `MARGIN`, `FUTURES`, `SWAP`, `OPTION` (required)
+        :param uly: Underlying
+        :param inst_id: Instrument ID
+        :param extra_data: extra_data, default is None, can be a dict passed by user
+        :param kwargs: pass key-worded, variable-length arguments.
+        :return: path, params, extra_data
+        """
+        request_type = "get_instrument_tick_bands"
+        params = {"instType": inst_type}
+        if uly:
+            params["uly"] = uly
+        if inst_id:
+            params["instId"] = inst_id
+        path = self._params.get_rest_path(request_type)
+        extra_data = update_extra_data(
+            extra_data,
+            **{
+                "request_type": request_type,
+                "symbol_name": inst_id or "ALL",
+                "asset_type": inst_type,
+                "exchange_name": self.exchange_name,
+                "normalize_function": self._get_instrument_tick_bands_normalize_function,
+            },
+        )
+        if kwargs is not None:
+            extra_data.update(kwargs)
+        return path, params, extra_data
+
+    @staticmethod
+    def _get_instrument_tick_bands_normalize_function(
+        input_data: Any, extra_data: Any
+    ) -> tuple[Any, bool]:
+        status = input_data["code"] == "0"
+        if "data" not in input_data:
+            return [], status
+        data = input_data["data"]
+        target_data = data if len(data) > 0 else []
+        return target_data, status
+
+    def get_instrument_tick_bands(
+        self,
+        inst_type: Any,
+        uly: Any = None,
+        inst_id: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Get instrument minimum tick size"""
+        return self._rest("get_instrument_tick_bands", inst_type, uly, inst_id, extra_data, **kwargs)
+
+    def async_get_instrument_tick_bands(
+        self,
+        inst_type: Any,
+        uly: Any = None,
+        inst_id: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async get instrument minimum tick size"""
+        return self._rest_async("get_instrument_tick_bands", inst_type, uly, inst_id, extra_data, **kwargs)
+
+    def _get_system_time(
+        self, extra_data: Any = None, **kwargs: Any
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Get system time"""
+        params: dict[str, Any] = {}
+        return self._finish(
+            "get_system_time",
+            params,
+            extra_data,
+            "SYSTEM",
+            generic_normalize_function,
+            kwargs,
+        )
+
+    def get_system_time(self, extra_data: Any = None, **kwargs: Any) -> Any:
+        """Get system time"""
+        return self._rest("get_system_time", extra_data, **kwargs)
+
+    def async_get_system_time(self, extra_data: Any = None, **kwargs: Any) -> None:
+        """Async get system time"""
+        return self._rest_async("get_system_time", extra_data, **kwargs)
+
+    def _get_tickers(
+        self,
+        inst_type: Any = "SWAP",
+        uly: Any = None,
+        inst_id: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Get tickers for all instruments"""
+        request_type = "get_tickers"
+        params = {"instType": inst_type}
+        if uly:
+            params["uly"] = uly
+        if inst_id:
+            params["instId"] = inst_id
+        path = self._params.get_rest_path(request_type)
+        extra_data = update_extra_data(
+            extra_data,
+            **{
+                "request_type": request_type,
+                "symbol_name": inst_id or "ALL",
+                "asset_type": inst_type,
+                "exchange_name": self.exchange_name,
+                "normalize_function": generic_normalize_function,
+            },
+        )
+        if kwargs is not None:
+            extra_data.update(kwargs)
+        return path, params, extra_data
+
+    def get_tickers(
+        self,
+        inst_type: Any = "SWAP",
+        uly: Any = None,
+        inst_id: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Get tickers for all instruments"""
+        return self._rest("get_tickers", inst_type, uly, inst_id, extra_data, **kwargs)
+
+    def async_get_tickers(
+        self,
+        inst_type: Any = "SWAP",
+        uly: Any = None,
+        inst_id: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async get tickers for all instruments"""
+        return self._rest_async("get_tickers", inst_type, uly, inst_id, extra_data, **kwargs)
+
+    def _get_depth_full(
+        self, symbol: Any, sz: Any = 100, extra_data: Any = None, **kwargs: Any
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Get full depth order book"""
+        request_symbol = self._params.get_symbol(symbol)
+        params = {"instId": request_symbol, "sz": sz}
+        return self._finish(
+            "get_depth_full",
+            params,
+            extra_data,
+            symbol,
+            self._get_depth_normalize_function,
+            kwargs,
+        )
+
+    def get_depth_full(
+        self, symbol: Any, sz: Any = 100, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
+        """Get full depth order book"""
+        return self._rest("get_depth_full", symbol, sz, extra_data, **kwargs)
+
+    def async_get_depth_full(
+        self, symbol: Any, sz: Any = 100, extra_data: Any = None, **kwargs: Any
+    ) -> None:
+        """Async get full depth order book"""
+        return self._rest_async("get_depth_full", symbol, sz, extra_data, **kwargs)
+
+    def _get_kline_his(
+        self,
+        symbol: Any,
+        bar: Any = "1m",
+        after: Any = "",
+        before: Any = "",
+        limit: Any = "100",
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Get historical kline data"""
+        request_symbol = self._params.get_symbol(symbol)
+        params = {
+            "instId": request_symbol,
+            "bar": bar,
+        }
+        if after:
+            params["after"] = after
+        if before:
+            params["before"] = before
+        if limit:
+            params["limit"] = limit
+        return self._finish(
+            "get_kline_his",
+            params,
+            extra_data,
+            symbol,
+            self._get_kline_normalize_function,
+            kwargs,
+        )
+
+    def get_kline_his(
+        self,
+        symbol: Any,
+        bar: Any = "1m",
+        after: Any = "",
+        before: Any = "",
+        limit: Any = "100",
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Get historical kline data"""
+        return self._rest("get_kline_his", symbol, bar, after, before, limit, extra_data, **kwargs)
+
+    def async_get_kline_his(
+        self,
+        symbol: Any,
+        bar: Any = "1m",
+        after: Any = "",
+        before: Any = "",
+        limit: Any = "100",
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async get historical kline data"""
+        return self._rest_async("get_kline_his", symbol, bar, after, before, limit, extra_data, **kwargs)
+
+    def _get_trades(
+        self, symbol: Any, limit: Any = "100", extra_data: Any = None, **kwargs: Any
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Get recent trades"""
+        request_symbol = self._params.get_symbol(symbol)
+        params = {"instId": request_symbol, "limit": limit}
+        return self._finish(
+            "get_trades",
+            params,
+            extra_data,
+            symbol,
+            generic_normalize_function,
+            kwargs,
+        )
+
+    def get_trades(
+        self, symbol: Any, limit: Any = "100", extra_data: Any = None, **kwargs: Any
+    ) -> Any:
+        """Get recent trades"""
+        return self._rest("get_trades", symbol, limit, extra_data, **kwargs)
+
+    def async_get_trades(
+        self, symbol: Any, limit: Any = "100", extra_data: Any = None, **kwargs: Any
+    ) -> None:
+        """Async get recent trades"""
+        return self._rest_async("get_trades", symbol, limit, extra_data, **kwargs)
+
+    def _get_trades_history(
+        self,
+        symbol: Any,
+        after: Any = "",
+        before: Any = "",
+        limit: Any = "100",
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Get historical trades data"""
+        request_symbol = self._params.get_symbol(symbol)
+        params = {
+            "instId": request_symbol,
+        }
+        if after:
+            params["after"] = after
+        if before:
+            params["before"] = before
+        if limit:
+            params["limit"] = limit
+        return self._finish(
+            "get_trades_history",
+            params,
+            extra_data,
+            symbol,
+            generic_normalize_function,
+            kwargs,
+        )
+
+    def get_trades_history(
+        self,
+        symbol: Any,
+        after: Any = "",
+        before: Any = "",
+        limit: Any = "100",
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Get historical trades data"""
+        return self._rest("get_trades_history", symbol, after, before, limit, extra_data, **kwargs)
+
+    def async_get_trades_history(
+        self,
+        symbol: Any,
+        after: Any = "",
+        before: Any = "",
+        limit: Any = "100",
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async get historical trades data"""
+        return self._rest_async("get_trades_history", symbol, after, before, limit, extra_data, **kwargs)
+
+    def _get_public_instruments(
+        self,
+        inst_type: Any,
+        uly: Any = None,
+        inst_id: Any = None,
+        uly_multi: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Get public instruments"""
+        request_type = "get_public_instruments"
+        params = {"instType": inst_type}
+        if uly:
+            params["uly"] = uly
+        if inst_id:
+            params["instId"] = inst_id
+        if uly_multi:
+            params["ulyMulti"] = uly_multi
+        path = self._params.get_rest_path(request_type)
+        extra_data = update_extra_data(
+            extra_data,
+            **{
+                "request_type": request_type,
+                "symbol_name": inst_id or "ALL",
+                "asset_type": inst_type,
+                "exchange_name": self.exchange_name,
+                "normalize_function": generic_normalize_function,
+            },
+        )
+        if kwargs is not None:
+            extra_data.update(kwargs)
+        return path, params, extra_data
+
+    def get_public_instruments(
+        self,
+        inst_type: Any,
+        uly: Any = None,
+        inst_id: Any = None,
+        uly_multi: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Get public instruments"""
+        return self._rest("get_public_instruments", inst_type, uly, inst_id, uly_multi, extra_data, **kwargs)
+
+    def async_get_public_instruments(
+        self,
+        inst_type: Any,
+        uly: Any = None,
+        inst_id: Any = None,
+        uly_multi: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async get public instruments"""
+        return self._rest_async("get_public_instruments", inst_type, uly, inst_id, uly_multi, extra_data, **kwargs)
+
+    def _get_delivery_exercise_history(
+        self,
+        inst_type: Any,
+        uly: Any,
+        after: Any = "",
+        before: Any = "",
+        limit: Any = "100",
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Get delivery exercise history"""
+        request_type = "get_delivery_exercise_history"
+        params = {
+            "instType": inst_type,
+            "uly": uly,
+        }
+        if after:
+            params["after"] = after
+        if before:
+            params["before"] = before
+        if limit:
+            params["limit"] = limit
+        path = self._params.get_rest_path(request_type)
+        extra_data = update_extra_data(
+            extra_data,
+            **{
+                "request_type": request_type,
+                "symbol_name": uly,
+                "asset_type": inst_type,
+                "exchange_name": self.exchange_name,
+                "normalize_function": generic_normalize_function,
+            },
+        )
+        if kwargs is not None:
+            extra_data.update(kwargs)
+        return path, params, extra_data
+
+    def get_delivery_exercise_history(
+        self,
+        inst_type: Any,
+        uly: Any,
+        after: Any = "",
+        before: Any = "",
+        limit: Any = "100",
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Get delivery exercise history"""
+        return self._rest("get_delivery_exercise_history", inst_type, uly, after, before, limit, extra_data, **kwargs)
+
+    def async_get_delivery_exercise_history(
+        self,
+        inst_type: Any,
+        uly: Any,
+        after: Any = "",
+        before: Any = "",
+        limit: Any = "100",
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async get delivery exercise history"""
+        return self._rest_async("get_delivery_exercise_history", inst_type, uly, after, before, limit, extra_data, **kwargs)
+
+    def _get_estimated_settlement_price(
+        self,
+        inst_type: Any,
+        uly: Any = None,
+        inst_id: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Get estimated settlement price"""
+        request_type = "get_estimated_settlement_price"
+        params = {"instType": inst_type}
+        if uly:
+            params["uly"] = uly
+        if inst_id:
+            params["instId"] = inst_id
+        path = self._params.get_rest_path(request_type)
+        extra_data = update_extra_data(
+            extra_data,
+            **{
+                "request_type": request_type,
+                "symbol_name": inst_id or uly or "ALL",
+                "asset_type": inst_type,
+                "exchange_name": self.exchange_name,
+                "normalize_function": generic_normalize_function,
+            },
+        )
+        if kwargs is not None:
+            extra_data.update(kwargs)
+        return path, params, extra_data
+
+    def get_estimated_settlement_price(
+        self,
+        inst_type: Any,
+        uly: Any = None,
+        inst_id: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Get estimated settlement price"""
+        return self._rest("get_estimated_settlement_price", inst_type, uly, inst_id, extra_data, **kwargs)
+
+    def async_get_estimated_settlement_price(
+        self,
+        inst_type: Any,
+        uly: Any = None,
+        inst_id: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async get estimated settlement price"""
+        return self._rest_async("get_estimated_settlement_price", inst_type, uly, inst_id, extra_data, **kwargs)
+
+    def _get_settlement_history(
+        self,
+        inst_type: Any,
+        uly: Any,
+        after: Any = "",
+        before: Any = "",
+        limit: Any = "100",
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Get settlement history"""
+        request_type = "get_settlement_history"
+        params = {
+            "instType": inst_type,
+            "uly": uly,
+        }
+        if after:
+            params["after"] = after
+        if before:
+            params["before"] = before
+        if limit:
+            params["limit"] = limit
+        path = self._params.get_rest_path(request_type)
+        extra_data = update_extra_data(
+            extra_data,
+            **{
+                "request_type": request_type,
+                "symbol_name": uly,
+                "asset_type": inst_type,
+                "exchange_name": self.exchange_name,
+                "normalize_function": generic_normalize_function,
+            },
+        )
+        if kwargs is not None:
+            extra_data.update(kwargs)
+        return path, params, extra_data
+
+    def get_settlement_history(
+        self,
+        inst_type: Any,
+        uly: Any,
+        after: Any = "",
+        before: Any = "",
+        limit: Any = "100",
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Get settlement history"""
+        return self._rest("get_settlement_history", inst_type, uly, after, before, limit, extra_data, **kwargs)
+
+    def async_get_settlement_history(
+        self,
+        inst_type: Any,
+        uly: Any,
+        after: Any = "",
+        before: Any = "",
+        limit: Any = "100",
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async get settlement history"""
+        return self._rest_async("get_settlement_history", inst_type, uly, after, before, limit, extra_data, **kwargs)
+
+    def _get_price_limit(
+        self,
+        inst_type: Any,
+        uly: Any = None,
+        inst_id: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Get price limit"""
+        request_type = "get_price_limit"
+        params = {"instType": inst_type}
+        if uly:
+            params["uly"] = uly
+        if inst_id:
+            params["instId"] = inst_id
+        path = self._params.get_rest_path(request_type)
+        extra_data = update_extra_data(
+            extra_data,
+            **{
+                "request_type": request_type,
+                "symbol_name": inst_id or uly or "ALL",
+                "asset_type": inst_type,
+                "exchange_name": self.exchange_name,
+                "normalize_function": generic_normalize_function,
+            },
+        )
+        if kwargs is not None:
+            extra_data.update(kwargs)
+        return path, params, extra_data
+
+    def get_price_limit(
+        self,
+        inst_type: Any,
+        uly: Any = None,
+        inst_id: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Get price limit"""
+        return self._rest("get_price_limit", inst_type, uly, inst_id, extra_data, **kwargs)
+
+    def async_get_price_limit(
+        self,
+        inst_type: Any,
+        uly: Any = None,
+        inst_id: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async get price limit"""
+        return self._rest_async("get_price_limit", inst_type, uly, inst_id, extra_data, **kwargs)
+
+    def _get_opt_summary(
+        self,
+        inst_type: Any = "OPTION",
+        uly: Any = None,
+        exp_time: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Get option summary"""
+        request_type = "get_opt_summary"
+        params = {"instType": inst_type}
+        if uly:
+            params["uly"] = uly
+        if exp_time:
+            params["expTime"] = exp_time
+        path = self._params.get_rest_path(request_type)
+        extra_data = update_extra_data(
+            extra_data,
+            **{
+                "request_type": request_type,
+                "symbol_name": uly or "ALL",
+                "asset_type": inst_type,
+                "exchange_name": self.exchange_name,
+                "normalize_function": generic_normalize_function,
+            },
+        )
+        if kwargs is not None:
+            extra_data.update(kwargs)
+        return path, params, extra_data
+
+    def get_opt_summary(
+        self,
+        inst_type: Any = "OPTION",
+        uly: Any = None,
+        exp_time: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Get option summary"""
+        return self._rest("get_opt_summary", inst_type, uly, exp_time, extra_data, **kwargs)
+
+    def async_get_opt_summary(
+        self,
+        inst_type: Any = "OPTION",
+        uly: Any = None,
+        exp_time: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async get option summary"""
+        return self._rest_async("get_opt_summary", inst_type, uly, exp_time, extra_data, **kwargs)
+
+    def _get_position_tiers_public(
+        self,
+        inst_type: Any,
+        uly: Any = None,
+        inst_id: Any = None,
+        tier: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Get position tiers (public)"""
+        request_type = "get_position_tiers_public"
+        params = {"instType": inst_type}
+        if uly:
+            params["uly"] = uly
+        if inst_id:
+            params["instId"] = inst_id
+        if tier:
+            params["tier"] = tier
+        path = self._params.get_rest_path(request_type)
+        extra_data = update_extra_data(
+            extra_data,
+            **{
+                "request_type": request_type,
+                "symbol_name": inst_id or uly or "ALL",
+                "asset_type": inst_type,
+                "exchange_name": self.exchange_name,
+                "normalize_function": generic_normalize_function,
+            },
+        )
+        if kwargs is not None:
+            extra_data.update(kwargs)
+        return path, params, extra_data
+
+    def get_position_tiers_public(
+        self,
+        inst_type: Any,
+        uly: Any = None,
+        inst_id: Any = None,
+        tier: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Get position tiers (public)"""
+        return self._rest("get_position_tiers_public", inst_type, uly, inst_id, tier, extra_data, **kwargs)
+
+    def async_get_position_tiers_public(
+        self,
+        inst_type: Any,
+        uly: Any = None,
+        inst_id: Any = None,
+        tier: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async get position tiers (public)"""
+        return self._rest_async("get_position_tiers_public", inst_type, uly, inst_id, tier, extra_data, **kwargs)
+

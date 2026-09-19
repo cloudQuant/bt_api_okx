@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from bt_api_base.logging_factory import get_logger
+
 from bt_api_okx.exchange_data import OkxExchangeDataFutures
 from bt_api_okx.feeds.live_okx.account_wss_base import (
     OkxAccountWssData,
@@ -11,7 +13,6 @@ from bt_api_okx.feeds.live_okx.account_wss_base import (
 )
 from bt_api_okx.feeds.live_okx.market_wss_base import OkxWssData
 from bt_api_okx.feeds.live_okx.request_base import OkxRequestData
-from bt_api_base.logging_factory import get_logger
 
 
 class OkxRequestDataFutures(OkxRequestData):

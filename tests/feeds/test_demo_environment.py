@@ -11,7 +11,6 @@ from unittest.mock import AsyncMock, Mock
 
 import httpx
 import pytest
-
 from bt_api_okx.environment import configure_environment
 from bt_api_okx.exchange_data import OkxExchangeDataSwap
 from bt_api_okx.feeds.live_okx.account_wss_base import OkxAccountWssData

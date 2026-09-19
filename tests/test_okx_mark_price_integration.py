@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import pytest
-
 from bt_api_okx.containers.markprices.okx_mark_price import OkxMarkPriceData
 
 

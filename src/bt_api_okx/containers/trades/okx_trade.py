@@ -17,7 +17,7 @@ class OkxTradeData(TradeData):
         """__init__ method"""
         super().__init__(trade_info, has_been_json_encoded)
         self.exchange_name = "OKX"
-        self.local_update_time = time.time()  # 
+        self.local_update_time = time.time()  #
         self.asset_type = asset_type
         self.symbol_name = symbol_name
         self.trade_data = trade_info if has_been_json_encoded else None

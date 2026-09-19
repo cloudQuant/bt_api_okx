@@ -3,6 +3,9 @@ from __future__ import annotations
 
 from typing import Any
 
+from bt_api_base.functions.utils import update_extra_data
+from bt_api_base.logging_factory import get_logger
+
 from bt_api_okx.exchange_data import OkxExchangeDataSpot
 from bt_api_okx.feeds.live_okx.account_wss_base import (
     OkxAccountWssData,
@@ -11,8 +14,6 @@ from bt_api_okx.feeds.live_okx.account_wss_base import (
 )
 from bt_api_okx.feeds.live_okx.market_wss_base import OkxWssData
 from bt_api_okx.feeds.live_okx.request_base import OkxRequestData
-from bt_api_base.functions.utils import update_extra_data
-from bt_api_base.logging_factory import get_logger
 
 
 class OkxRequestDataSpot(OkxRequestData):
@@ -28,7 +29,7 @@ class OkxRequestDataSpot(OkxRequestData):
 
     def _get_index_price(
         self, symbol: Any, extra_data: Any = None, **kwargs: Any
-    ) -> None:
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
         request_symbol = self._params.get_symbol(symbol) if symbol is not None else ""
         request_type = "get_index_price"
         params = {

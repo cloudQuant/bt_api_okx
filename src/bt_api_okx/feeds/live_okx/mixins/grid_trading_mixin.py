@@ -1,21 +1,1388 @@
 """
 OKX API - GridTradingMixin
-Auto-generated from request_base.py
+
+由机械切分的 ``*_partN`` 模块合并而来（迭代07 结构治理）。
 """
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from typing import Any
 
 from bt_api_okx.feeds.live_okx.mixins.normalizers import generic_normalize_function
-from bt_api_base.functions.utils import update_extra_data
+from bt_api_okx.feeds.live_okx.mixins.rest_call_mixin import RestCallMixin
 
 
-from bt_api_okx.feeds.live_okx.mixins.grid_trading_mixin_part1 import GridTradingMixinPart1
-from bt_api_okx.feeds.live_okx.mixins.grid_trading_mixin_part2 import GridTradingMixinPart2
-from bt_api_okx.feeds.live_okx.mixins.grid_trading_mixin_part3 import GridTradingMixinPart3
+class GridTradingMixin(RestCallMixin):
+    """GridTradingMixin 方法集合（OKX REST 端点）。"""
+    def _grid_order_algo(
+        self,
+        inst_id: Any,
+        td_mode: Any,
+        ccy: Any,
+        algo_algo_type: Any,
+        max_px: Any,
+        min_px: Any,
+        grid_num: Any,
+        run_type: Any = None,
+        sz: Any = None,
+        base_sz: Any = None,
+        trigger_px: Any = None,
+        trigger_time: Any = None,
+        attach_algo_cl_or: Any = None,
+        attach_algo_om_trigger_px: Any = None,
+        tp_px: Any = None,
+        tp_trigger_px: Any = None,
+        sl_px: Any = None,
+        sl_trigger_px: Any = None,
+        fast_callback_speed: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Create grid strategy order"""
+        params = {
+            "instId": inst_id,
+            "tdMode": td_mode,
+            "algoAlgoType": algo_algo_type,  # "grid_regular" or "grid_contract"
+            "maxPx": max_px,
+            "minPx": min_px,
+            "gridNum": grid_num,
+            "runType": run_type or "1",  # 1: single, 2: neutral
+        }
+        if ccy:
+            params["ccy"] = ccy
+        if sz is not None:
+            params["sz"] = sz
+        if base_sz is not None:
+            params["baseSz"] = base_sz
+        if trigger_px is not None:
+            params["triggerPx"] = trigger_px
+        if trigger_time is not None:
+            params["triggerTime"] = trigger_time
+        if attach_algo_cl_or is not None:
+            params["attachAlgoClOrd"] = attach_algo_cl_or
+        if attach_algo_om_trigger_px is not None:
+            params["attachAlgoOmTriggerPx"] = attach_algo_om_trigger_px
+        if tp_px is not None:
+            params["tpPx"] = tp_px
+        if tp_trigger_px is not None:
+            params["tpTriggerPx"] = tp_trigger_px
+        if sl_px is not None:
+            params["slPx"] = sl_px
+        if sl_trigger_px is not None:
+            params["slTriggerPx"] = sl_trigger_px
+        if fast_callback_speed is not None:
+            params["fastCallbackSpeed"] = fast_callback_speed
+        return self._finish(
+            "grid_order_algo",
+            params,
+            extra_data,
+            inst_id,
+            generic_normalize_function,
+            kwargs,
+        )
 
+    def grid_order_algo(
+        self,
+        inst_id: Any,
+        td_mode: Any,
+        ccy: Any,
+        algo_algo_type: Any,
+        max_px: Any,
+        min_px: Any,
+        grid_num: Any,
+        run_type: Any = None,
+        sz: Any = None,
+        base_sz: Any = None,
+        trigger_px: Any = None,
+        trigger_time: Any = None,
+        attach_algo_cl_or: Any = None,
+        attach_algo_om_trigger_px: Any = None,
+        tp_px: Any = None,
+        tp_trigger_px: Any = None,
+        sl_px: Any = None,
+        sl_trigger_px: Any = None,
+        fast_callback_speed: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Create grid strategy order"""
+        path, params, extra_data = self._grid_order_algo(
+            inst_id,
+            td_mode,
+            ccy,
+            algo_algo_type,
+            max_px,
+            min_px,
+            grid_num,
+            run_type,
+            sz,
+            base_sz,
+            trigger_px,
+            trigger_time,
+            attach_algo_cl_or,
+            attach_algo_om_trigger_px,
+            tp_px,
+            tp_trigger_px,
+            sl_px,
+            sl_trigger_px,
+            fast_callback_speed,
+            extra_data,
+            **kwargs,
+        )
+        data = self.request(path, body=params, extra_data=extra_data)
+        return data
 
-class GridTradingMixin(GridTradingMixinPart1, GridTradingMixinPart2, GridTradingMixinPart3):
-    """GridTradingMixin 聚合。"""
+    def async_grid_order_algo(
+        self,
+        inst_id: Any,
+        td_mode: Any,
+        ccy: Any,
+        algo_algo_type: Any,
+        max_px: Any,
+        min_px: Any,
+        grid_num: Any,
+        run_type: Any = None,
+        sz: Any = None,
+        base_sz: Any = None,
+        trigger_px: Any = None,
+        trigger_time: Any = None,
+        attach_algo_cl_or: Any = None,
+        attach_algo_om_trigger_px: Any = None,
+        tp_px: Any = None,
+        tp_trigger_px: Any = None,
+        sl_px: Any = None,
+        sl_trigger_px: Any = None,
+        fast_callback_speed: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async create grid strategy order"""
+        path, params, extra_data = self._grid_order_algo(
+            inst_id,
+            td_mode,
+            ccy,
+            algo_algo_type,
+            max_px,
+            min_px,
+            grid_num,
+            run_type,
+            sz,
+            base_sz,
+            trigger_px,
+            trigger_time,
+            attach_algo_cl_or,
+            attach_algo_om_trigger_px,
+            tp_px,
+            tp_trigger_px,
+            sl_px,
+            sl_trigger_px,
+            fast_callback_speed,
+            extra_data,
+            **kwargs,
+        )
+        self.submit(
+            self.async_request(path, body=params, extra_data=extra_data),
+            callback=self.async_callback,
+        )
+
+    def _grid_amend_order_algo(
+        self,
+        algo_id: Any,
+        inst_id: Any,
+        trigger_px: Any = None,
+        max_px: Any = None,
+        min_px: Any = None,
+        tp_px: Any = None,
+        tp_trigger_px: Any = None,
+        sl_px: Any = None,
+        sl_trigger_px: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Amend grid strategy order"""
+        params = {
+            "algoId": algo_id,
+            "instId": inst_id,
+        }
+        if trigger_px is not None:
+            params["triggerPx"] = trigger_px
+        if max_px is not None:
+            params["maxPx"] = max_px
+        if min_px is not None:
+            params["minPx"] = min_px
+        if tp_px is not None:
+            params["tpPx"] = tp_px
+        if tp_trigger_px is not None:
+            params["tpTriggerPx"] = tp_trigger_px
+        if sl_px is not None:
+            params["slPx"] = sl_px
+        if sl_trigger_px is not None:
+            params["slTriggerPx"] = sl_trigger_px
+        return self._finish(
+            "grid_amend_order_algo",
+            params,
+            extra_data,
+            inst_id,
+            generic_normalize_function,
+            kwargs,
+        )
+
+    def grid_amend_order_algo(
+        self,
+        algo_id: Any,
+        inst_id: Any,
+        trigger_px: Any = None,
+        max_px: Any = None,
+        min_px: Any = None,
+        tp_px: Any = None,
+        tp_trigger_px: Any = None,
+        sl_px: Any = None,
+        sl_trigger_px: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Amend grid strategy order"""
+        path, params, extra_data = self._grid_amend_order_algo(
+            algo_id,
+            inst_id,
+            trigger_px,
+            max_px,
+            min_px,
+            tp_px,
+            tp_trigger_px,
+            sl_px,
+            sl_trigger_px,
+            extra_data,
+            **kwargs,
+        )
+        data = self.request(path, body=params, extra_data=extra_data)
+        return data
+
+    def async_grid_amend_order_algo(
+        self,
+        algo_id: Any,
+        inst_id: Any,
+        trigger_px: Any = None,
+        max_px: Any = None,
+        min_px: Any = None,
+        tp_px: Any = None,
+        tp_trigger_px: Any = None,
+        sl_px: Any = None,
+        sl_trigger_px: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async amend grid strategy order"""
+        path, params, extra_data = self._grid_amend_order_algo(
+            algo_id,
+            inst_id,
+            trigger_px,
+            max_px,
+            min_px,
+            tp_px,
+            tp_trigger_px,
+            sl_px,
+            sl_trigger_px,
+            extra_data,
+            **kwargs,
+        )
+        self.submit(
+            self.async_request(path, body=params, extra_data=extra_data),
+            callback=self.async_callback,
+        )
+
+    def _grid_stop_order_algo(
+        self, algo_id: Any, inst_id: Any, extra_data: Any = None, **kwargs: Any
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Stop grid strategy order"""
+        params = {
+            "algoId": algo_id,
+            "instId": inst_id,
+        }
+        return self._finish(
+            "grid_stop_order_algo",
+            params,
+            extra_data,
+            inst_id,
+            generic_normalize_function,
+            kwargs,
+        )
+
+    def grid_stop_order_algo(
+        self, algo_id: Any, inst_id: Any, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
+        """Stop grid strategy order"""
+        path, params, extra_data = self._grid_stop_order_algo(
+            algo_id, inst_id, extra_data, **kwargs
+        )
+        data = self.request(path, body=params, extra_data=extra_data)
+        return data
+
+    def async_grid_stop_order_algo(
+        self, algo_id: Any, inst_id: Any, extra_data: Any = None, **kwargs: Any
+    ) -> None:
+        """Async stop grid strategy order"""
+        path, params, extra_data = self._grid_stop_order_algo(
+            algo_id, inst_id, extra_data, **kwargs
+        )
+        self.submit(
+            self.async_request(path, body=params, extra_data=extra_data),
+            callback=self.async_callback,
+        )
+
+    def _grid_orders_algo_pending(
+        self,
+        inst_type: Any = None,
+        inst_id: Any = None,
+        algo_id: Any = None,
+        after: Any = None,
+        before: Any = None,
+        limit: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Get grid strategy pending orders"""
+        params: dict[str, Any] = {}
+        if inst_type:
+            params["instType"] = inst_type
+        if inst_id:
+            params["instId"] = inst_id
+        if algo_id:
+            params["algoId"] = algo_id
+        if after:
+            params["after"] = after
+        if before:
+            params["before"] = before
+        if limit:
+            params["limit"] = limit
+        return self._finish(
+            "grid_orders_algo_pending",
+            params,
+            extra_data,
+            inst_id or "ALL",
+            generic_normalize_function,
+            kwargs,
+        )
+
+    def grid_orders_algo_pending(
+        self,
+        inst_type: Any = None,
+        inst_id: Any = None,
+        algo_id: Any = None,
+        after: Any = None,
+        before: Any = None,
+        limit: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Get grid strategy pending orders"""
+        return self._rest("grid_orders_algo_pending", inst_type, inst_id, algo_id, after, before, limit, extra_data, **kwargs)
+
+    def async_grid_orders_algo_pending(
+        self,
+        inst_type: Any = None,
+        inst_id: Any = None,
+        algo_id: Any = None,
+        after: Any = None,
+        before: Any = None,
+        limit: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async get grid strategy pending orders"""
+        return self._rest_async("grid_orders_algo_pending", inst_type, inst_id, algo_id, after, before, limit, extra_data, **kwargs)
+
+    def _grid_orders_algo_history(
+        self,
+        inst_type: Any = None,
+        inst_id: Any = None,
+        algo_id: Any = None,
+        state: Any = None,
+        after: Any = None,
+        before: Any = None,
+        limit: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Get grid strategy order history"""
+        params: dict[str, Any] = {}
+        if inst_type:
+            params["instType"] = inst_type
+        if inst_id:
+            params["instId"] = inst_id
+        if algo_id:
+            params["algoId"] = algo_id
+        if state:
+            params["state"] = state
+        if after:
+            params["after"] = after
+        if before:
+            params["before"] = before
+        if limit:
+            params["limit"] = limit
+        return self._finish(
+            "grid_orders_algo_history",
+            params,
+            extra_data,
+            inst_id or "ALL",
+            generic_normalize_function,
+            kwargs,
+        )
+
+    def grid_orders_algo_history(
+        self,
+        inst_type: Any = None,
+        inst_id: Any = None,
+        algo_id: Any = None,
+        state: Any = None,
+        after: Any = None,
+        before: Any = None,
+        limit: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Get grid strategy order history"""
+        return self._rest("grid_orders_algo_history", inst_type, inst_id, algo_id, state, after, before, limit, extra_data, **kwargs,)
+
+    def async_grid_orders_algo_history(
+        self,
+        inst_type: Any = None,
+        inst_id: Any = None,
+        algo_id: Any = None,
+        state: Any = None,
+        after: Any = None,
+        before: Any = None,
+        limit: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async get grid strategy order history"""
+        return self._rest_async("grid_orders_algo_history", inst_type, inst_id, algo_id, state, after, before, limit, extra_data, **kwargs,)
+
+    def _grid_amend_order_algo_basic(
+        self,
+        algo_id: Any,
+        inst_id: Any,
+        max_px: Any = None,
+        min_px: Any = None,
+        tp_px: Any = None,
+        tp_trigger_px: Any = None,
+        sl_px: Any = None,
+        sl_trigger_px: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Amend grid order (basic parameters) - ()"""
+        params = {
+            "algoId": algo_id,
+            "instId": inst_id,
+        }
+        if max_px is not None:
+            params["maxPx"] = max_px
+        if min_px is not None:
+            params["minPx"] = min_px
+        if tp_px is not None:
+            params["tpPx"] = tp_px
+        if tp_trigger_px is not None:
+            params["tpTriggerPx"] = tp_trigger_px
+        if sl_px is not None:
+            params["slPx"] = sl_px
+        if sl_trigger_px is not None:
+            params["slTriggerPx"] = sl_trigger_px
+        return self._finish(
+            "grid_amend_order_algo_basic",
+            params,
+            extra_data,
+            inst_id,
+            generic_normalize_function,
+            kwargs,
+        )
+
+    def grid_amend_order_algo_basic(
+        self,
+        algo_id: Any,
+        inst_id: Any,
+        max_px: Any = None,
+        min_px: Any = None,
+        tp_px: Any = None,
+        tp_trigger_px: Any = None,
+        sl_px: Any = None,
+        sl_trigger_px: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Amend grid order (basic parameters) - ()"""
+        path, params, extra_data = self._grid_amend_order_algo_basic(
+            algo_id,
+            inst_id,
+            max_px,
+            min_px,
+            tp_px,
+            tp_trigger_px,
+            sl_px,
+            sl_trigger_px,
+            extra_data,
+            **kwargs,
+        )
+        data = self.request(path, body=params, extra_data=extra_data)
+        return data
+
+    def async_grid_amend_order_algo_basic(
+        self,
+        algo_id: Any,
+        inst_id: Any,
+        max_px: Any = None,
+        min_px: Any = None,
+        tp_px: Any = None,
+        tp_trigger_px: Any = None,
+        sl_px: Any = None,
+        sl_trigger_px: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async amend grid order (basic parameters)"""
+        path, params, extra_data = self._grid_amend_order_algo_basic(
+            algo_id,
+            inst_id,
+            max_px,
+            min_px,
+            tp_px,
+            tp_trigger_px,
+            sl_px,
+            sl_trigger_px,
+            extra_data,
+            **kwargs,
+        )
+        self.submit(
+            self.async_request(path, body=params, extra_data=extra_data),
+            callback=self.async_callback,
+        )
+
+    def _grid_close_position(
+        self,
+        algo_id: Any,
+        inst_id: Any,
+        ccy: Any = None,
+        margin: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Close futures grid position - """
+        params = {
+            "algoId": algo_id,
+            "instId": inst_id,
+        }
+        if ccy:
+            params["ccy"] = ccy
+        if margin is not None:
+            params["margin"] = margin
+        return self._finish(
+            "grid_close_position",
+            params,
+            extra_data,
+            inst_id,
+            generic_normalize_function,
+            kwargs,
+        )
+
+    def grid_close_position(
+        self,
+        algo_id: Any,
+        inst_id: Any,
+        ccy: Any = None,
+        margin: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Close futures grid position - """
+        path, params, extra_data = self._grid_close_position(
+            algo_id, inst_id, ccy, margin, extra_data, **kwargs
+        )
+        data = self.request(path, body=params, extra_data=extra_data)
+        return data
+
+    def async_grid_close_position(
+        self,
+        algo_id: Any,
+        inst_id: Any,
+        ccy: Any = None,
+        margin: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async close futures grid position"""
+        path, params, extra_data = self._grid_close_position(
+            algo_id, inst_id, ccy, margin, extra_data, **kwargs
+        )
+        self.submit(
+            self.async_request(path, body=params, extra_data=extra_data),
+            callback=self.async_callback,
+        )
+
+    def _grid_cancel_close_order(
+        self, algo_id: Any, inst_id: Any, extra_data: Any = None, **kwargs: Any
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Cancel futures grid close order - """
+        params = {
+            "algoId": algo_id,
+            "instId": inst_id,
+        }
+        return self._finish(
+            "grid_cancel_close_order",
+            params,
+            extra_data,
+            inst_id,
+            generic_normalize_function,
+            kwargs,
+        )
+
+    def grid_cancel_close_order(
+        self, algo_id: Any, inst_id: Any, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
+        """Cancel futures grid close order - """
+        path, params, extra_data = self._grid_cancel_close_order(
+            algo_id, inst_id, extra_data, **kwargs
+        )
+        data = self.request(path, body=params, extra_data=extra_data)
+        return data
+
+    def async_grid_cancel_close_order(
+        self, algo_id: Any, inst_id: Any, extra_data: Any = None, **kwargs: Any
+    ) -> None:
+        """Async cancel futures grid close order"""
+        path, params, extra_data = self._grid_cancel_close_order(
+            algo_id, inst_id, extra_data, **kwargs
+        )
+        self.submit(
+            self.async_request(path, body=params, extra_data=extra_data),
+            callback=self.async_callback,
+        )
+
+    def _grid_order_instant_trigger(
+        self,
+        algo_id: Any,
+        inst_id: Any,
+        trigger_px: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Grid order instant trigger - """
+        params = {
+            "algoId": algo_id,
+            "instId": inst_id,
+        }
+        if trigger_px is not None:
+            params["triggerPx"] = trigger_px
+        return self._finish(
+            "grid_order_instant_trigger",
+            params,
+            extra_data,
+            inst_id,
+            generic_normalize_function,
+            kwargs,
+        )
+
+    def grid_order_instant_trigger(
+        self,
+        algo_id: Any,
+        inst_id: Any,
+        trigger_px: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Grid order instant trigger - """
+        path, params, extra_data = self._grid_order_instant_trigger(
+            algo_id, inst_id, trigger_px, extra_data, **kwargs
+        )
+        data = self.request(path, body=params, extra_data=extra_data)
+        return data
+
+    def async_grid_order_instant_trigger(
+        self,
+        algo_id: Any,
+        inst_id: Any,
+        trigger_px: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async grid order instant trigger"""
+        path, params, extra_data = self._grid_order_instant_trigger(
+            algo_id, inst_id, trigger_px, extra_data, **kwargs
+        )
+        self.submit(
+            self.async_request(path, body=params, extra_data=extra_data),
+            callback=self.async_callback,
+        )
+
+    def _grid_orders_algo_details(
+        self, algo_id: Any, inst_id: Any, extra_data: Any = None, **kwargs: Any
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Get grid order details - """
+        params = {
+            "algoId": algo_id,
+            "instId": inst_id,
+        }
+        return self._finish(
+            "grid_orders_algo_details",
+            params,
+            extra_data,
+            inst_id,
+            generic_normalize_function,
+            kwargs,
+        )
+
+    def grid_orders_algo_details(
+        self, algo_id: Any, inst_id: Any, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
+        """Get grid order details - """
+        return self._rest("grid_orders_algo_details", algo_id, inst_id, extra_data, **kwargs)
+
+    def async_grid_orders_algo_details(
+        self, algo_id: Any, inst_id: Any, extra_data: Any = None, **kwargs: Any
+    ) -> None:
+        """Async get grid order details"""
+        return self._rest_async("grid_orders_algo_details", algo_id, inst_id, extra_data, **kwargs)
+
+    def _grid_sub_orders(
+        self,
+        algo_id: Any,
+        inst_id: Any,
+        type: Any = None,
+        ord_id: Any = None,
+        after: Any = None,
+        before: Any = None,
+        limit: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Get grid sub orders - """
+        params = {
+            "algoId": algo_id,
+            "instId": inst_id,
+        }
+        if type is not None:
+            params["type"] = type
+        if ord_id:
+            params["ordId"] = ord_id
+        if after:
+            params["after"] = after
+        if before:
+            params["before"] = before
+        if limit:
+            params["limit"] = limit
+        return self._finish(
+            "grid_sub_orders",
+            params,
+            extra_data,
+            inst_id,
+            generic_normalize_function,
+            kwargs,
+        )
+
+    def grid_sub_orders(
+        self,
+        algo_id: Any,
+        inst_id: Any,
+        type: Any = None,
+        ord_id: Any = None,
+        after: Any = None,
+        before: Any = None,
+        limit: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Get grid sub orders - """
+        return self._rest("grid_sub_orders", algo_id, inst_id, type, ord_id, after, before, limit, extra_data, **kwargs)
+
+    def async_grid_sub_orders(
+        self,
+        algo_id: Any,
+        inst_id: Any,
+        type: Any = None,
+        ord_id: Any = None,
+        after: Any = None,
+        before: Any = None,
+        limit: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async get grid sub orders"""
+        return self._rest_async("grid_sub_orders", algo_id, inst_id, type, ord_id, after, before, limit, extra_data, **kwargs)
+
+    def _grid_positions(
+        self,
+        inst_type: Any = None,
+        inst_id: Any = None,
+        algo_id: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Get grid positions - """
+        params: dict[str, Any] = {}
+        if inst_type:
+            params["instType"] = inst_type
+        if inst_id:
+            params["instId"] = inst_id
+        if algo_id:
+            params["algoId"] = algo_id
+        return self._finish(
+            "grid_positions",
+            params,
+            extra_data,
+            inst_id or "ALL",
+            generic_normalize_function,
+            kwargs,
+        )
+
+    def grid_positions(
+        self,
+        inst_type: Any = None,
+        inst_id: Any = None,
+        algo_id: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Get grid positions - """
+        return self._rest("grid_positions", inst_type, inst_id, algo_id, extra_data, **kwargs)
+
+    def async_grid_positions(
+        self,
+        inst_type: Any = None,
+        inst_id: Any = None,
+        algo_id: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async get grid positions"""
+        return self._rest_async("grid_positions", inst_type, inst_id, algo_id, extra_data, **kwargs)
+
+    def _grid_withdraw_income(
+        self,
+        algo_id: Any,
+        inst_id: Any,
+        amt: Any,
+        ccy: Any = None,
+        type: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Spot grid withdraw income - """
+        params = {
+            "algoId": algo_id,
+            "instId": inst_id,
+            "amt": amt,
+        }
+        if ccy:
+            params["ccy"] = ccy
+        if type is not None:
+            params["type"] = type
+        return self._finish(
+            "grid_withdraw_income",
+            params,
+            extra_data,
+            inst_id,
+            generic_normalize_function,
+            kwargs,
+        )
+
+    def grid_withdraw_income(
+        self,
+        algo_id: Any,
+        inst_id: Any,
+        amt: Any,
+        ccy: Any = None,
+        type: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Spot grid withdraw income - """
+        path, params, extra_data = self._grid_withdraw_income(
+            algo_id, inst_id, amt, ccy, type, extra_data, **kwargs
+        )
+        data = self.request(path, body=params, extra_data=extra_data)
+        return data
+
+    def async_grid_withdraw_income(
+        self,
+        algo_id: Any,
+        inst_id: Any,
+        amt: Any,
+        ccy: Any = None,
+        type: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async spot grid withdraw income"""
+        path, params, extra_data = self._grid_withdraw_income(
+            algo_id, inst_id, amt, ccy, type, extra_data, **kwargs
+        )
+        self.submit(
+            self.async_request(path, body=params, extra_data=extra_data),
+            callback=self.async_callback,
+        )
+
+    def _grid_compute_margin_balance(
+        self,
+        inst_id: Any,
+        td_mode: Any,
+        ccy: Any,
+        algo_ords_type: Any,
+        sz: Any,
+        max_px: Any = None,
+        min_px: Any = None,
+        grid_num: Any = None,
+        trigger_px: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Compute margin balance - """
+        params = {
+            "instId": inst_id,
+            "tdMode": td_mode,
+            "ccy": ccy,
+            "algoOrdsType": algo_ords_type,
+            "sz": sz,
+        }
+        if max_px is not None:
+            params["maxPx"] = max_px
+        if min_px is not None:
+            params["minPx"] = min_px
+        if grid_num is not None:
+            params["gridNum"] = grid_num
+        if trigger_px is not None:
+            params["triggerPx"] = trigger_px
+        return self._finish(
+            "grid_compute_margin_balance",
+            params,
+            extra_data,
+            inst_id,
+            generic_normalize_function,
+            kwargs,
+        )
+
+    def grid_compute_margin_balance(
+        self,
+        inst_id: Any,
+        td_mode: Any,
+        ccy: Any,
+        algo_ords_type: Any,
+        sz: Any,
+        max_px: Any = None,
+        min_px: Any = None,
+        grid_num: Any = None,
+        trigger_px: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Compute margin balance - """
+        path, params, extra_data = self._grid_compute_margin_balance(
+            inst_id,
+            td_mode,
+            ccy,
+            algo_ords_type,
+            sz,
+            max_px,
+            min_px,
+            grid_num,
+            trigger_px,
+            extra_data,
+            **kwargs,
+        )
+        data = self.request(path, body=params, extra_data=extra_data)
+        return data
+
+    def async_grid_compute_margin_balance(
+        self,
+        inst_id: Any,
+        td_mode: Any,
+        ccy: Any,
+        algo_ords_type: Any,
+        sz: Any,
+        max_px: Any = None,
+        min_px: Any = None,
+        grid_num: Any = None,
+        trigger_px: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async compute margin balance"""
+        path, params, extra_data = self._grid_compute_margin_balance(
+            inst_id,
+            td_mode,
+            ccy,
+            algo_ords_type,
+            sz,
+            max_px,
+            min_px,
+            grid_num,
+            trigger_px,
+            extra_data,
+            **kwargs,
+        )
+        self.submit(
+            self.async_request(path, body=params, extra_data=extra_data),
+            callback=self.async_callback,
+        )
+
+    def _grid_margin_balance(
+        self,
+        algo_id: Any,
+        inst_id: Any,
+        amt: Any,
+        ccy: Any = None,
+        type: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Adjust margin - """
+        params = {
+            "algoId": algo_id,
+            "instId": inst_id,
+            "amt": amt,
+        }
+        if ccy:
+            params["ccy"] = ccy
+        if type is not None:
+            params["type"] = type
+        return self._finish(
+            "grid_margin_balance",
+            params,
+            extra_data,
+            inst_id,
+            generic_normalize_function,
+            kwargs,
+        )
+
+    def grid_margin_balance(
+        self,
+        algo_id: Any,
+        inst_id: Any,
+        amt: Any,
+        ccy: Any = None,
+        type: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Adjust margin - """
+        path, params, extra_data = self._grid_margin_balance(
+            algo_id, inst_id, amt, ccy, type, extra_data, **kwargs
+        )
+        data = self.request(path, body=params, extra_data=extra_data)
+        return data
+
+    def async_grid_margin_balance(
+        self,
+        algo_id: Any,
+        inst_id: Any,
+        amt: Any,
+        ccy: Any = None,
+        type: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async adjust margin"""
+        path, params, extra_data = self._grid_margin_balance(
+            algo_id, inst_id, amt, ccy, type, extra_data, **kwargs
+        )
+        self.submit(
+            self.async_request(path, body=params, extra_data=extra_data),
+            callback=self.async_callback,
+        )
+
+    def _grid_add_investment(
+        self,
+        algo_id: Any,
+        inst_id: Any,
+        amt: Any,
+        ccy: Any = None,
+        type: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Add investment - """
+        params = {
+            "algoId": algo_id,
+            "instId": inst_id,
+            "amt": amt,
+        }
+        if ccy:
+            params["ccy"] = ccy
+        if type is not None:
+            params["type"] = type
+        return self._finish(
+            "grid_add_investment",
+            params,
+            extra_data,
+            inst_id,
+            generic_normalize_function,
+            kwargs,
+        )
+
+    def grid_add_investment(
+        self,
+        algo_id: Any,
+        inst_id: Any,
+        amt: Any,
+        ccy: Any = None,
+        type: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Add investment - """
+        path, params, extra_data = self._grid_add_investment(
+            algo_id, inst_id, amt, ccy, type, extra_data, **kwargs
+        )
+        data = self.request(path, body=params, extra_data=extra_data)
+        return data
+
+    def async_grid_add_investment(
+        self,
+        algo_id: Any,
+        inst_id: Any,
+        amt: Any,
+        ccy: Any = None,
+        type: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async add investment"""
+        path, params, extra_data = self._grid_add_investment(
+            algo_id, inst_id, amt, ccy, type, extra_data, **kwargs
+        )
+        self.submit(
+            self.async_request(path, body=params, extra_data=extra_data),
+            callback=self.async_callback,
+        )
+
+    def _grid_get_ai_param(
+        self,
+        inst_id: Any,
+        algo_algo_type: Any,
+        max_px: Any = None,
+        min_px: Any = None,
+        grid_num: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Get grid AI parameters - AI"""
+        params = {
+            "instId": inst_id,
+            "algoAlgoType": algo_algo_type,
+        }
+        if max_px is not None:
+            params["maxPx"] = max_px
+        if min_px is not None:
+            params["minPx"] = min_px
+        if grid_num is not None:
+            params["gridNum"] = grid_num
+        return self._finish(
+            "grid_get_ai_param",
+            params,
+            extra_data,
+            inst_id,
+            generic_normalize_function,
+            kwargs,
+        )
+
+    def grid_get_ai_param(
+        self,
+        inst_id: Any,
+        algo_algo_type: Any,
+        max_px: Any = None,
+        min_px: Any = None,
+        grid_num: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Get grid AI parameters - AI"""
+        return self._rest("grid_get_ai_param", inst_id, algo_algo_type, max_px, min_px, grid_num, extra_data, **kwargs)
+
+    def async_grid_get_ai_param(
+        self,
+        inst_id: Any,
+        algo_algo_type: Any,
+        max_px: Any = None,
+        min_px: Any = None,
+        grid_num: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async get grid AI parameters"""
+        return self._rest_async("grid_get_ai_param", inst_id, algo_algo_type, max_px, min_px, grid_num, extra_data, **kwargs)
+
+    def _grid_compute_min_investment(
+        self,
+        inst_id: Any,
+        algo_algo_type: Any,
+        max_px: Any,
+        min_px: Any,
+        grid_num: Any,
+        run_type: Any = None,
+        trigger_px: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Compute minimum investment - """
+        params = {
+            "instId": inst_id,
+            "algoAlgoType": algo_algo_type,
+            "maxPx": max_px,
+            "minPx": min_px,
+            "gridNum": grid_num,
+        }
+        if run_type is not None:
+            params["runType"] = run_type
+        if trigger_px is not None:
+            params["triggerPx"] = trigger_px
+        return self._finish(
+            "grid_compute_min_investment",
+            params,
+            extra_data,
+            inst_id,
+            generic_normalize_function,
+            kwargs,
+        )
+
+    def grid_compute_min_investment(
+        self,
+        inst_id: Any,
+        algo_algo_type: Any,
+        max_px: Any,
+        min_px: Any,
+        grid_num: Any,
+        run_type: Any = None,
+        trigger_px: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Compute minimum investment - """
+        path, params, extra_data = self._grid_compute_min_investment(
+            inst_id,
+            algo_algo_type,
+            max_px,
+            min_px,
+            grid_num,
+            run_type,
+            trigger_px,
+            extra_data,
+            **kwargs,
+        )
+        data = self.request(path, body=params, extra_data=extra_data)
+        return data
+
+    def async_grid_compute_min_investment(
+        self,
+        inst_id: Any,
+        algo_algo_type: Any,
+        max_px: Any,
+        min_px: Any,
+        grid_num: Any,
+        run_type: Any = None,
+        trigger_px: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async compute minimum investment"""
+        path, params, extra_data = self._grid_compute_min_investment(
+            inst_id,
+            algo_algo_type,
+            max_px,
+            min_px,
+            grid_num,
+            run_type,
+            trigger_px,
+            extra_data,
+            **kwargs,
+        )
+        self.submit(
+            self.async_request(path, body=params, extra_data=extra_data),
+            callback=self.async_callback,
+        )
+
+    def _grid_rsi_back_testing(
+        self,
+        inst_id: Any,
+        algo_algo_type: Any,
+        max_px: Any,
+        min_px: Any,
+        grid_num: Any,
+        time_type: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """RSI back testing - RSI"""
+        params = {
+            "instId": inst_id,
+            "algoAlgoType": algo_algo_type,
+            "maxPx": max_px,
+            "minPx": min_px,
+            "gridNum": grid_num,
+        }
+        if time_type is not None:
+            params["timeType"] = time_type
+        return self._finish(
+            "grid_rsi_back_testing",
+            params,
+            extra_data,
+            inst_id,
+            generic_normalize_function,
+            kwargs,
+        )
+
+    def grid_rsi_back_testing(
+        self,
+        inst_id: Any,
+        algo_algo_type: Any,
+        max_px: Any,
+        min_px: Any,
+        grid_num: Any,
+        time_type: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        """RSI back testing - RSI"""
+        return self._rest("grid_rsi_back_testing", inst_id, algo_algo_type, max_px, min_px, grid_num, time_type, extra_data, **kwargs,)
+
+    def async_grid_rsi_back_testing(
+        self,
+        inst_id: Any,
+        algo_algo_type: Any,
+        max_px: Any,
+        min_px: Any,
+        grid_num: Any,
+        time_type: Any = None,
+        extra_data: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        """Async RSI back testing"""
+        return self._rest_async("grid_rsi_back_testing", inst_id, algo_algo_type, max_px, min_px, grid_num, time_type, extra_data, **kwargs,)
+
+    def _grid_max_grid_quantity(
+        self, inst_id: Any, algo_algo_type: Any, extra_data: Any = None, **kwargs: Any
+    ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        """Get max grid quantity - """
+        params = {
+            "instId": inst_id,
+            "algoAlgoType": algo_algo_type,
+        }
+        return self._finish(
+            "grid_max_grid_quantity",
+            params,
+            extra_data,
+            inst_id,
+            generic_normalize_function,
+            kwargs,
+        )
+
+    def grid_max_grid_quantity(
+        self, inst_id: Any, algo_algo_type: Any, extra_data: Any = None, **kwargs: Any
+    ) -> Any:
+        """Get max grid quantity - """
+        return self._rest("grid_max_grid_quantity", inst_id, algo_algo_type, extra_data, **kwargs)
+
+    def async_grid_max_grid_quantity(
+        self, inst_id: Any, algo_algo_type: Any, extra_data: Any = None, **kwargs: Any
+    ) -> None:
+        """Async get max grid quantity"""
+        return self._rest_async("grid_max_grid_quantity", inst_id, algo_algo_type, extra_data, **kwargs)
+

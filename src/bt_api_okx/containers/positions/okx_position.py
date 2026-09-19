@@ -17,7 +17,7 @@ class OkxPositionData(PositionData):
         """__init__ method"""
         super().__init__(position_info, has_been_json_encoded)
         self.exchange_name = "OKX"
-        self.local_update_time = time.time()  # 
+        self.local_update_time = time.time()  #
         self.symbol_name = symbol_name
         self.asset_type = asset_type
         self.position_data = position_info if has_been_json_encoded else None

@@ -1,5 +1,5 @@
 """Module-level docstring."""
-from unittest.mock import AsyncMock
+
 import pytest
 from bt_api_base.containers.requestdatas.request_data import RequestData
 from bt_api_okx.feeds.live_okx.request_base import OkxRequestData

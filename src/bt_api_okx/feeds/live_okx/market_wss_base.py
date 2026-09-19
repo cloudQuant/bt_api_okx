@@ -106,7 +106,7 @@ class OkxWssData(MyWebsocketApp):
     def _uses_private_wss(self) -> bool:
         return "/private" in str(self.wss_url or "").lower()
 
-    def sign(self, content: Any) -> None:
+    def sign(self, content: Any) -> str:
         """
         Args: content (TYPE): Description
         """
@@ -855,8 +855,8 @@ class OkxWssData(MyWebsocketApp):
         books[key] = state
         self._depth_sequences[key] = state["sequence"]
         self._depth_gaps.discard(key)
-        getattr(self, "_depth_stale_emitted", set()).discard(key)
-        getattr(self, "_depth_reseed_requested", set()).discard(key)
+        getattr(self, "_depth_stale_emitted", set[tuple[str, str]]()).discard(key)
+        getattr(self, "_depth_reseed_requested", set[tuple[str, str]]()).discard(key)
         return {
             **order_book_info,
             "action": "snapshot",
@@ -1273,7 +1273,7 @@ class OkxWssData(MyWebsocketApp):
                 with self._subscription_lock:
                     key = self._subscription_key(argument) if isinstance(argument, dict) else None
                     expected = key in self._pending_subscription_keys
-                    if expected:
+                    if expected and key is not None:
                         self._pending_subscription_keys.remove(key)
                 if not expected:
                     self._emit_event("ws.subscription_ack_ignored")

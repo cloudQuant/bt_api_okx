@@ -5,17 +5,16 @@ Auto-generated from request_base.py
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from typing import Any
 
-from bt_api_okx.containers.bars.okx_bar import OkxBarData
-from bt_api_okx.containers.orders.okx_order import OkxOrderData
-from bt_api_okx.containers.trades.okx_trade import OkxRequestTradeData
-from bt_api_okx.feeds.live_okx.mixins.normalizers import generic_normalize_function
 from bt_api_base.functions.utils import update_extra_data
 
+from bt_api_okx.containers.bars.okx_bar import OkxBarData
+from bt_api_okx.feeds.live_okx.mixins.normalizers import generic_normalize_function
+from bt_api_okx.feeds.live_okx.mixins.rest_call_mixin import RestCallMixin
 
-class IndexCandlesMixin:
+
+class IndexCandlesMixin(RestCallMixin):
     """指数/标记价格 K 线方法集合。"""
 
     def _get_index_price(
@@ -51,19 +50,13 @@ class IndexCandlesMixin:
         self, index: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> Any:
         """Get index ticker data"""
-        path, params, extra_data = self._get_index_price(index, extra_data, **kwargs)
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("get_index_price", index, extra_data, **kwargs)
 
     def async_get_index_price(
         self, index: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async get index ticker data"""
-        path, params, extra_data = self._get_index_price(index, extra_data, **kwargs)
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("get_index_price", index, extra_data, **kwargs)
 
     # ==================== Index Candles ====================
 
@@ -107,7 +100,7 @@ class IndexCandlesMixin:
                 "symbol_name": index,
                 "asset_type": "INDEX",
                 "exchange_name": self.exchange_name,
-                "normalize_function": TradeMixin._get_index_candles_normalize_function,
+                "normalize_function": IndexCandlesMixin._get_index_candles_normalize_function,
             },
         )
         if kwargs is not None:
@@ -167,11 +160,7 @@ class IndexCandlesMixin:
         **kwargs: Any,
     ) -> Any:
         """Get index candlestick charts"""
-        path, params, extra_data = self._get_index_candles(
-            index, bar, after, before, limit, extra_data, **kwargs
-        )
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("get_index_candles", index, bar, after, before, limit, extra_data, **kwargs)
 
     def async_get_index_candles(
         self,
@@ -184,13 +173,7 @@ class IndexCandlesMixin:
         **kwargs: Any,
     ) -> None:
         """Async get index candlestick charts"""
-        path, params, extra_data = self._get_index_candles(
-            index, bar, after, before, limit, extra_data, **kwargs
-        )
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("get_index_candles", index, bar, after, before, limit, extra_data, **kwargs)
 
     # ==================== Mark Price Candles ====================
 
@@ -215,7 +198,6 @@ class IndexCandlesMixin:
         :param kwargs: pass key-worded, variable-length arguments.
         :return: path, params, extra_data
         """
-        request_type = "get_mark_price_candles"
         request_symbol = self._params.get_symbol(symbol)
         params = {
             "instId": request_symbol,
@@ -227,20 +209,14 @@ class IndexCandlesMixin:
             params["before"] = before
         if limit:
             params["limit"] = limit
-        path = self._params.get_rest_path(request_type)
-        extra_data = update_extra_data(
+        return self._finish(
+            "get_mark_price_candles",
+            params,
             extra_data,
-            **{
-                "request_type": request_type,
-                "symbol_name": symbol,
-                "asset_type": self.asset_type,
-                "exchange_name": self.exchange_name,
-                "normalize_function": TradeMixin._get_mark_price_candles_normalize_function,
-            },
+            symbol,
+            IndexCandlesMixin._get_mark_price_candles_normalize_function,
+            kwargs,
         )
-        if kwargs is not None:
-            extra_data.update(kwargs)
-        return path, params, extra_data
 
     @staticmethod
     def _get_mark_price_candles_normalize_function(
@@ -295,11 +271,7 @@ class IndexCandlesMixin:
         **kwargs: Any,
     ) -> Any:
         """Get mark price candlestick charts"""
-        path, params, extra_data = self._get_mark_price_candles(
-            symbol, bar, after, before, limit, extra_data, **kwargs
-        )
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("get_mark_price_candles", symbol, bar, after, before, limit, extra_data, **kwargs)
 
     def async_get_mark_price_candles(
         self,
@@ -312,13 +284,7 @@ class IndexCandlesMixin:
         **kwargs: Any,
     ) -> None:
         """Async get mark price candlestick charts"""
-        path, params, extra_data = self._get_mark_price_candles(
-            symbol, bar, after, before, limit, extra_data, **kwargs
-        )
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("get_mark_price_candles", symbol, bar, after, before, limit, extra_data, **kwargs)
 
     # ==================== Index Candles History ====================
 
@@ -380,11 +346,7 @@ class IndexCandlesMixin:
         **kwargs: Any,
     ) -> Any:
         """Get historical index candlestick charts"""
-        path, params, extra_data = self._get_index_candles_history(
-            index, bar, after, before, limit, extra_data, **kwargs
-        )
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("get_index_candles_history", index, bar, after, before, limit, extra_data, **kwargs)
 
     def async_get_index_candles_history(
         self,
@@ -397,13 +359,7 @@ class IndexCandlesMixin:
         **kwargs: Any,
     ) -> None:
         """Async get historical index candlestick charts"""
-        path, params, extra_data = self._get_index_candles_history(
-            index, bar, after, before, limit, extra_data, **kwargs
-        )
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("get_index_candles_history", index, bar, after, before, limit, extra_data, **kwargs)
 
     # ==================== Mark Price Candles History ====================
 
@@ -428,7 +384,6 @@ class IndexCandlesMixin:
         :param kwargs: pass key-worded, variable-length arguments.
         :return: path, params, extra_data
         """
-        request_type = "get_mark_price_candles_history"
         request_symbol = self._params.get_symbol(symbol)
         params = {
             "instId": request_symbol,
@@ -440,20 +395,14 @@ class IndexCandlesMixin:
             params["before"] = before
         if limit:
             params["limit"] = limit
-        path = self._params.get_rest_path(request_type)
-        extra_data = update_extra_data(
+        return self._finish(
+            "get_mark_price_candles_history",
+            params,
             extra_data,
-            **{
-                "request_type": request_type,
-                "symbol_name": symbol,
-                "asset_type": self.asset_type,
-                "exchange_name": self.exchange_name,
-                "normalize_function": generic_normalize_function,
-            },
+            symbol,
+            generic_normalize_function,
+            kwargs,
         )
-        if kwargs is not None:
-            extra_data.update(kwargs)
-        return path, params, extra_data
 
     def get_mark_price_candles_history(
         self,
@@ -466,11 +415,7 @@ class IndexCandlesMixin:
         **kwargs: Any,
     ) -> Any:
         """Get historical mark price candlestick charts"""
-        path, params, extra_data = self._get_mark_price_candles_history(
-            symbol, bar, after, before, limit, extra_data, **kwargs
-        )
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("get_mark_price_candles_history", symbol, bar, after, before, limit, extra_data, **kwargs)
 
     def async_get_mark_price_candles_history(
         self,
@@ -483,13 +428,7 @@ class IndexCandlesMixin:
         **kwargs: Any,
     ) -> None:
         """Async get historical mark price candlestick charts"""
-        path, params, extra_data = self._get_mark_price_candles_history(
-            symbol, bar, after, before, limit, extra_data, **kwargs
-        )
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("get_mark_price_candles_history", symbol, bar, after, before, limit, extra_data, **kwargs)
 
     # ==================== Missing Trade APIs ====================
 

@@ -5,20 +5,15 @@ Auto-generated from request_base.py
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from typing import Any
 
-from bt_api_okx.containers.bars.okx_bar import OkxBarData
-from bt_api_okx.containers.orders.okx_order import OkxOrderData
-from bt_api_okx.containers.trades.okx_trade import OkxRequestTradeData
-from bt_api_okx.feeds.live_okx.mixins.normalizers import generic_normalize_function
 from bt_api_base.functions.utils import update_extra_data
 
+from bt_api_okx.feeds.live_okx.mixins.normalizers import generic_normalize_function
+from bt_api_okx.feeds.live_okx.mixins.rest_call_mixin import RestCallMixin
 
-from bt_api_okx.feeds.live_okx.mixins.index_candles_mixin import IndexCandlesMixin
 
-
-class AlgoMixin:
+class AlgoMixin(RestCallMixin):
     """AlgoMixin 方法集合。"""
 
     def _make_algo_order(
@@ -60,6 +55,9 @@ class AlgoMixin:
             if key in kwargs:
                 params[key] = str(kwargs[key])
         path = self._params.get_rest_path(request_type)
+        # 惰性导入：该归一化函数定义在派生类 TradeMixin（AlgoMixin 是其基类），
+        # 模块级导入会形成循环，故在调用点局部导入。
+        from bt_api_okx.feeds.live_okx.mixins.trade_mixin import TradeMixin
         extra_data = update_extra_data(
             extra_data,
             **{
@@ -128,7 +126,6 @@ class AlgoMixin:
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
         """Amend algo order"""
         request_symbol = self._params.get_symbol(inst_id)
-        request_type = "amend_algo_order"
         params = {
             "algoId": algo_id,
             "instId": request_symbol,
@@ -153,20 +150,14 @@ class AlgoMixin:
             params["triggerPx"] = str(trigger_px)
         if order_type:
             params["algoOrdType"] = order_type
-        path = self._params.get_rest_path(request_type)
-        extra_data = update_extra_data(
+        return self._finish(
+            "amend_algo_order",
+            params,
             extra_data,
-            **{
-                "request_type": request_type,
-                "symbol_name": inst_id,
-                "asset_type": self.asset_type,
-                "exchange_name": self.exchange_name,
-                "normalize_function": generic_normalize_function,
-            },
+            inst_id,
+            generic_normalize_function,
+            kwargs,
         )
-        if kwargs is not None:
-            extra_data.update(kwargs)
-        return path, params, extra_data
 
     def amend_algo_order(
         self,
@@ -294,11 +285,7 @@ class AlgoMixin:
         **kwargs: Any,
     ) -> Any:
         """Get pending algo orders"""
-        path, params, extra_data = self._get_algo_orders_pending(
-            inst_type, ord_type, uly, inst_id, algo_id, extra_data, **kwargs
-        )
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("get_algo_orders_pending", inst_type, ord_type, uly, inst_id, algo_id, extra_data, **kwargs)
 
     def async_get_algo_orders_pending(
         self,
@@ -311,13 +298,7 @@ class AlgoMixin:
         **kwargs: Any,
     ) -> None:
         """Async get pending algo orders"""
-        path, params, extra_data = self._get_algo_orders_pending(
-            inst_type, ord_type, uly, inst_id, algo_id, extra_data, **kwargs
-        )
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("get_algo_orders_pending", inst_type, ord_type, uly, inst_id, algo_id, extra_data, **kwargs)
 
     def _get_algo_order_history(
         self,
@@ -377,11 +358,7 @@ class AlgoMixin:
         **kwargs: Any,
     ) -> Any:
         """Get algo order history"""
-        path, params, extra_data = self._get_algo_order_history(
-            inst_type, uly, inst_id, algo_id, after, before, limit, extra_data, **kwargs
-        )
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("get_algo_order_history", inst_type, uly, inst_id, algo_id, after, before, limit, extra_data, **kwargs)
 
     def async_get_algo_order_history(
         self,
@@ -396,13 +373,7 @@ class AlgoMixin:
         **kwargs: Any,
     ) -> None:
         """Async get algo order history"""
-        path, params, extra_data = self._get_algo_order_history(
-            inst_type, uly, inst_id, algo_id, after, before, limit, extra_data, **kwargs
-        )
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("get_algo_order_history", inst_type, uly, inst_id, algo_id, after, before, limit, extra_data, **kwargs)
 
     def _get_algo_order(
         self,
@@ -446,11 +417,7 @@ class AlgoMixin:
         **kwargs: Any,
     ) -> Any:
         """Get algo order details"""
-        path, params, extra_data = self._get_algo_order(
-            algo_id, symbol, inst_type, extra_data, **kwargs
-        )
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("get_algo_order", algo_id, symbol, inst_type, extra_data, **kwargs)
 
     def async_get_algo_order(
         self,
@@ -461,13 +428,7 @@ class AlgoMixin:
         **kwargs: Any,
     ) -> None:
         """Async get algo order details"""
-        path, params, extra_data = self._get_algo_order(
-            algo_id, symbol, inst_type, extra_data, **kwargs
-        )
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("get_algo_order", algo_id, symbol, inst_type, extra_data, **kwargs)
 
     def _get_option_instrument_family_trades(
         self,
@@ -516,11 +477,7 @@ class AlgoMixin:
         **kwargs: Any,
     ) -> Any:
         """Get option instrument family trades data"""
-        path, params, extra_data = self._get_option_instrument_family_trades(
-            inst_family, uly, limit, extra_data, **kwargs
-        )
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("get_option_instrument_family_trades", inst_family, uly, limit, extra_data, **kwargs)
 
     def async_get_option_instrument_family_trades(
         self,
@@ -531,13 +488,7 @@ class AlgoMixin:
         **kwargs: Any,
     ) -> None:
         """Async get option instrument family trades data"""
-        path, params, extra_data = self._get_option_instrument_family_trades(
-            inst_family, uly, limit, extra_data, **kwargs
-        )
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("get_option_instrument_family_trades", inst_family, uly, limit, extra_data, **kwargs)
 
     # ==================== Option Trades ====================
 
@@ -575,23 +526,13 @@ class AlgoMixin:
         self, inst_id: Any, limit: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> Any:
         """Get option trades data"""
-        path, params, extra_data = self._get_option_trades(
-            inst_id, limit, extra_data, **kwargs
-        )
-        data = self.request(path, params=params, extra_data=extra_data)
-        return data
+        return self._rest("get_option_trades", inst_id, limit, extra_data, **kwargs)
 
     def async_get_option_trades(
         self, inst_id: Any, limit: Any = None, extra_data: Any = None, **kwargs: Any
     ) -> None:
         """Async get option trades data"""
-        path, params, extra_data = self._get_option_trades(
-            inst_id, limit, extra_data, **kwargs
-        )
-        self.submit(
-            self.async_request(path, params=params, extra_data=extra_data),
-            callback=self.async_callback,
-        )
+        return self._rest_async("get_option_trades", inst_id, limit, extra_data, **kwargs)
 
     # ==================== 24h Volume ====================
 
