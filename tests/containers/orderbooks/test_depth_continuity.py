@@ -94,6 +94,60 @@ def test_snapshot_large_sequence_jump_and_zero_delete_publish_full_book():
     assert rebuilt["ask_price_list"] == []
 
 
+def test_books5_complete_snapshot_needs_no_action_or_checksum():
+    feed = _feed()
+    content = {
+        "arg": {"channel": "books5", "instId": "BTC-USDT-SWAP"},
+        "data": [
+            {
+                "ts": "1700000000000",
+                "seqId": 501,
+                "bids": [["60000", "1", "1", "0"]],
+                "asks": [["60001", "2", "1", "0"]],
+            }
+        ],
+    }
+
+    feed.handle_data(content)
+
+    snapshot = _next(feed)
+    assert snapshot["snapshot_or_delta"] == "snapshot"
+    assert snapshot["continuity_status"] == "snapshot"
+    assert snapshot["sequence_id"] == 501
+    assert snapshot["server_time"] == 1700000000000.0
+    assert snapshot["bid_price_list"] == [60000.0]
+    assert snapshot["ask_price_list"] == [60001.0]
+    assert snapshot["stale"] is False
+
+
+@pytest.mark.parametrize(
+    "sequence,bids,asks,expected_reason",
+    [
+        (None, [["60000", "1", "1", "0"]], [["60001", "1", "1", "0"]], "incomplete_snapshot"),
+        (502, [], [["60001", "1", "1", "0"]], "invalid_snapshot_depth"),
+        (503, [["60000"]], [["60001", "1", "1", "0"]], "invalid_snapshot_depth"),
+    ],
+)
+def test_books5_missing_sequence_or_invalid_depth_fails_closed(
+    sequence, bids, asks, expected_reason
+):
+    feed = _feed()
+    content = {
+        "arg": {"channel": "books5", "instId": "BTC-USDT-SWAP"},
+        "data": [{"seqId": sequence, "bids": bids, "asks": asks}],
+    }
+
+    feed.handle_data(content)
+
+    stale = feed.data_queue.get_nowait()
+    assert stale["stale"] is True
+    assert stale["stale_reason"] == expected_reason
+    assert stale["continuity_status"] == "gap"
+    assert feed._depth_gaps == {("books5", "BTC-USDT-SWAP")}
+    with pytest.raises(Empty):
+        feed.data_queue.get_nowait()
+
+
 def test_sequence_or_checksum_failure_latches_until_new_valid_snapshot():
     feed = _feed()
     bids = [["60000", "1", "1", "0"]]

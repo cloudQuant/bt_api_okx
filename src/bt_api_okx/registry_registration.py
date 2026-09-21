@@ -42,6 +42,31 @@ def _commit_started_streams(bt_api, streams):
     retained.extend(streams)
 
 
+def _start_public_market_with_retry(
+    stream_class, data_queue, kwargs, started, bt_api, cleanup_flag
+):
+    """Retry one public-market startup timeout after a successful local stop."""
+    for attempt in range(2):
+        market = stream_class(data_queue, **kwargs)
+        started.append(market)
+        try:
+            market.start()
+        except TimeoutError as start_error:
+            survivors = _cleanup_started_streams([market])
+            started.remove(market)
+            if survivors:
+                _commit_started_streams(bt_api, survivors)
+                bt_api._subscription_flags[cleanup_flag] = True
+                raise RuntimeError(
+                    "OKX public market subscription startup failed and "
+                    f"{len(survivors)} stream(s) could not be stopped; close BtApi before retrying"
+                ) from start_error
+            if attempt == 1:
+                raise
+        else:
+            return market
+
+
 def _credential_alias(exchange_params, names):
     supplied = []
     for name in names:
@@ -94,9 +119,9 @@ def _okx_swap_subscribe_handler(data_queue, exchange_params, topics, bt_api):
     )
     started = []
     try:
-        market = OkxMarketWssDataSwap(data_queue, **kwargs)
-        started.append(market)
-        market.start()
+        _start_public_market_with_retry(
+            OkxMarketWssDataSwap, data_queue, kwargs, started, bt_api, cleanup_flag
+        )
         if start_account:
             account_kwargs = dict(kwargs)
             account_kwargs["wss_name"] = "okx_swap_account_data"
@@ -148,9 +173,9 @@ def _okx_spot_subscribe_handler(data_queue, exchange_params, topics, bt_api):
     )
     started = []
     try:
-        market = OkxMarketWssDataSpot(data_queue, **kwargs)
-        started.append(market)
-        market.start()
+        _start_public_market_with_retry(
+            OkxMarketWssDataSpot, data_queue, kwargs, started, bt_api, cleanup_flag
+        )
         if start_account:
             account_kwargs = dict(kwargs)
             account_kwargs["wss_name"] = "okx_spot_account_data"

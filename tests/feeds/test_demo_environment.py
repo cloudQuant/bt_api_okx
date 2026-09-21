@@ -11,6 +11,7 @@ from unittest.mock import AsyncMock, Mock
 
 import httpx
 import pytest
+from bt_api_base.feeds.my_websocket_app import WebSocketSubscriptionError
 from bt_api_okx.environment import configure_environment
 from bt_api_okx.exchange_data import OkxExchangeDataSwap
 from bt_api_okx.feeds.live_okx.account_wss_base import OkxAccountWssData
@@ -305,6 +306,73 @@ def test_market_stream_becomes_ready_only_after_okx_subscription_ack():
     assert feed._running_flag
     assert feed._pending_subscription_acks == 0
     assert [event for event, _ in event_bus.events] == ["ws.connected"]
+
+
+def test_market_stream_accepts_okx_ack_without_optional_swap_inst_type():
+    event_bus = _EventBus()
+    feed = OkxMarketWssDataSwap(
+        None,
+        environment="demo",
+        topics=[{"topic": "depth", "symbol": "BTC-USDT-SWAP"}],
+        event_bus=event_bus,
+    )
+    feed.ws = Mock()
+
+    assert feed.open_rsp() is False
+    argument = json.loads(feed.ws.send.call_args.args[0])["args"][0]
+    assert argument["instType"] == "SWAP"
+    del argument["instType"]
+
+    feed.message_rsp(json.dumps({"event": "subscribe", "code": "0", "arg": argument}))
+
+    assert feed._running_flag
+    assert feed._pending_subscription_acks == 0
+    assert [event for event, _ in event_bus.events] == ["ws.connected"]
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "omit_inst_type"),
+    [
+        ("channel", "books50-l2-tbt", True),
+        ("instId", "ETH-USDT-SWAP", True),
+        ("instType", "SPOT", False),
+    ],
+)
+def test_okx_subscribe_ack_with_mismatched_argument_is_ignored(field, value, omit_inst_type):
+    event_bus = _EventBus()
+    feed = OkxMarketWssDataSwap(
+        None,
+        environment="demo",
+        topics=[{"topic": "depth", "symbol": "BTC-USDT-SWAP"}],
+        event_bus=event_bus,
+    )
+    feed.ws = Mock()
+    assert feed.open_rsp() is False
+
+    argument = json.loads(feed.ws.send.call_args.args[0])["args"][0]
+    if omit_inst_type:
+        del argument["instType"]
+    argument[field] = value
+    feed.message_rsp(json.dumps({"event": "subscribe", "code": "0", "arg": argument}))
+
+    assert not feed._running_flag
+    assert feed._pending_subscription_acks == 1
+    assert [event for event, _ in event_bus.events] == ["ws.subscription_ack_ignored"]
+
+
+def test_okx_duplicate_pending_subscription_is_still_rejected():
+    feed = OkxMarketWssDataSwap(
+        None,
+        environment="demo",
+        topics=[{"topic": "depth", "symbol": "BTC-USDT-SWAP"}],
+    )
+    feed.ws = Mock()
+    assert feed.open_rsp() is False
+
+    with pytest.raises(WebSocketSubscriptionError, match="Duplicate OKX WebSocket subscription"):
+        feed.subscribe(topic="depth", symbol="BTC-USDT-SWAP")
+
+    assert feed.ws.send.call_count == 1
 
 
 def test_okx_subscribe_ack_without_exact_argument_is_ignored():

@@ -12,7 +12,7 @@ import json
 import threading
 import time
 import zlib
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from typing import Any
 
 from bt_api_base.feeds.my_websocket_app import MyWebsocketApp, WebSocketSubscriptionError
@@ -79,7 +79,13 @@ class OkxWssData(MyWebsocketApp):
 
     @staticmethod
     def _subscription_key(argument: dict[str, Any]) -> str:
-        return json.dumps(argument, sort_keys=True, separators=(",", ":"))
+        # OKX may omit instType from a SWAP subscribe ACK although it was sent
+        # in the request. Keep the wire argument untouched and normalize only
+        # this protocol-optional field for local request/ACK correlation.
+        normalized = dict(argument)
+        if normalized.get("instType") == "SWAP":
+            normalized.pop("instType")
+        return json.dumps(normalized, sort_keys=True, separators=(",", ":"))
 
     def subscribe(self, **kwargs):
         """Send one unique subscription and retain its expected ACK argument."""
@@ -732,6 +738,27 @@ class OkxWssData(MyWebsocketApp):
         checksum = zlib.crc32(":".join(values).encode("utf-8"))
         return checksum - 2**32 if checksum >= 2**31 else checksum
 
+    @staticmethod
+    def _is_valid_snapshot_depth(levels):
+        if not isinstance(levels, list) or not levels:
+            return False
+        for level in levels:
+            if not isinstance(level, (list, tuple)) or len(level) < 2:
+                return False
+            try:
+                price = Decimal(str(level[0]))
+                quantity = Decimal(str(level[1]))
+            except (InvalidOperation, TypeError, ValueError):
+                return False
+            if (
+                not price.is_finite()
+                or not quantity.is_finite()
+                or price <= 0
+                or quantity <= 0
+            ):
+                return False
+        return True
+
     def _get_depth_lock(self):
         lock = getattr(self, "_depth_lock", None)
         if lock is None:
@@ -819,7 +846,33 @@ class OkxWssData(MyWebsocketApp):
         books = getattr(self, "_depth_books", None)
         if books is None:
             books = self._depth_books = {}
-        if action == "snapshot":
+        if channel == "books5":
+            try:
+                sequence_number = Decimal(str(sequence))
+                if (
+                    sequence is None
+                    or not sequence_number.is_finite()
+                    or sequence_number < 0
+                    or sequence_number != sequence_number.to_integral_value()
+                ):
+                    raise ValueError("invalid books5 sequence")
+            except (InvalidOperation, TypeError, ValueError):
+                self._latch_depth_gap(key, content, "incomplete_snapshot")
+                return None
+            if not self._is_valid_snapshot_depth(order_book_info.get("bids")) or not (
+                self._is_valid_snapshot_depth(order_book_info.get("asks"))
+            ):
+                self._latch_depth_gap(key, content, "invalid_snapshot_depth")
+                return None
+            state = {
+                "bids": {},
+                "asks": {},
+                "sequence": int(sequence_number),
+            }
+            self._update_depth_side(state["bids"], order_book_info["bids"])
+            self._update_depth_side(state["asks"], order_book_info["asks"])
+            continuity = "snapshot"
+        elif action == "snapshot":
             if sequence is None or checksum is None:
                 self._latch_depth_gap(key, content, "incomplete_snapshot")
                 return None
@@ -849,7 +902,9 @@ class OkxWssData(MyWebsocketApp):
             self._update_depth_side(state["bids"], order_book_info.get("bids"))
             self._update_depth_side(state["asks"], order_book_info.get("asks"))
             continuity = "continuous"
-        if self._depth_checksum(state["bids"], state["asks"]) != int(checksum):
+        if channel != "books5" and self._depth_checksum(state["bids"], state["asks"]) != int(
+            checksum
+        ):
             self._latch_depth_gap(key, content, "checksum_mismatch")
             return None
         books[key] = state
