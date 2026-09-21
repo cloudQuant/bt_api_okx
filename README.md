@@ -37,12 +37,16 @@ Configure demo trading explicitly through the public `BtApi` entry point:
 import os
 from bt_api_py import BtApi
 
-api = BtApi({"OKX___SWAP": {
-    "environment": "demo",
-    "api_key": os.environ["OKX_DEMO_API_KEY"],
-    "api_secret": os.environ["OKX_DEMO_API_SECRET"],
-    "passphrase": os.environ["OKX_DEMO_PASSPHRASE"],
-}})
+api = BtApi(
+    {
+        "OKX___SWAP": {
+            "environment": "demo",
+            "api_key": os.environ["OKX_DEMO_API_KEY"],
+            "api_secret": os.environ["OKX_DEMO_API_SECRET"],
+            "passphrase": os.environ["OKX_DEMO_PASSPHRASE"],
+        }
+    }
+)
 try:
     instruments = api.get_exchange_info("OKX___SWAP", "BTC-USDT-SWAP")
 finally:
@@ -114,17 +118,21 @@ Auto-registers at import time via `ExchangeRegistry`. Works seamlessly with `BtA
 ```python
 from bt_api_py import BtApi
 
-api = BtApi(exchange_kwargs={
-    "OKX___SPOT": {
-        "api_key": "your_key",
-        "secret": "your_secret",
-        "passphrase": "your_passphrase",
+api = BtApi(
+    exchange_kwargs={
+        "OKX___SPOT": {
+            "api_key": "your_key",
+            "secret": "your_secret",
+            "passphrase": "your_passphrase",
+        }
     }
-})
+)
 
 ticker = api.get_tick("OKX___SPOT", "BTC-USDT")
 balance = api.get_balance("OKX___SPOT")
-order = api.make_order(exchange_name="OKX___SPOT", symbol="BTC-USDT", volume=0.001, price=67000, order_type="limit")
+order = api.make_order(
+    exchange_name="OKX___SPOT", symbol="BTC-USDT", volume=0.001, price=67000, order_type="limit"
+)
 ```
 
 ### Standalone Gateway Adapter
@@ -221,13 +229,15 @@ adapter = OkxGatewayAdapter(
 )
 adapter.connect()
 
-order = adapter.place_order({
-    "symbol": "BTC-USDT",
-    "side": "buy",
-    "order_type": "limit",
-    "price": 67000,
-    "volume": 0.001,
-})
+order = adapter.place_order(
+    {
+        "symbol": "BTC-USDT",
+        "side": "buy",
+        "order_type": "limit",
+        "price": 67000,
+        "volume": 0.001,
+    }
+)
 print(f"Order placed: {order}")
 ```
 
@@ -236,23 +246,28 @@ print(f"Order placed: {order}")
 ```python
 from bt_api_py import BtApi
 
-api = BtApi(exchange_kwargs={
-    "OKX___SWAP": {
-        "api_key": "your_key",
-        "secret": "your_secret",
-        "passphrase": "your_passphrase",
+api = BtApi(
+    exchange_kwargs={
+        "OKX___SWAP": {
+            "api_key": "your_key",
+            "secret": "your_secret",
+            "passphrase": "your_passphrase",
+        }
     }
-})
+)
 
 # REST calls
 ticker = api.get_tick("OKX___SWAP", "BTC-USDT")
 balance = api.get_balance("OKX___SWAP")
 
 # WebSocket subscription
-api.subscribe("OKX___SWAP___BTC-USDT", [
-    {"topic": "ticker", "symbol": "BTC-USDT"},
-    {"topic": "depth", "symbol": "BTC-USDT"},
-])
+api.subscribe(
+    "OKX___SWAP___BTC-USDT",
+    [
+        {"topic": "ticker", "symbol": "BTC-USDT"},
+        {"topic": "depth", "symbol": "BTC-USDT"},
+    ],
+)
 queue = api.get_data_queue("OKX___SWAP")
 msg = queue.get(timeout=10)
 ```
@@ -435,17 +450,21 @@ MIT — see [LICENSE](LICENSE).
 ```python
 from bt_api_py import BtApi
 
-api = BtApi(exchange_kwargs={
-    "OKX___SPOT": {
-        "api_key": "your_key",
-        "secret": "your_secret",
-        "passphrase": "your_passphrase",
+api = BtApi(
+    exchange_kwargs={
+        "OKX___SPOT": {
+            "api_key": "your_key",
+            "secret": "your_secret",
+            "passphrase": "your_passphrase",
+        }
     }
-})
+)
 
 ticker = api.get_tick("OKX___SPOT", "BTC-USDT")
 balance = api.get_balance("OKX___SPOT")
-order = api.make_order(exchange_name="OKX___SPOT", symbol="BTC-USDT", volume=0.001, price=67000, order_type="limit")
+order = api.make_order(
+    exchange_name="OKX___SPOT", symbol="BTC-USDT", volume=0.001, price=67000, order_type="limit"
+)
 ```
 
 ### 独立网关适配器
@@ -542,13 +561,15 @@ adapter = OkxGatewayAdapter(
 )
 adapter.connect()
 
-order = adapter.place_order({
-    "symbol": "BTC-USDT",
-    "side": "buy",
-    "order_type": "limit",
-    "price": 67000,
-    "volume": 0.001,
-})
+order = adapter.place_order(
+    {
+        "symbol": "BTC-USDT",
+        "side": "buy",
+        "order_type": "limit",
+        "price": 67000,
+        "volume": 0.001,
+    }
+)
 print(f"订单已下单: {order}")
 ```
 
@@ -557,23 +578,28 @@ print(f"订单已下单: {order}")
 ```python
 from bt_api_py import BtApi
 
-api = BtApi(exchange_kwargs={
-    "OKX___SWAP": {
-        "api_key": "your_key",
-        "secret": "your_secret",
-        "passphrase": "your_passphrase",
+api = BtApi(
+    exchange_kwargs={
+        "OKX___SWAP": {
+            "api_key": "your_key",
+            "secret": "your_secret",
+            "passphrase": "your_passphrase",
+        }
     }
-})
+)
 
 # REST 调用
 ticker = api.get_tick("OKX___SWAP", "BTC-USDT")
 balance = api.get_balance("OKX___SWAP")
 
 # WebSocket 订阅
-api.subscribe("OKX___SWAP___BTC-USDT", [
-    {"topic": "ticker", "symbol": "BTC-USDT"},
-    {"topic": "depth", "symbol": "BTC-USDT"},
-])
+api.subscribe(
+    "OKX___SWAP___BTC-USDT",
+    [
+        {"topic": "ticker", "symbol": "BTC-USDT"},
+        {"topic": "depth", "symbol": "BTC-USDT"},
+    ],
+)
 queue = api.get_data_queue("OKX___SWAP")
 msg = queue.get(timeout=10)
 ```
