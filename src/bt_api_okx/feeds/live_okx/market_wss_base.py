@@ -750,12 +750,7 @@ class OkxWssData(MyWebsocketApp):
                 quantity = Decimal(str(level[1]))
             except (InvalidOperation, TypeError, ValueError):
                 return False
-            if (
-                not price.is_finite()
-                or not quantity.is_finite()
-                or price <= 0
-                or quantity <= 0
-            ):
+            if not price.is_finite() or not quantity.is_finite() or price <= 0 or quantity <= 0:
                 return False
         return True
 
@@ -902,11 +897,13 @@ class OkxWssData(MyWebsocketApp):
             self._update_depth_side(state["bids"], order_book_info.get("bids"))
             self._update_depth_side(state["asks"], order_book_info.get("asks"))
             continuity = "continuous"
-        if channel != "books5" and self._depth_checksum(state["bids"], state["asks"]) != int(
-            checksum
-        ):
-            self._latch_depth_gap(key, content, "checksum_mismatch")
-            return None
+        if channel != "books5":
+            if checksum is None:
+                self._latch_depth_gap(key, content, "missing_checksum")
+                return None
+            if self._depth_checksum(state["bids"], state["asks"]) != int(checksum):
+                self._latch_depth_gap(key, content, "checksum_mismatch")
+                return None
         books[key] = state
         self._depth_sequences[key] = state["sequence"]
         self._depth_gaps.discard(key)

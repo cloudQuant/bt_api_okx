@@ -117,7 +117,7 @@ def _okx_swap_subscribe_handler(data_queue, exchange_params, topics, bt_api):
         and kwargs.get("subscribe_account", True)
         and not bt_api._subscription_flags.get("OKX___SWAP_account", False)
     )
-    started = []
+    started: list[object] = []
     try:
         _start_public_market_with_retry(
             OkxMarketWssDataSwap, data_queue, kwargs, started, bt_api, cleanup_flag
@@ -171,7 +171,7 @@ def _okx_spot_subscribe_handler(data_queue, exchange_params, topics, bt_api):
         and kwargs.get("subscribe_account", True)
         and not bt_api._subscription_flags.get("OKX___SPOT_account", False)
     )
-    started = []
+    started: list[object] = []
     try:
         _start_public_market_with_retry(
             OkxMarketWssDataSpot, data_queue, kwargs, started, bt_api, cleanup_flag
