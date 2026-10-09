@@ -1,4 +1,4 @@
----
+﻿---
 title: Gateway Adapter | bt_api_okx
 ---
 

@@ -1,4 +1,4 @@
-# bt_api_okx
+﻿# bt_api_okx
 
 [![PyPI Version](https://img.shields.io/pypi/v/bt_api_okx.svg)](https://pypi.org/project/bt_api_okx/)
 [![Python Versions](https://img.shields.io/pypi/pyversions/bt_api_okx.svg)](https://pypi.org/project/bt_api_okx/)
