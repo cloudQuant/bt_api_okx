@@ -234,6 +234,36 @@ def test_okx_wss_fills():
     assert fill.get_trade_fee_symbol() == "USDT"
 
 
+def test_direct_trade_projection_keeps_fee_aliases_and_liquidity_from_fill_fields():
+    from bt_api_okx.containers.trades.okx_trade import OkxWssFillsData
+
+    fill = OkxWssFillsData(
+        {
+            "tradeId": "7",
+            "instId": "BTC-USDT-SWAP",
+            "ordId": "order-1",
+            "clOrdId": "client-1",
+            "fillPx": "30000",
+            "fillSz": "0.2",
+            "execType": "M",
+            "fillFee": "-0.006",
+            "fillFeeCcy": "USDT",
+            "fillTime": "1597026383084",
+        },
+        "BTC-USDT-SWAP",
+        "SWAP",
+        True,
+    )
+
+    projected = fill.get_all_data()
+
+    assert projected["trade_type"] == projected["liquidity"] == "maker"
+    assert projected["order_id"] == "order-1"
+    assert projected["client_order_id"] == "client-1"
+    assert projected["trade_commission"] == projected["fee"] == -0.006
+    assert projected["trade_fee_symbol"] == projected["fee_currency"] == "USDT"
+
+
 if __name__ == "__main__":
     test_okx_req_order()
     test_okx_wss_trade()

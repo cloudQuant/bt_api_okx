@@ -141,6 +141,7 @@ class OkxRequestData(
         self.async_logger = get_logger("okx_swap_feed")
         self._error_translator = OKXErrorTranslator()
         self._rate_limiter = kwargs.get("rate_limiter", self._create_default_rate_limiter())
+        self._symbol_info_cache: dict[str, dict[str, Any]] = {}
 
     def get_exchange_info(self, symbol=None, extra_data=None, **kwargs):
         """Return the exchange's instrument rules, including contract value and lot size."""
@@ -148,6 +149,118 @@ class OkxRequestData(
         return self.get_public_instruments(
             inst_type=self.asset_type, inst_id=inst_id, extra_data=extra_data, **kwargs
         )
+
+    def get_symbol_info(self, symbol: Any) -> dict[str, Any]:
+        """Return a direct instrument projection merged with available fee rates."""
+        requested = str(symbol or "").strip()
+        if not requested:
+            return {}
+        cache_key = f"{str(self.asset_type or '').upper()}:{requested.upper()}"
+        cached = self._symbol_info_cache.get(cache_key)
+        if cached is not None:
+            return dict(cached)
+        try:
+            instrument_result = self.get_instruments(
+                asset_type=self.asset_type, inst_id=requested
+            )
+            rows = _okx_projection_rows(_okx_request_data_value(instrument_result))
+        except Exception:
+            rows = []
+        candidates = _okx_symbol_candidates(requested)
+        selected = next(
+            (
+                row
+                for row in rows
+                if _okx_symbol_matches(
+                    _okx_text(row, "symbol_name", "symbol", "instId"), candidates
+                )
+            ),
+            rows[0] if len(rows) == 1 else None,
+        )
+        if selected is None:
+            return {}
+
+        asset_type = _okx_text(selected, "asset_type", "instType") or str(self.asset_type or "")
+        normalized_type = asset_type.upper()
+        contract_value = _okx_float(selected, "contract_notional_value", "ctVal")
+        raw_multiplier = _okx_float(
+            selected,
+            "contract_multiplier_raw",
+            "contract_multiplier",
+            "ctMult",
+        )
+        derivative = normalized_type in {"SWAP", "FUTURES", "FUTURE", "OPTION"}
+        multiplier = contract_value if derivative and contract_value else raw_multiplier
+        if multiplier is None and normalized_type == "SPOT":
+            multiplier = 1.0
+        symbol_name = _okx_text(selected, "symbol_name", "symbol", "instId") or requested
+        contract_value_currency = _okx_value(
+            selected, "contract_value_currency", "contract_value_ccy", "ctValCcy"
+        )
+        spec: dict[str, Any] = {
+            "source": "okx_get_instruments",
+            "exchange": "OKX",
+            "exchange_id": "OKX",
+            "symbol": symbol_name,
+            "asset_type": asset_type,
+            "base_asset": _okx_value(selected, "base_asset", "baseCcy"),
+            "quote_asset": _okx_value(selected, "quote_asset", "quoteCcy"),
+            "fee_currency": _okx_value(selected, "fee_currency", "settleCcy"),
+            "contract_type": _okx_value(selected, "contract_type", "ctType"),
+            "contract_value_currency": contract_value_currency,
+            "contract_value_ccy": contract_value_currency,
+            "ctValCcy": contract_value_currency,
+            "contract_notional_value": contract_value,
+            "okx_contract_value": contract_value,
+            "contract_multiplier_raw": raw_multiplier,
+            "contract_multiplier": multiplier,
+            "contract_size": multiplier,
+            "multiplier": multiplier,
+            "price_tick": _okx_value(selected, "price_unit", "tickSz"),
+            "tick_size": _okx_value(selected, "price_unit", "tickSz"),
+            "min_order_size": _okx_value(selected, "min_qty", "minSz"),
+            "max_order_size": _okx_value(selected, "max_limit_qty", "maxLmtSz", "max_qty"),
+            "order_size_step": _okx_value(selected, "qty_unit", "lotSz"),
+            "market_max_order_size": _okx_value(selected, "max_market_qty", "maxMktSz"),
+            "min_notional": _okx_value(selected, "min_amount", "notional"),
+            "max_leverage": _okx_value(selected, "max_leverage", "lever"),
+            "leverage": _okx_value(selected, "leverage", "lever", "max_leverage"),
+            "symbol_status": _okx_value(selected, "symbol_status", "state"),
+        }
+        spec = {key: value for key, value in spec.items() if value not in (None, "")}
+        fee_family = _okx_text(selected, "underlying_symbol_name", "instFamily")
+        if derivative and not fee_family and normalized_type == "SWAP" and symbol_name.upper().endswith("-SWAP"):
+            fee_family = symbol_name[:-5]
+        try:
+            if normalized_type in {"SPOT", "MARGIN"}:
+                fee_result = self.get_fee(inst_type=asset_type, inst_id=symbol_name)
+            elif derivative and fee_family:
+                fee_result = self.get_fee(inst_type=asset_type, inst_family=fee_family)
+            else:
+                fee_result = None
+            if fee_result is not None:
+                fee_rows = _okx_projection_rows(_okx_request_data_value(fee_result, prefer_input=True))
+                fee_row = next((item for item in fee_rows if item), None)
+                if fee_row is not None:
+                    maker_key = "makerU" if derivative and _okx_value(fee_row, "makerU") is not None else "maker"
+                    taker_key = "takerU" if derivative and _okx_value(fee_row, "takerU") is not None else "taker"
+                    maker = _okx_fee_rate(_okx_value(fee_row, maker_key))
+                    taker = _okx_fee_rate(_okx_value(fee_row, taker_key))
+                    spec["fee_source"] = "okx_get_fee"
+                    if maker is not None:
+                        spec["maker_commission_rate"] = maker
+                    if taker is not None:
+                        spec["taker_commission_rate"] = taker
+                        spec["commission_rate"] = taker
+                        spec["open_commission_rate"] = taker
+                    elif maker is not None:
+                        spec["commission_rate"] = maker
+                        spec["open_commission_rate"] = maker
+        except Exception:
+            pass
+        if spec:
+            self._symbol_info_cache[cache_key] = dict(spec)
+        return spec
 
     def get_account_instruments(self, symbol, extra_data=None, **kwargs):
         """Return instruments enabled for this account without changing account state."""
@@ -391,3 +504,85 @@ class OkxRequestData(
         Extracts 'data' list and checks 'code' for status.
         Delegates to the shared normalizers module."""
         return generic_normalize_function(input_data, extra_data)
+
+
+def _okx_request_data_value(result: Any, *, prefer_input: bool = False) -> Any:
+    if prefer_input and callable(getattr(result, "get_input_data", None)):
+        raw = result.get_input_data()
+        if raw not in (None, ""):
+            return raw
+    if callable(getattr(result, "get_data", None)):
+        return result.get_data()
+    return result
+
+
+def _okx_projection_rows(payload: Any) -> list[dict[str, Any]]:
+    if isinstance(payload, dict):
+        nested = payload.get("data")
+        if isinstance(nested, list):
+            payload = nested
+        elif isinstance(nested, dict):
+            payload = [nested]
+        else:
+            payload = [payload]
+    elif not isinstance(payload, list):
+        payload = []
+    rows: list[dict[str, Any]] = []
+    for item in payload:
+        if isinstance(item, dict):
+            rows.append(dict(item))
+            continue
+        initializer = getattr(item, "init_data", None)
+        if callable(initializer):
+            initializer()
+        getter = getattr(item, "get_all_data", None)
+        if callable(getter):
+            row = getter()
+            if isinstance(row, dict):
+                rows.append(dict(row))
+    return rows
+
+
+def _okx_value(payload: dict[str, Any], *keys: str) -> Any:
+    for key in keys:
+        if key in payload and payload[key] not in (None, ""):
+            return payload[key]
+    return None
+
+
+def _okx_text(payload: dict[str, Any], *keys: str) -> str:
+    value = _okx_value(payload, *keys)
+    return str(value).strip() if value is not None else ""
+
+
+def _okx_float(payload: dict[str, Any], *keys: str) -> float | None:
+    value = _okx_value(payload, *keys)
+    if isinstance(value, bool):
+        return None
+    try:
+        return float(value) if value is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _okx_symbol_candidates(symbol: str) -> set[str]:
+    dashed = symbol.replace("/", "-")
+    compact = "".join(character for character in dashed if character.isalnum())
+    return {candidate.upper() for candidate in (symbol, dashed, compact) if candidate}
+
+
+def _okx_symbol_matches(symbol: str, candidates: set[str]) -> bool:
+    compact = "".join(character for character in symbol if character.isalnum()).upper()
+    return symbol.upper() in candidates or compact in candidates
+
+
+def _okx_fee_rate(value: Any) -> float | None:
+    if isinstance(value, bool) or value in (None, ""):
+        return None
+    try:
+        rate = float(value)
+    except (TypeError, ValueError):
+        return None
+    if abs(rate) > 1:
+        rate /= 100.0
+    return -rate

@@ -39,5 +39,43 @@ def test_okx_ticker():
     assert bt.get_last_volume() == 0.1
 
 
+def test_direct_market_projection_maps_ticker_fields_without_stream_cache():
+    ticker = OkxTickerData(
+        {
+            "instType": "SWAP",
+            "instId": "BTC-USDT-SWAP",
+            "last": "30000",
+            "bidPx": "29999",
+            "askPx": "30001",
+            "bidSz": "3",
+            "askSz": "4",
+            "vol24h": "12.5",
+            "volCcy24h": "375000",
+            "open24h": "29800",
+            "high24h": "30500",
+            "low24h": "29000",
+            "ts": "1597026383085",
+        },
+        "BTC-USDT-SWAP",
+        "SWAP",
+        has_been_json_encoded=True,
+    )
+
+    projected = ticker.get_market_projection()
+
+    assert projected["instrument_id"] == projected["symbol"] == "BTC-USDT-SWAP"
+    assert projected["timestamp"] == 1597026383.085
+    assert projected["price"] == projected["last_price"] == 30000.0
+    assert projected["bid_price"] == 29999.0
+    assert projected["ask_price"] == 30001.0
+    assert projected["bid_volume"] == 3.0
+    assert projected["ask_volume"] == 4.0
+    assert projected["volume"] == 12.5
+    assert projected["turnover"] == 375000.0
+    assert projected["open"] == 29800.0
+    assert projected["high"] == 30500.0
+    assert projected["low"] == 29000.0
+
+
 if __name__ == "__main__":
     test_okx_ticker()

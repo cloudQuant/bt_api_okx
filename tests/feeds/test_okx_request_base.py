@@ -102,3 +102,103 @@ def test_okx_success_response_does_not_raise() -> None:
     """成功响应(code == "0")不抛异常。"""
     request_data = _make_okx_request_data()
     request_data._raise_if_error({"code": "0", "data": []})
+
+
+def test_direct_symbol_info_merges_swap_contract_and_fee_metadata(monkeypatch) -> None:
+    from bt_api_okx.containers.symbols.okx_symbol import OkxSymbolData
+
+    request_data = OkxRequestData(
+        None,
+        public_key="pk",
+        private_key="sk",
+        passphrase="pp",
+        asset_type="SWAP",
+    )
+    instrument = OkxSymbolData(
+        {
+            "instId": "BTC-USDT-SWAP",
+            "instType": "SWAP",
+            "baseCcy": "BTC",
+            "quoteCcy": "USDT",
+            "ctMult": "100",
+            "ctVal": "0.01",
+            "ctValCcy": "BTC",
+            "ctType": "linear",
+            "instFamily": "BTC-USDT",
+            "tickSz": "0.1",
+            "lotSz": "0.01",
+            "minSz": "0.01",
+            "lever": "20",
+            "state": "live",
+        },
+        True,
+    )
+    fee_calls = []
+    monkeypatch.setattr(
+        request_data,
+        "get_instruments",
+        lambda **kwargs: [instrument],
+    )
+    monkeypatch.setattr(
+        request_data,
+        "get_fee",
+        lambda **kwargs: fee_calls.append(kwargs)
+        or {"code": "0", "data": [{"makerU": "0.0002", "takerU": "0.0005"}]},
+    )
+
+    spec = request_data.get_symbol_info("BTC-USDT-SWAP")
+
+    assert spec["source"] == "okx_get_instruments"
+    assert spec["symbol"] == "BTC-USDT-SWAP"
+    assert spec["base_asset"] == "BTC"
+    assert spec["quote_asset"] == "USDT"
+    assert spec["contract_value_currency"] == "BTC"
+    assert spec["contract_notional_value"] == spec["multiplier"] == 0.01
+    assert spec["contract_multiplier_raw"] == 100.0
+    assert spec["price_tick"] == spec["tick_size"] == 0.1
+    assert spec["min_order_size"] == 0.01
+    assert spec["order_size_step"] == 0.01
+    assert spec["max_leverage"] == 20.0
+    assert spec["symbol_status"] == "live"
+    assert spec["maker_commission_rate"] == -0.0002
+    assert spec["taker_commission_rate"] == spec["commission_rate"] == -0.0005
+    assert spec["fee_source"] == "okx_get_fee"
+    assert fee_calls == [{"inst_type": "SWAP", "inst_family": "BTC-USDT"}]
+
+
+def test_direct_symbol_info_spot_defaults_multiplier_and_normalizes_fee_sign(monkeypatch) -> None:
+    from bt_api_okx.containers.symbols.okx_symbol import OkxSymbolData
+
+    request_data = OkxRequestData(
+        None,
+        public_key="pk",
+        private_key="sk",
+        passphrase="pp",
+        asset_type="SPOT",
+    )
+    instrument = OkxSymbolData(
+        {
+            "instId": "BTC-USDT",
+            "instType": "SPOT",
+            "baseCcy": "BTC",
+            "quoteCcy": "USDT",
+            "tickSz": "0.1",
+            "lotSz": "0.001",
+            "minSz": "0.001",
+            "state": "live",
+        },
+        True,
+    )
+    monkeypatch.setattr(request_data, "get_instruments", lambda **_kwargs: [instrument])
+    monkeypatch.setattr(
+        request_data,
+        "get_fee",
+        lambda **kwargs: {"code": "0", "data": [{"maker": "0.001", "taker": "0.002"}]},
+    )
+
+    spec = request_data.get_symbol_info("BTC/USDT")
+
+    assert spec["symbol"] == "BTC-USDT"
+    assert spec["multiplier"] == spec["contract_multiplier"] == 1.0
+    assert spec["maker_commission_rate"] == -0.001
+    assert spec["taker_commission_rate"] == -0.002

@@ -165,3 +165,31 @@ class OkxTickerData(TickerData):
     def get_vol_ccy_24h(self) -> float | None:
         """get_vol_ccy_24h method"""
         return self.vol_ccy_24h
+
+    def get_market_projection(self) -> dict[str, Any]:
+        """Project this direct ticker row without maintaining stream/cache state."""
+        self.init_data()
+        price = self.last_price
+        if price is None and self.bid_price is not None and self.ask_price is not None:
+            price = (self.bid_price + self.ask_price) / 2.0
+        timestamp = self.server_time
+        if timestamp is not None and abs(timestamp) > 1_000_000_000_000:
+            timestamp /= 1000.0
+        return {
+            "exchange_name": self.exchange_name,
+            "symbol": self.ticker_symbol_name or self.symbol_name,
+            "instrument_id": self.ticker_symbol_name,
+            "asset_type": self.asset_type,
+            "timestamp": timestamp,
+            "price": price if price is not None else 0.0,
+            "last_price": self.last_price,
+            "bid_price": self.bid_price,
+            "ask_price": self.ask_price,
+            "bid_volume": self.bid_volume,
+            "ask_volume": self.ask_volume,
+            "volume": self.vol_24h if self.vol_24h is not None else 0.0,
+            "turnover": self.vol_ccy_24h,
+            "high": self.high_24h,
+            "low": self.low_24h,
+            "open": self.open_24h,
+        }

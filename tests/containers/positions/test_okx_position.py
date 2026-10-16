@@ -132,3 +132,31 @@ def test_okx_position():
 
 if __name__ == "__main__":
     test_okx_position()
+
+
+def test_get_all_data_lazily_initializes_direct_position_projection():
+    position = OkxPositionData(
+        {
+            "instId": "BTC-USDT-SWAP",
+            "posId": "position-1",
+            "pos": "2",
+            "posSide": "long",
+            "avgPx": "30000",
+            "markPx": "30100",
+            "upl": "200",
+            "fee": "-1.5",
+        },
+        "BTC-USDT-SWAP",
+        "SWAP",
+        True,
+    )
+
+    projected = position.get_all_data()
+
+    assert projected["position_id"] == "position-1"
+    assert projected["position_volume"] == 2.0
+    assert projected["avg_price"] == 30000.0
+    assert projected["mark_price"] == 30100.0
+    assert projected["position_unrealized_pnl"] == 200.0
+    assert projected["position_fee"] == -1.5
+    assert position.has_been_init_data is True

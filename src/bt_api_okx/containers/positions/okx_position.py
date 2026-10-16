@@ -102,6 +102,7 @@ class OkxPositionData(PositionData):
 
     def get_all_data(self):
         """get_all_data method"""
+        self.init_data()
         if self.all_data is None:
             self.all_data = {
                 "exchange_name": self.exchange_name,

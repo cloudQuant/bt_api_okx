@@ -41,10 +41,25 @@ class OkxTradeData(TradeData):
         trade_type = from_dict_get_string(self.trade_data, "execType")
         self.trade_type = "maker" if trade_type == "M" else "taker"
         self.trade_time = from_dict_get_float(self.trade_data, "fillTime")
-        self.trade_fee = from_dict_get_float(self.trade_data, "fee")
-        self.trade_fee_symbol = from_dict_get_string(self.trade_data, "feeCcy")
+        self.trade_fee = from_dict_get_float(
+            self.trade_data, "fee" if _has_value(self.trade_data, "fee") else "fillFee"
+        )
+        self.trade_fee_symbol = from_dict_get_string(
+            self.trade_data,
+            "feeCcy" if _has_value(self.trade_data, "feeCcy") else "fillFeeCcy",
+        )
         self.has_been_init_data = True
         return self
+
+    def get_all_data(self):
+        """Return the initialized direct trade fields with fee/liquidity aliases."""
+        self.init_data()
+        data = super().get_all_data()
+        data.setdefault("liquidity", self.trade_type)
+        data.setdefault("trade_commission", self.trade_fee)
+        data.setdefault("fee", self.trade_fee)
+        data.setdefault("fee_currency", self.trade_fee_symbol)
+        return data
 
     def _get_server_time(self):
         raise NotImplementedError
@@ -174,3 +189,8 @@ class OkxWssFillsData(OkxTradeData):
 
     def _get_server_time(self):
         return from_dict_get_float(self.trade_data, "fillTime")
+
+
+def _has_value(payload, key):
+    value = payload.get(key) if isinstance(payload, dict) else None
+    return value not in (None, "")

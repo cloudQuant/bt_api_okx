@@ -1,4 +1,4 @@
-﻿# bt_api_okx
+# bt_api_okx
 
 [![PyPI Version](https://img.shields.io/pypi/v/bt_api_okx.svg)](https://pypi.org/project/bt_api_okx/)
 [![Python Versions](https://img.shields.io/pypi/pyversions/bt_api_okx.svg)](https://pypi.org/project/bt_api_okx/)
@@ -13,7 +13,7 @@
 
 > **OKX exchange plugin for bt_api** — Unified REST and WebSocket API for **Spot** and **U本位永续合约 (USDT-M Perpetual Futures)**.
 
-`bt_api_okx` is a runtime plugin for [bt_api](https://github.com/cloudQuant/bt_api_py) that connects to **OKX** exchange. It depends on [bt_api_base](https://github.com/cloudQuant/bt_api_base) for core infrastructure. It also ships `OkxGatewayAdapter` for **standalone use** without the full bt_api framework.
+`bt_api_okx` is a runtime plugin for [bt_api](https://github.com/cloudQuant/bt_api_py) that connects to **OKX** exchange. It depends on [bt_api_base](https://github.com/cloudQuant/bt_api_base) for core infrastructure. It provides direct REST and WebSocket feeds for use through the bt_api provider registry or its package-level request and container APIs.
 
 | Resource | Link |
 |----------|------|
@@ -113,7 +113,7 @@ References: [OKX demo API documentation](https://www.okx.com/docs-v5/en/#overvie
 
 ### Plugin Architecture
 
-Auto-registers at import time via `ExchangeRegistry`. Works seamlessly with `BtApi`:
+PluginLoader explicitly calls register_plugin(registry) to register feeds with ExchangeRegistry. Importing the module alone does not mutate the registry. The following BtApi use is handled by that loader:
 
 ```python
 from bt_api_py import BtApi
@@ -135,22 +135,11 @@ order = api.make_order(
 )
 ```
 
-### Standalone Gateway Adapter
+### Direct container and contract projections
 
-```python
-from bt_api_okx import OkxGatewayAdapter
+Direct consumers can use OkxTickerData.get_market_projection() for a read-only ticker mapping and OkxRequestDataSpot or OkxRequestDataSwap get_symbol_info(symbol) for instrument and fee metadata. Order, position, and trade containers expose their normalized fields through get_all_data().
 
-adapter = OkxGatewayAdapter(
-    api_key="your_api_key",
-    secret_key="your_secret",
-    passphrase="your_passphrase",
-    asset_type="SWAP",  # or "SPOT"
-)
-adapter.connect()
-adapter.subscribe_symbols(["BTC-USDT", "ETH-USDT"])
-
-# get_balance, get_positions, place_order, cancel_order...
-```
+These package-level projections do not create a ServiceHost market/account stream or a managed execution session. The legacy standalone gateway runtime remains in the source tree pending the complete migration, but is retired and unsupported as a public integration. After host integration, managed live writes must go through ServiceExecutionSession and service-v2.
 
 ### Unified Data Containers
 
@@ -205,43 +194,11 @@ pip install -e .
 pip install bt_api_okx
 ```
 
-### 2. Get ticker (public — no API key needed)
+### 2. Direct package projections
 
-```python
-from bt_api_okx import OkxGatewayAdapter
+Use OkxRequestDataSpot or OkxRequestDataSwap and the typed containers for direct REST/WebSocket work. Ticker mappings, symbol/fee metadata, order aliases, positions, and fills are package-level projections; they do not provide ServiceHost lifecycle or managed-write integration. See the plugin integration step below for the registered BtApi path.
 
-adapter = OkxGatewayAdapter(asset_type="SPOT")
-adapter.connect()
-adapter.subscribe_symbols(["BTC-USDT"])
-# Use adapter.poll_output() or BtApi.get_data_queue() to receive data
-```
-
-### 3. Place an order (requires API key)
-
-```python
-from bt_api_okx import OkxGatewayAdapter
-
-adapter = OkxGatewayAdapter(
-    api_key="your_api_key",
-    secret_key="your_secret",
-    passphrase="your_passphrase",
-    asset_type="SWAP",
-)
-adapter.connect()
-
-order = adapter.place_order(
-    {
-        "symbol": "BTC-USDT",
-        "side": "buy",
-        "order_type": "limit",
-        "price": 67000,
-        "volume": 0.001,
-    }
-)
-print(f"Order placed: {order}")
-```
-
-### 4. bt_api Plugin Integration
+### 3. bt_api Plugin Integration
 
 ```python
 from bt_api_py import BtApi
@@ -305,8 +262,6 @@ bt_api_okx/
 │   ├── greeks/                  # OkxAccountGreeksData
 │   ├── symbols/                 # OkxSymbolData
 │   └── price_limits/            # OkxPriceLimitData
-└── gateway/
-    └── adapter.py              # OkxGatewayAdapter(PluginGatewayAdapter)
 ```
 
 ---
@@ -396,7 +351,7 @@ MIT — see [LICENSE](LICENSE).
 
 > **bt_api 的 OKX 交易所插件** — 为**现货**和**U本位永续合约**提供统一的 REST 和 WebSocket API。
 
-`bt_api_okx` 是 [bt_api](https://github.com/cloudQuant/bt_api_py) 的运行时插件，连接 **OKX** 交易所。依赖 [bt_api_base](https://github.com/cloudQuant/bt_api_base) 提供核心基础设施。同时提供 `OkxGatewayAdapter`，可**独立使用**无需完整 bt_api 框架。
+`bt_api_okx` 是 [bt_api](https://github.com/cloudQuant/bt_api_py) 的运行时插件，连接 **OKX** 交易所。依赖 [bt_api_base](https://github.com/cloudQuant/bt_api_base) 提供核心基础设施。提供 REST/WebSocket 直连 feed，可通过 bt_api provider 注册表或包级请求与容器接口使用。
 
 | 资源 | 链接 |
 |------|------|
@@ -445,7 +400,7 @@ MIT — see [LICENSE](LICENSE).
 
 ### 插件架构
 
-通过 `ExchangeRegistry` 在导入时自动注册，与 `BtApi` 无缝协作：
+PluginLoader 会显式调用 register_plugin(registry) 将 feed 注册到 ExchangeRegistry。单独导入模块不会修改注册表；以下为 BtApi 调用示例：
 
 ```python
 from bt_api_py import BtApi
@@ -467,22 +422,11 @@ order = api.make_order(
 )
 ```
 
-### 独立网关适配器
+### 直连容器与合约投影
 
-```python
-from bt_api_okx import OkxGatewayAdapter
+直连使用者可调用 OkxTickerData.get_market_projection() 获取只读行情映射，也可调用 OkxRequestDataSpot 或 OkxRequestDataSwap 的 get_symbol_info(symbol) 获取合约和费率元数据。订单、持仓和成交容器通过 get_all_data() 提供规范化字段。
 
-adapter = OkxGatewayAdapter(
-    api_key="your_api_key",
-    secret_key="your_secret",
-    passphrase="your_passphrase",
-    asset_type="SWAP",  # 或 "SPOT"
-)
-adapter.connect()
-adapter.subscribe_symbols(["BTC-USDT", "ETH-USDT"])
-
-# get_balance, get_positions, place_order, cancel_order...
-```
+这些包级投影不会创建 ServiceHost 行情/账户流或托管执行会话。完整迁移尚未完成，旧的独立网关 runtime 仍保留在源码树中，但已退役，不再作为受支持的公共集成接口。宿主集成完成后，托管实盘写操作应经由 ServiceExecutionSession 和 service-v2。
 
 ### 统一数据容器
 
@@ -537,43 +481,11 @@ pip install -e .
 pip install bt_api_okx
 ```
 
-### 2. 获取行情（公开接口，无需 API key）
+### 2. 直连包级投影
 
-```python
-from bt_api_okx import OkxGatewayAdapter
+直连调用可使用 OkxRequestDataSpot 或 OkxRequestDataSwap 以及类型化容器处理 REST/WebSocket 数据。行情映射、合约/费率元数据、订单别名、持仓和成交属于包级投影；它们不提供 ServiceHost 生命周期或托管写入集成。已注册的 BtApi 使用方式见下方示例。
 
-adapter = OkxGatewayAdapter(asset_type="SPOT")
-adapter.connect()
-adapter.subscribe_symbols(["BTC-USDT"])
-# 使用 adapter.poll_output() 或 BtApi.get_data_queue() 接收数据
-```
-
-### 3. 下单交易（需要 API key）
-
-```python
-from bt_api_okx import OkxGatewayAdapter
-
-adapter = OkxGatewayAdapter(
-    api_key="your_api_key",
-    secret_key="your_secret",
-    passphrase="your_passphrase",
-    asset_type="SWAP",
-)
-adapter.connect()
-
-order = adapter.place_order(
-    {
-        "symbol": "BTC-USDT",
-        "side": "buy",
-        "order_type": "limit",
-        "price": 67000,
-        "volume": 0.001,
-    }
-)
-print(f"订单已下单: {order}")
-```
-
-### 4. bt_api 插件集成
+### 3. bt_api 插件集成
 
 ```python
 from bt_api_py import BtApi
@@ -637,8 +549,6 @@ bt_api_okx/
 │   ├── greeks/                  # OkxAccountGreeksData
 │   ├── symbols/                 # OkxSymbolData
 │   └── price_limits/            # OkxPriceLimitData
-└── gateway/
-    └── adapter.py              # OkxGatewayAdapter(PluginGatewayAdapter)
 ```
 
 ---

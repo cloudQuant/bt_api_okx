@@ -39,6 +39,31 @@ class TestOkxOrderData:
         assert result["exchange_name"] == "OKX"
         assert result["symbol_name"] == "BTC-USDT"
 
+    def test_get_all_data_initializes_direct_order_aliases_and_remaining_quantity(self):
+        order = OkxOrderData(
+            {
+                "ordId": "venue-123",
+                "clOrdId": "client-456",
+                "instId": "BTC-USDT-SWAP",
+                "state": "partially_filled",
+                "sz": "2",
+                "accFillSz": "0.75",
+            },
+            symbol_name="BTC-USDT-SWAP",
+            asset_type="SWAP",
+            has_been_json_encoded=True,
+        )
+
+        projected = order.get_all_data()
+
+        assert projected["order_id"] == projected["external_order_id"] == "venue-123"
+        assert projected["venue_order_id"] == projected["id"] == "venue-123"
+        assert projected["order_ref"] == "venue-123"
+        assert projected["client_order_id"] == "client-456"
+        assert projected["symbol"] == projected["data_name"] == "BTC-USDT-SWAP"
+        assert projected["remaining"] == 1.25
+        assert order.has_been_init_data is True
+
     def test_str_representation(self):
         """Test __str__ method."""
         order = OkxOrderData(

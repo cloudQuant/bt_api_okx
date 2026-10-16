@@ -91,10 +91,14 @@ class OkxOrderData(OrderData):
 
     def get_all_data(self) -> dict[str, Any]:
         """get_all_data method"""
+        self.init_data()
         if self.all_data is None:
             order_status_val = ""
             if self.order_status is not None:
                 order_status_val = self.order_status.value
+            remaining = None
+            if self.order_size is not None and self.executed_qty is not None:
+                remaining = max(self.order_size - self.executed_qty, 0.0)
             self.all_data = {
                 "exchange_name": self.exchange_name,
                 "symbol_name": self.symbol_name,
@@ -102,8 +106,14 @@ class OkxOrderData(OrderData):
                 "local_update_time": self.local_update_time,
                 "asset_type": self.asset_type,
                 "order_id": self.order_id,
+                "external_order_id": self.order_id,
+                "venue_order_id": self.order_id,
+                "id": self.order_id,
+                "order_ref": self.order_id,
                 "client_order_id": self.client_order_id,
                 "order_symbol_name": self.order_symbol_name,
+                "symbol": self.order_symbol_name,
+                "data_name": self.order_symbol_name,
                 "order_type": self.order_type,
                 "order_status": order_status_val,
                 "order_size": self.order_size,
@@ -111,6 +121,7 @@ class OkxOrderData(OrderData):
                 "trade_id": self.trade_id,
                 "position_side": self.position_side,
                 "executed_qty": self.executed_qty,
+                "remaining": remaining,
                 "order_avg_price": self.order_avg_price,
                 "reduce_only": self.reduce_only,
                 "take_profit_price": self.take_profit_price,
