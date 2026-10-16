@@ -46,6 +46,13 @@ class TradeMixin(IndexCandlesMixin, AlgoMixin, BatchMixin, ConvertMixin, MiscTra
         extra_data: Any = None,
         **kwargs: Any,
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+        side, ord_type = order_type.split("-")
+        if post_only and ord_type.lower() != "limit":
+            raise InvalidOrderError(
+                self.exchange_name,
+                str(symbol),
+                "post_only requires a limit order",
+            )
         request_symbol = self._params.get_symbol(symbol)
         request_type = "make_order"
         if not kwargs.get("size_in_contracts") and not kwargs.get("skip_size_conversion"):
@@ -62,7 +69,6 @@ class TradeMixin(IndexCandlesMixin, AlgoMixin, BatchMixin, ConvertMixin, MiscTra
                 ) from None
             except Exception as e:
                 self.request_logger.warning(f"_make_order:{e}")
-        side, ord_type = order_type.split("-")
         time_in_force = str(kwargs.get("time_in_force", "GTC")).upper()
         if post_only and time_in_force != "GTC":
             raise InvalidOrderError(
