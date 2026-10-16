@@ -385,6 +385,8 @@ class OkxRequestData(
         body: Any = None,
         extra_data: Any = None,
         timeout: Any = 10,
+        *,
+        max_retries: Any = None,
     ) -> None:
         """http request function
         Args: path (TYPE): request url
@@ -397,6 +399,10 @@ class OkxRequestData(
             params: dict[str, Any] = {}
         if extra_data is None:
             extra_data = {}
+        if max_retries is not None and (
+            type(max_retries) is not int or not 1 <= max_retries <= 3
+        ):
+            raise ValueError("max_retries must be between one and three")
         method, path = path.split(" ", 1)
         req = parse.urlencode(params)
         url = f"{self._params.rest_url}{path}" + (f"?{req}" if req else "")
@@ -427,9 +433,21 @@ class OkxRequestData(
                 key: value for key, value in headers.items() if not key.startswith("OK-ACCESS-")
             }
         if method.upper() == "GET":
-            res = self.http_request(method, url, headers, body, timeout)
+            if max_retries is None:
+                res = self.http_request(method, url, headers, body, timeout)
+            else:
+                res = self.http_request(
+                    method, url, headers, body, timeout, max_retries=max_retries
+                )
         else:
-            res = self.http_request(method, url, headers, body, timeout, max_retries=1)
+            res = self.http_request(
+                method,
+                url,
+                headers,
+                body,
+                timeout,
+                max_retries=1 if max_retries is None else max_retries,
+            )
         self._raise_if_error(res)
         return RequestData(res, extra_data)
 
