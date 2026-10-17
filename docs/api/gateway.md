@@ -2,10 +2,6 @@
 title: ServiceHost boundary | bt_api_okx
 ---
 
-# OKX direct provider and ServiceHost boundary
+# OKX provider and ServiceHost boundary
 
-The OKX package exposes direct REST/WebSocket feeds and typed container projections. PluginLoader explicitly registers those feeds through register_plugin(registry); importing this package alone does not register a gateway.
-
-The legacy standalone gateway runtime remains in the source tree pending the complete migration, but is retired and unsupported as a public integration. Package-level ticker, symbol/fee, order, position, and fill projections do not provide ServiceHost lifecycle, a complete account observation, or a managed execution session. After the provider is integrated with the host, managed live writes must go through ServiceExecutionSession and service-v2.
-
-See the README, feed reference, and container reference for the supported direct APIs.
+The legacy `OkxGatewayAdapter` runtime wrapper and export have been removed. The direct OKX request feeds and typed exchange containers remain available through the plugin registry. OKX's managed market providers support the configured SWAP ticker and bar-history contracts; they do not provide an account-session or ServiceHost order-entry adapter. Raw feed methods remain direct APIs and are not a managed ServiceHost session.
