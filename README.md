@@ -15,6 +15,10 @@
 
 `bt_api_okx` is a runtime plugin for [bt_api](https://github.com/cloudQuant/bt_api_py) that connects to **OKX** exchange. It depends on [bt_api_base](https://github.com/cloudQuant/bt_api_base) for core infrastructure. It provides direct REST and WebSocket feeds for use through the bt_api provider registry or its package-level request and container APIs.
 
+### Provider scope and SDK/framework boundary
+
+bt_api_okx implements OKX-specific REST/WebSocket feeds and response normalization, and registers OKX___SPOT and OKX___SWAP. bt_api_base supplies shared provider contracts; bt_api_py loads the plugin and provides the BtApi/registry host. The provider does not itself supply Backtrader strategy or managed-execution lifecycle integration; see [Trading System Architecture](https://github.com/cloudQuant/backtrader/blob/dev/docs/TRADING_SYSTEM_ARCHITECTURE.md).
+
 | Resource | Link |
 |----------|------|
 | English Docs | https://bt-api-okx.readthedocs.io/ |
@@ -352,6 +356,10 @@ MIT — see [LICENSE](LICENSE).
 > **bt_api 的 OKX 交易所插件** — 为**现货**和**U本位永续合约**提供统一的 REST 和 WebSocket API。
 
 `bt_api_okx` 是 [bt_api](https://github.com/cloudQuant/bt_api_py) 的运行时插件，连接 **OKX** 交易所。依赖 [bt_api_base](https://github.com/cloudQuant/bt_api_base) 提供核心基础设施。提供 REST/WebSocket 直连 feed，可通过 bt_api provider 注册表或包级请求与容器接口使用。
+
+### Provider 职责与 SDK/framework 边界
+
+bt_api_okx 负责 OKX 专属 REST/WebSocket feed 与响应规范化，并注册 OKX___SPOT 和 OKX___SWAP。bt_api_base 提供共享 provider contract；bt_api_py 负责加载插件并提供 BtApi/registry 宿主。provider 本身不提供 Backtrader 策略或托管执行生命周期集成，详见 [交易系统架构](https://github.com/cloudQuant/backtrader/blob/dev/docs/TRADING_SYSTEM_ARCHITECTURE.md)。
 
 | 资源 | 链接 |
 |------|------|
