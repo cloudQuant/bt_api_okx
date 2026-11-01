@@ -22,6 +22,10 @@ okx = "bt_api_okx.plugin:register_plugin"
 OKX___SPOT = "bt_api_okx.order_identity_projection:project_order_identity"
 OKX___SWAP = "bt_api_okx.order_identity_projection:project_order_identity"
 
+[project.entry-points."bt_api.order_request_projections"]
+OKX___SPOT = "bt_api_okx.order_request_mapping:map_order_request"
+OKX___SWAP = "bt_api_okx.order_request_mapping:map_order_request"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
