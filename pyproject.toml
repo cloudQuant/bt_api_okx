@@ -18,6 +18,10 @@ dependencies = [
 [project.entry-points."bt_api.plugins"]
 okx = "bt_api_okx.plugin:register_plugin"
 
+[project.entry-points."bt_api.order_identity_projections"]
+OKX___SPOT = "bt_api_okx.order_identity_projection:project_order_identity"
+OKX___SWAP = "bt_api_okx.order_identity_projection:project_order_identity"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
