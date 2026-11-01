@@ -36,6 +36,10 @@ OKX___SWAP = "bt_api_okx.position_mode_projection:write_position_mode"
 OKX___SPOT = "bt_api_okx.position_mode_projection:position_mode_read_aliases"
 OKX___SWAP = "bt_api_okx.position_mode_projection:position_mode_read_aliases"
 
+[project.entry-points."bt_api.order_quantity_unit_validators"]
+OKX___SPOT = "bt_api_base.order_quantity_units:validate_generic_order_quantity_units"
+OKX___SWAP = "bt_api_okx.order_quantity_units:validate_order_quantity_units"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
