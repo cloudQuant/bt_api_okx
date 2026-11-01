@@ -7,6 +7,16 @@ from bt_api_base.normalization_policy import LegacyNormalizationPolicy
 
 class OkxNormalizationPolicy(LegacyNormalizationPolicy):
     funding_time_fields = ("fundingTime", "nextFundingTime")
+    position_fields = MappingProxyType({
+        "quantity": ("quantity", "position_volume", "volume", "size", "pos", "trade_volume"),
+        "side": ("position_side", "direction", "position_direction", "posSide", "side"),
+        "position_id": ("position_id",),
+        "price": ("average_price", "avg_price", "price", "avgPx"),
+        "today": ("today", "today_position", "today_volume"),
+        "yesterday": ("yesterday", "yesterday_position", "yd_position"),
+        "multiplier": ("multiplier", "contract_size", "volume_multiple"),
+        "exchange_id": ("exchange_id",),
+    })
     balance_nested_fields = ("details", "balances")
     balance_fields = MappingProxyType({
         "currency": ("currency", "ccy", "account_type", "symbol_name", "symbol"),
