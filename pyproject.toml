@@ -62,3 +62,7 @@ OKX___SWAP = "bt_api_okx.instrument_rules_projection:project_instrument_rules"
 
 [project.entry-points."bt_api.error_classifiers"]
 OKX = "bt_api_okx.error_classification:classify_error"
+
+[project.entry-points."bt_api.order_side_projections"]
+OKX___SPOT = "bt_api_base.order_side_projection:legacy_order_side_candidates"
+OKX___SWAP = "bt_api_base.order_side_projection:legacy_order_side_candidates"
