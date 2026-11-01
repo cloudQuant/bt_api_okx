@@ -7,6 +7,27 @@ from bt_api_base.normalization_policy import LegacyNormalizationPolicy
 
 class OkxNormalizationPolicy(LegacyNormalizationPolicy):
     funding_time_fields = ("fundingTime", "nextFundingTime")
+    order_fields = MappingProxyType({
+        "order_id": ("order_id", "external_order_id", "ordId"),
+        "client_id": ("client_order_id", "clOrdId", "order_ref"),
+        "filled": ("filled", "filled_quantity", "executed_qty", "accFillSz"),
+        "average": ("avg_price", "average_price", "order_avg_price", "avgPx"),
+        "cum_quote": ("cum_quote",), "size": ("quantity", "size", "order_size", "sz"),
+        "order_ref": ("order_ref",), "exchange_id": ("exchange_id",),
+        "front_id": ("front_id",), "session_id": ("session_id",),
+        "account_id": ("account_id",), "trading_day": ("trading_day",),
+        "fee_currency": ("fee_currency", "feeCcy"),
+        "commission_currency": ("commission_currency", "fee_currency", "feeCcy"),
+    })
+    trade_fields = MappingProxyType({
+        "trade_id": ("trade_id", "fill_id", "deal_id", "id"),
+        "order_id": ("order_id", "external_order_id", "ordId"),
+        "client_id": ("client_order_id", "clOrdId"),
+        "size": ("quantity", "size", "trade_volume", "fillSz", "volume"),
+        "price": ("trade_price", "price", "fillPx"), "exchange_id": ("exchange_id",),
+        "account_id": ("account_id",), "trading_day": ("trading_day",),
+        "fee_currency": ("fee_currency", "trade_fee_symbol", "feeCcy"),
+    })
     position_fields = MappingProxyType({
         "quantity": ("quantity", "position_volume", "volume", "size", "pos", "trade_volume"),
         "side": ("position_side", "direction", "position_direction", "posSide", "side"),
