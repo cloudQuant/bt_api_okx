@@ -66,3 +66,7 @@ OKX = "bt_api_okx.error_classification:classify_error"
 [project.entry-points."bt_api.order_side_projections"]
 OKX___SPOT = "bt_api_base.order_side_projection:legacy_order_side_candidates"
 OKX___SWAP = "bt_api_base.order_side_projection:legacy_order_side_candidates"
+
+[project.entry-points."bt_api.normalization_policies"]
+OKX___SPOT = "bt_api_okx.normalization_policy:normalization_policy"
+OKX___SWAP = "bt_api_okx.normalization_policy:normalization_policy"
