@@ -7,6 +7,17 @@ from bt_api_base.normalization_policy import LegacyNormalizationPolicy
 
 class OkxNormalizationPolicy(LegacyNormalizationPolicy):
     funding_time_fields = ("fundingTime", "nextFundingTime")
+    order_statuses = MappingProxyType({
+        "open": "accepted", "live": "accepted", "submitted": "submitted",
+        "accepted": "accepted", "pending": "submitted", "partial": "partial",
+        "partially_filled": "partial", "filled": "completed", "completed": "completed",
+        "cancelled": "canceled", "canceled": "canceled", "mmp_canceled": "canceled",
+        "expired": "expired", "rejected": "rejected", "unknown": "unknown",
+        "local_pending": "submitted",
+    })
+    position_mode_boolean_field = None
+    position_mode_fields = ("position_mode", "posMode")
+    position_mode_aliases = MappingProxyType({"net_mode": "net", "long_short_mode": "dual_side"})
     order_fields = MappingProxyType({
         "order_id": ("order_id", "external_order_id", "ordId"),
         "client_id": ("client_order_id", "clOrdId", "order_ref"),
