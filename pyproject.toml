@@ -26,6 +26,9 @@ OKX___SWAP = "bt_api_okx.order_identity_projection:project_order_identity"
 OKX___SPOT = "bt_api_okx.order_request_mapping:map_order_request"
 OKX___SWAP = "bt_api_okx.order_request_mapping:map_order_request"
 
+[project.entry-points."bt_api.order_readiness_providers"]
+OKX___SWAP = "bt_api_okx.order_readiness_service:collect_order_readiness"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
