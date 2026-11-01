@@ -62,6 +62,14 @@ class OkxNormalizationPolicy(LegacyNormalizationPolicy):
         "margin_used": ("margin_used", "used_margin"),
         "account_id": ("account_id",),
     })
+    instrument_spec_fields = MappingProxyType({
+        "symbol": ("symbol", "symbol_name", "instId"),
+        "base_currency": ("base_currency", "baseCcy", "ctValCcy"),
+        "quote_currency": ("quote_currency", "quoteCcy", "settleCcy"),
+        "asset_type": ("asset_type", "instType"),
+        "contract_type": ("contract_type", "instType"),
+    })
+    instrument_spec_linear_type_field = "ctType"
     instrument_fields = MappingProxyType({
         "multiplier": ("multiplier", "contract_size", "ctVal"),
         "step": ("lot_size", "order_size_step", "volume_step", "lotSz"),
