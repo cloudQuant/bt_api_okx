@@ -75,7 +75,9 @@ class OkxBarData(BarData):
                 "local_update_time": self.local_update_time,
                 "asset_type": self.asset_type,
             }
-        return self.all_data
+        # Return a copy: the cache is shared by every reader of a published
+        # container and must not be mutated through the result (contract v1).
+        return dict(self.all_data)
 
     def __str__(self) -> str:
         self.init_data()

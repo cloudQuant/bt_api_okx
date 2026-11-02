@@ -131,7 +131,9 @@ class OkxOrderData(OrderData):
                 "stop_loss_trigger_price": self.stop_loss_trigger_price,
                 "stop_loss_trigger_price_type": self.stop_loss_trigger_price_type,
             }
-        return self.all_data
+        # Return a copy: the cache is shared by every reader of a published
+        # container and must not be mutated through the result (contract v1).
+        return dict(self.all_data)
 
     def __str__(self):
         self.init_data()

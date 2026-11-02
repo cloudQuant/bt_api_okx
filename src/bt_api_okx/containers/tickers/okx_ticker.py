@@ -6,6 +6,7 @@ import time
 from typing import Any
 
 from bt_api_base._compat import Self
+from bt_api_base.containers.semantics import VOLUME_LAST_TRADE
 from bt_api_base.containers.tickers.ticker import TickerData
 from bt_api_base.functions.utils import from_dict_get_float, from_dict_get_string
 
@@ -88,7 +89,8 @@ class OkxTickerData(TickerData):
                 "vol_24h": self.vol_24h,
                 "vol_ccy_24h": self.vol_ccy_24h,
             }
-        return self.all_data or {}
+        # Return a copy so readers cannot mutate the shared cache (contract v1).
+        return dict(self.all_data or {})
 
     def __str__(self) -> str:
         self.init_data()
@@ -141,6 +143,10 @@ class OkxTickerData(TickerData):
     def get_last_price(self) -> float | None:
         """get_last_price method"""
         return self.last_price
+
+    def get_volume_semantics(self) -> str:
+        """OKX ``lastSz`` is the size of the most recent trade (contract v1)."""
+        return VOLUME_LAST_TRADE
 
     def get_last_volume(self) -> float | None:
         """get_last_volume method"""

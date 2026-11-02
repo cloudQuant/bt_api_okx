@@ -88,7 +88,9 @@ class OkxMarketTradeData(TradeData):
                 "order_id": self.order_id,
                 "client_order_id": self.client_order_id,
             }
-        return self.all_data
+        # Return a copy: the cache is shared by every reader of a published
+        # container and must not be mutated through the result (contract v1).
+        return dict(self.all_data)
 
     def get_exchange_name(self):
         """get_exchange_name method"""
@@ -109,6 +111,10 @@ class OkxMarketTradeData(TradeData):
     def get_trade_id(self):
         """get_trade_id method"""
         return self.trade_id
+
+    def get_symbol_name(self):
+        """get_symbol_name method"""
+        return self.symbol_name
 
     def get_trade_symbol_name(self):
         """get_trade_symbol_name method"""
