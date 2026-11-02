@@ -3,10 +3,98 @@
 from types import MappingProxyType
 
 from bt_api_base.normalization_policy import LegacyNormalizationPolicy
+from bt_api_base.order_identity_fields import NEUTRAL_ORDER_IDENTITY_FIELDS
+from bt_api_base.provider_order_source_aliases import build_provider_order_source_aliases
+from bt_api_base.order_provenance_fields import (
+    NEUTRAL_ORDER_SOURCE_FIELDS,
+    PROVIDER_SCOPED_ORDER_PROVENANCE_SCHEMAS,
+)
 
 
 class OkxNormalizationPolicy(LegacyNormalizationPolicy):
+    trade_id_fields = ("trade_id", "fill_id", "deal_id", "tradeId")
+    tick_trading_day_fields = ("trading_day",)
+    tick_action_day_fields = ("action_day",)
+    risk_position_dimensions_require_projection = False
+    # Preserve the prior non-swap acknowledgement pending venue review.
+    position_mode_ack_code = "200"
+    position_mode_placement_guard_required = True
+    # Preserve the previous common aliases until venue-specific coverage is reviewed.
+    order_status_fields = ("status", "order_status", "state")
+    trade_fee_fields = ("fee_amount", "fee", "trade_fee", "commission")
+    identity_fields = MappingProxyType({
+        **NEUTRAL_ORDER_IDENTITY_FIELDS,
+        'position_side': ('position_side', 'posSide'),
+        'position_mode': ('position_mode', 'posMode'),
+    })
+    order_provenance_schemas = PROVIDER_SCOPED_ORDER_PROVENANCE_SCHEMAS
+    order_provenance_source_fields = NEUTRAL_ORDER_SOURCE_FIELDS | frozenset({
+        'accFillSz',
+        'clOrdId',
+        'fillPx',
+        'fillSz',
+        'instId',
+        'ordId',
+        'posSide',
+        'sz',
+    })
+    (
+        risk_order_source_aliases,
+        group_order_source_aliases,
+        group_fill_source_aliases,
+    ) = build_provider_order_source_aliases(
+        order_provenance_source_fields,
+        risk_order_native_aliases={
+            "provider_order_id": ("ordId",),
+            "client_order_id": ("clOrdId",),
+            "status": ("state",),
+            "filled_quantity": ("accFillSz",),
+            "quantity": ("sz",),
+            "instrument": ("instId",),
+            "side": ("side",),
+            "position_side": ("posSide",),
+        },
+        group_order_native_aliases={
+            "order_id": ("ordId",),
+            "client_order_id": ("clOrdId",),
+            "status": ("state",),
+            "filled": ("accFillSz",),
+            "quantity": ("sz",),
+            "instrument": ("instId",),
+            "side": ("side",),
+        },
+        group_fill_native_aliases={
+            "order_id": ("ordId",),
+            "client_order_id": ("clOrdId",),
+            "instrument": ("instId",),
+            "side": ("side",),
+            "quantity": ("fillSz",),
+            "price": ("fillPx",),
+        },
+    )
+    response_error_item_fields = ("sCode",)
+    # CTP/OKX source uses the neutral data collection.
+    result_collection_fields = ("data",)
+    exchange_time_fields = (
+        "exchange_time", "timestamp", "server_time", "ts", "uTime", "event_time",
+        "event_time_utc", "timestamp_ms",
+    )
+    funding_rate_fields = ("funding_rate", "fundingRate", "lastFundingRate", "rate")
+    funding_interval_hours_fields = ("fundingIntervalHours",)
+    funding_interval_start_fields = ("fundingTime",)
+    funding_interval_end_fields = ("nextFundingTime",)
+    funding_raw_fields = (
+        "funding_rate", "fundingRate", "lastFundingRate", "rate", "next_funding_time",
+        "fundingTime", "nextFundingTime", "settlement_interval_seconds",
+        "funding_interval_seconds", "fundingIntervalHours",
+    )
+    base_symbol_fields = (
+        "symbol", "symbol_name", "instrument", "instrument_id", "data_name", "instId",
+        "trade_symbol",
+    )
     funding_time_fields = ("fundingTime", "nextFundingTime")
+    permission_fields = ("trading_permissions", "perm")
+    can_trade_fields = ("can_trade",)
     order_statuses = MappingProxyType({
         "open": "accepted", "live": "accepted", "submitted": "submitted",
         "accepted": "accepted", "pending": "submitted", "partial": "partial",
@@ -31,7 +119,6 @@ class OkxNormalizationPolicy(LegacyNormalizationPolicy):
         "commission_currency": ("commission_currency", "fee_currency", "feeCcy"),
     })
     trade_fields = MappingProxyType({
-        "trade_id": ("trade_id", "fill_id", "deal_id", "id"),
         "order_id": ("order_id", "external_order_id", "ordId"),
         "client_id": ("client_order_id", "clOrdId"),
         "size": ("quantity", "size", "trade_volume", "fillSz", "volume"),
@@ -39,6 +126,7 @@ class OkxNormalizationPolicy(LegacyNormalizationPolicy):
         "account_id": ("account_id",), "trading_day": ("trading_day",),
         "fee_currency": ("fee_currency", "trade_fee_symbol", "feeCcy"),
     })
+    signed_fee_currency_field = "feeCcy"
     position_fields = MappingProxyType({
         "quantity": ("quantity", "position_volume", "volume", "size", "pos", "trade_volume"),
         "side": ("position_side", "direction", "position_direction", "posSide", "side"),
@@ -82,7 +170,9 @@ class OkxNormalizationPolicy(LegacyNormalizationPolicy):
         "commission_rate": ("commission_rate", "taker_commission_rate"),
         "exchange_id": ("exchange_id",),
     })
-    instrument_uses_filters = False
+    instrument_contract_value_field = "ctVal"
+    instrument_contract_multiplier_field = "ctMult"
+    instrument_linear_type_field = "ctType"
     instrument_perpetual_type_field = None
     event_id_fields = ("event_id", "trade_id", "fill_id", "order_id", "ordId")
     event_audit_fields = (
@@ -91,11 +181,6 @@ class OkxNormalizationPolicy(LegacyNormalizationPolicy):
     orderbook_sequence_fields = ("sequence", "sequence_id", "update_id")
     orderbook_previous_fields = ("previous_sequence", "prev_sequence", "prevSeqId")
     orderbook_delta_predecessor_fields = ()
-    tick_bid_fields = ("bid_price", "bid")
-    tick_ask_fields = ("ask_price", "ask")
-    tick_price_fields = ("price", "last_price", "last")
-    tick_volume_fields = ("volume", "last_volume")
-    tick_cumulative_fields = ("cum_volume", "cumulative_volume")
 
 
 class OkxSwapNormalizationPolicy(OkxNormalizationPolicy):

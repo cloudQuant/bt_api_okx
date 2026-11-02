@@ -10,10 +10,18 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Protocol
 
 from bt_api_base.market_history_protocol import MarketBar, MarketHistoryPage, MarketHistoryRequest
-from bt_api_base.market_protocol import MarketSubscriptionKey
+from bt_api_base.market_history_provider_protocol import (
+    MarketHistoryProviderBinding,
+    MarketHistoryProviderContractError,
+    MarketHistoryProviderRegistryPort,
+    SelectedMarketHistoryRoute,
+)
+from bt_api_base.market_protocol import MarketInstrumentKey, MarketSubscriptionKey
+from .feeds.live_okx.swap import OkxRequestDataSwap
 
 _SOURCE_REF = "okx-public-market-r1"
 _ENTITLEMENT_REF = "public-history-r1"
+OKX_MARKET_HISTORY_EXCHANGE = "OKX___SWAP"
 _MAX_REQUEST_TIMEOUT_SECONDS = 300.0
 _OKX_PAGE_LIMIT = 300
 _MAX_SCAN_WINDOWS = 64
@@ -41,6 +49,14 @@ _TIMEFRAME_TO_OKX = {
     "3d": "3D",
     "1w": "1W",
 }
+
+# The shared collector anchors fixed intervals at the UTC Unix epoch. These
+# sub-day OKX periods divide its 8-hour bar-boundary offset, so their returned
+# timestamps can satisfy that exact alignment contract. Longer periods need an
+# explicit neutral anchor contract before they can be routed through it.
+_UTC_EPOCH_ALIGNED_TIMEFRAMES = frozenset(
+    {"1s", "1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h"}
+)
 
 
 class OkxMarketHistoryProviderError(RuntimeError):
@@ -147,7 +163,7 @@ class OkxMarketHistoryProvider:
             or key.entitlement_ref != _ENTITLEMENT_REF
             or instrument.provider != "okx"
             or instrument.venue != "OKX"
-            or instrument.environment != "live"
+            or instrument.environment not in {"live", "production"}
             or instrument.product_type != "SWAP"
             or instrument.instrument_id != instrument.native_symbol
             or key.channel != "bar"
@@ -155,6 +171,8 @@ class OkxMarketHistoryProvider:
         ):
             raise OkxMarketHistoryProviderError("UNSUPPORTED_OKX_HISTORY_KEY")
         timeframe = key.timeframe
+        if timeframe not in _UTC_EPOCH_ALIGNED_TIMEFRAMES:
+            raise OkxMarketHistoryProviderError("UNSUPPORTED_OKX_HISTORY_TIMEFRAME")
         okx_bar = _TIMEFRAME_TO_OKX.get(timeframe or "")
         if okx_bar is None:
             raise OkxMarketHistoryProviderError("UNSUPPORTED_OKX_HISTORY_TIMEFRAME")
@@ -300,6 +318,74 @@ class OkxMarketHistoryProvider:
         return normalized
 
 
+def register_okx_market_history_provider(
+    registry: MarketHistoryProviderRegistryPort,
+) -> None:
+    """Register the bounded production OKX SWAP history capability."""
+
+    if not isinstance(registry, MarketHistoryProviderRegistryPort):
+        raise MarketHistoryProviderContractError("MARKET_HISTORY_PROVIDER_ADAPTER_INVALID")
+    registry.register(OKX_MARKET_HISTORY_EXCHANGE, _create_okx_market_history_binding)
+
+
+def _create_okx_market_history_binding(
+    route: SelectedMarketHistoryRoute,
+) -> MarketHistoryProviderBinding:
+    if (
+        type(route) is not SelectedMarketHistoryRoute
+        or route.exchange_name != OKX_MARKET_HISTORY_EXCHANGE
+        or type(route.client) is not OkxRequestDataSwap
+        or route.environment != "production"
+        or type(route.instrument) is not MarketInstrumentKey
+        or route.instrument.provider != "okx"
+        or route.instrument.venue != "OKX"
+        or route.instrument.environment != "production"
+        or route.instrument.product_type != "SWAP"
+        or route.instrument.instrument_id != route.instrument.native_symbol
+    ):
+        raise MarketHistoryProviderContractError("MARKET_HISTORY_PROVIDER_ROUTE_INVALID")
+    if route.timeframe not in _UTC_EPOCH_ALIGNED_TIMEFRAMES:
+        raise MarketHistoryProviderContractError(
+            "MARKET_HISTORY_PROVIDER_TIMEFRAME_UNAVAILABLE"
+        )
+    try:
+        info = route.client.get_environment_info()
+    except Exception:
+        raise MarketHistoryProviderContractError(
+            "MARKET_HISTORY_PROVIDER_ROUTE_INVALID"
+        ) from None
+    if (
+        type(info) is not dict
+        or info.get("verified") is not True
+        or info.get("environment") != "production"
+    ):
+        raise MarketHistoryProviderContractError("MARKET_HISTORY_PROVIDER_ROUTE_INVALID")
+    key = MarketSubscriptionKey(
+        source_ref=_SOURCE_REF,
+        entitlement_ref=_ENTITLEMENT_REF,
+        instrument=route.instrument,
+        channel="bar",
+        timeframe=route.timeframe,
+    )
+    try:
+        adapter = OkxMarketHistoryProvider(route.client)
+        return MarketHistoryProviderBinding(
+            key=key,
+            adapter=adapter,
+            default_limit=300,
+            page_size=300,
+            max_pages=64,
+            max_rows=19_200,
+            request_timeout_seconds=30.0,
+        )
+    except MarketHistoryProviderContractError:
+        raise
+    except Exception:
+        raise MarketHistoryProviderContractError(
+            "MARKET_HISTORY_PROVIDER_ADAPTER_INVALID"
+        ) from None
+
+
 def _parse_utc(value: str) -> datetime:
     try:
         parsed = datetime.fromisoformat(value[:-1] + "+00:00")
@@ -377,4 +463,9 @@ def _parse_row(row: Any) -> tuple[int, tuple[str, ...] | None]:
     return int(timestamp_text), (row[1], row[2], row[3], row[4], row[5])
 
 
-__all__ = ["OkxMarketHistoryProvider", "OkxMarketHistoryProviderError"]
+__all__ = [
+    "OKX_MARKET_HISTORY_EXCHANGE",
+    "OkxMarketHistoryProvider",
+    "OkxMarketHistoryProviderError",
+    "register_okx_market_history_provider",
+]

@@ -9,12 +9,16 @@ from __future__ import annotations
 import base64
 import hmac
 import json
+import uuid
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 from urllib import parse
 
 from bt_api_base.containers.requestdatas.request_data import RequestData
 from bt_api_base.error import OKXErrorTranslator
+from bt_api_base.execution_request_receipt_protocol import (
+    ExecutionCredentialRequestOpaqueRef,
+)
 from bt_api_base.exceptions import QueueNotInitializedError
 from bt_api_base.feeds.capability import Capability
 from bt_api_base.feeds.feed import Feed
@@ -27,6 +31,7 @@ from bt_api_base.rate_limiter import (
     RateLimitType,
 )
 
+from bt_api_okx._credential_binding import OkxCredentialBinding
 from bt_api_okx.environment import configure_environment, verify_environment
 from bt_api_okx.exchange_data import OkxExchangeDataSwap
 from bt_api_okx.feeds.live_okx.mixins.account_mixin import AccountMixin
@@ -67,6 +72,20 @@ def _utc_now_iso8601() -> str:
     """按 OKX V5 规范生成 ISO 8601 毫秒时间戳(UTC)。"""
     now = datetime.now(timezone.utc)  # noqa: UP017 - package supports Python 3.9
     return now.strftime("%Y-%m-%dT%H:%M:%S.") + f"{now.microsecond // 1000:03d}" + "Z"
+
+
+_ENVIRONMENT_OPTION_KEYS = (
+    "environment",
+    "testnet",
+    "demo",
+    "simulated_trading",
+    "region",
+    "api_region",
+    "rest_url",
+    "wss_url",
+    "account_wss_url",
+    "kline_wss_url",
+)
 
 
 def _sign(secret: str, timestamp: str, method: str, request_path: str, body: str) -> str:
@@ -124,14 +143,18 @@ class OkxRequestData(
 
     def __init__(self, data_queue: Any, **kwargs: Any) -> None:
         """__init__ method"""
-        self._environment_options = dict(kwargs)
+        self._environment_options = {
+            key: kwargs[key] for key in _ENVIRONMENT_OPTION_KEYS if key in kwargs
+        }
+        self._credential_binding = OkxCredentialBinding(
+            api_key=strict_credential_alias(kwargs, ("public_key", "api_key")),
+            api_secret=strict_credential_alias(
+                kwargs, ("private_key", "secret_key", "api_secret")
+            ),
+            passphrase=strict_credential_alias(kwargs, ("passphrase",)),
+        )
         super().__init__(data_queue, **kwargs)
         self.data_queue = data_queue
-        self.public_key = strict_credential_alias(kwargs, ("public_key", "api_key"))
-        self.private_key = strict_credential_alias(
-            kwargs, ("private_key", "secret_key", "api_secret")
-        )
-        self.passphrase = strict_credential_alias(kwargs, ("passphrase",))
         self.topics = kwargs.get("topics", {})
         self.exchange_name = kwargs.get("exchange_name", "OKX___SWAP")
         self.asset_type = kwargs.get("asset_type", "SWAP")
@@ -142,6 +165,86 @@ class OkxRequestData(
         self._error_translator = OKXErrorTranslator()
         self._rate_limiter = kwargs.get("rate_limiter", self._create_default_rate_limiter())
         self._symbol_info_cache: dict[str, dict[str, Any]] = {}
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if name == "_credential_binding" and name in self.__dict__:
+            raise AttributeError(
+                "OKX REST credentials are fixed for this feed; create a new feed to rotate them"
+            )
+        object.__setattr__(self, name, value)
+
+    def __delattr__(self, name: str) -> None:
+        if name == "_credential_binding":
+            raise AttributeError(
+                "OKX REST credentials are fixed for this feed; create a new feed to rotate them"
+            )
+        object.__delattr__(self, name)
+
+    def execution_credential_lineage_ref(self) -> ExecutionCredentialRequestOpaqueRef:
+        """Return the construction-time marker bound to this REST signer.
+
+        SDK session assembly may pin this exact marker to the selected feed
+        before any authenticated request. It carries no credential value or
+        fingerprint and is not authentication evidence by itself.
+        """
+
+        binding = getattr(self, "_credential_binding", None)
+        if (
+            type(binding) is not OkxCredentialBinding
+            or type(binding.lineage_ref) is not ExecutionCredentialRequestOpaqueRef
+        ):
+            raise ValueError("OKX credential lineage marker is unavailable")
+        return binding.lineage_ref
+
+    @property
+    def public_key(self) -> str | None:
+        """Read-only compatibility view; signer code uses the captured binding."""
+        binding = getattr(self, "_credential_binding", None)
+        if binding is not None:
+            return binding.api_key
+        return getattr(self, "_legacy_public_key", None)
+
+    @public_key.setter
+    def public_key(self, value: str | None) -> None:
+        if hasattr(self, "_credential_binding"):
+            raise AttributeError(
+                "OKX REST credentials are fixed for this feed; create a new feed to rotate them"
+            )
+        # Supports redaction helpers that deliberately construct an uninitialized
+        # object; normal feeds can only receive credentials in __init__.
+        object.__setattr__(self, "_legacy_public_key", value)
+
+    @property
+    def private_key(self) -> str | None:
+        """Read-only compatibility view; signer code uses the captured binding."""
+        binding = getattr(self, "_credential_binding", None)
+        if binding is not None:
+            return binding.api_secret
+        return getattr(self, "_legacy_private_key", None)
+
+    @private_key.setter
+    def private_key(self, value: str | None) -> None:
+        if hasattr(self, "_credential_binding"):
+            raise AttributeError(
+                "OKX REST credentials are fixed for this feed; create a new feed to rotate them"
+            )
+        object.__setattr__(self, "_legacy_private_key", value)
+
+    @property
+    def passphrase(self) -> str | None:
+        """Read-only compatibility view; signer code uses the captured binding."""
+        binding = getattr(self, "_credential_binding", None)
+        if binding is not None:
+            return binding.passphrase
+        return getattr(self, "_legacy_passphrase", None)
+
+    @passphrase.setter
+    def passphrase(self, value: str | None) -> None:
+        if hasattr(self, "_credential_binding"):
+            raise AttributeError(
+                "OKX REST credentials are fixed for this feed; create a new feed to rotate them"
+            )
+        object.__setattr__(self, "_legacy_passphrase", value)
 
     def get_exchange_info(self, symbol=None, extra_data=None, **kwargs):
         """Return the exchange's instrument rules, including contract value and lot size."""
@@ -387,7 +490,9 @@ class OkxRequestData(
         timeout: Any = 10,
         *,
         max_retries: Any = None,
-    ) -> None:
+        _include_http_status: bool = False,
+        _include_execution_credential_lineage: bool = False,
+    ) -> Any:
         """http request function
         Args: path (TYPE): request url
             params (dict, optional): in url
@@ -399,6 +504,24 @@ class OkxRequestData(
             params: dict[str, Any] = {}
         if extra_data is None:
             extra_data = {}
+        credentials = self._credential_binding
+        if type(_include_http_status) is not bool:
+            raise TypeError("_include_http_status must be a bool")
+        if type(_include_execution_credential_lineage) is not bool:
+            raise TypeError("_include_execution_credential_lineage must be a bool")
+        if _include_http_status and max_retries is not None and (
+            type(max_retries) is not int or max_retries != 1
+        ):
+            raise ValueError("status-bearing OKX requests require exactly one HTTP attempt")
+        if _include_execution_credential_lineage and (
+            not _include_http_status or max_retries != 1 or type(max_retries) is not int
+        ):
+            raise ValueError(
+                "execution credential lineage requires one status-bearing HTTP attempt"
+            )
+        execution_request_ref = None
+        physical_request_ref = None
+        physical_response_ref = None
         if max_retries is not None and (
             type(max_retries) is not int or not 1 <= max_retries <= 3
         ):
@@ -411,7 +534,7 @@ class OkxRequestData(
         public = path.startswith(("/api/v5/public/", "/api/v5/market/", "/api/v5/system/"))
         if not public and not all(
             isinstance(value, str) and value.strip()
-            for value in (self.public_key, self.private_key, self.passphrase)
+            for value in (credentials.api_key, credentials.api_secret, credentials.passphrase)
         ):
             raise ValueError("OKX private requests require API key, secret and passphrase")
         timestamp = _utc_now_iso8601()
@@ -424,15 +547,42 @@ class OkxRequestData(
             timestamp,
             method,
             path,
-            self.private_key or "",
+            credentials.api_secret or "",
             body_str,
         )
-        headers = self.get_header(self.public_key, signature_, timestamp, self.passphrase)
+        headers = self.get_header(
+            credentials.api_key, signature_, timestamp, credentials.passphrase
+        )
         if public:
             headers = {
                 key: value for key, value in headers.items() if not key.startswith("OK-ACCESS-")
             }
-        if method.upper() == "GET":
+        if _include_http_status:
+            if _include_execution_credential_lineage:
+                execution_request_ref = "okx-rest-attempt-" + uuid.uuid4().hex
+                physical_request_ref = ExecutionCredentialRequestOpaqueRef()
+            res = self.http_request(
+                method,
+                url,
+                headers,
+                body,
+                timeout,
+                max_retries=1 if max_retries is None else max_retries,
+                _include_status=True,
+            )
+            if type(res) is not tuple or len(res) != 2:
+                raise ValueError("OKX HTTP status observation is unavailable")
+            raw_body, status_code = res
+            if (
+                type(status_code) is not int
+                or status_code != 200
+                or type(raw_body) is not bytes
+            ):
+                raise ValueError("OKX authenticated HTTP response is unavailable")
+            if _include_execution_credential_lineage:
+                physical_response_ref = ExecutionCredentialRequestOpaqueRef()
+            res = json.loads(raw_body.decode("utf-8", errors="strict"))
+        elif method.upper() == "GET":
             if max_retries is None:
                 res = self.http_request(method, url, headers, body, timeout)
             else:
@@ -449,7 +599,19 @@ class OkxRequestData(
                 max_retries=1 if max_retries is None else max_retries,
             )
         self._raise_if_error(res)
-        return RequestData(res, extra_data)
+        request_data = RequestData(res, extra_data)
+        if _include_execution_credential_lineage:
+            return (
+                request_data,
+                status_code,
+                credentials.lineage_ref,
+                execution_request_ref,
+                physical_request_ref,
+                physical_response_ref,
+            )
+        if _include_http_status:
+            return request_data, status_code
+        return request_data
 
     async def async_request(
         self, path, params=None, body=None, extra_data=None, timeout=5
@@ -465,6 +627,7 @@ class OkxRequestData(
             params: dict[str, Any] = {}
         if extra_data is None:
             extra_data = {}
+        credentials = self._credential_binding
         method, path = path.split(" ", 1)
         req = parse.urlencode(params)
         url = f"{self._params.rest_url}{path}" + (f"?{req}" if req else "")
@@ -473,7 +636,7 @@ class OkxRequestData(
         public = path.startswith(("/api/v5/public/", "/api/v5/market/", "/api/v5/system/"))
         if not public and not all(
             isinstance(value, str) and value.strip()
-            for value in (self.public_key, self.private_key, self.passphrase)
+            for value in (credentials.api_key, credentials.api_secret, credentials.passphrase)
         ):
             raise ValueError("OKX private requests require API key, secret and passphrase")
         timestamp = _utc_now_iso8601()
@@ -486,10 +649,12 @@ class OkxRequestData(
             timestamp,
             method,
             path,
-            self.private_key or "",
+            credentials.api_secret or "",
             body_str,
         )
-        headers = self.get_header(self.public_key, signature_, timestamp, self.passphrase)
+        headers = self.get_header(
+            credentials.api_key, signature_, timestamp, credentials.passphrase
+        )
         if public:
             headers = {
                 key: value for key, value in headers.items() if not key.startswith("OK-ACCESS-")
@@ -508,11 +673,16 @@ class OkxRequestData(
             result = future.result()
             self.push_data_to_queue(result)
         except Exception as e:
+            credentials = getattr(self, "_credential_binding", None)
             self.async_logger.warning(
                 "async_callback::%s",
                 sanitize_text(
                     e,
-                    sensitive_values=(self.public_key, self.private_key, self.passphrase),
+                    sensitive_values=(
+                        credentials.api_key if credentials is not None else self.public_key,
+                        credentials.api_secret if credentials is not None else self.private_key,
+                        credentials.passphrase if credentials is not None else self.passphrase,
+                    ),
                 ),
             )
 

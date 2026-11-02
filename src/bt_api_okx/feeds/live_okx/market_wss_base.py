@@ -19,6 +19,7 @@ from bt_api_base.feeds.my_websocket_app import MyWebsocketApp, WebSocketSubscrip
 from bt_api_base.feeds.transport_safety import sanitize_text, sanitize_value
 from bt_api_base.logging_factory import get_logger
 
+from bt_api_okx._credential_binding import OkxCredentialBinding
 from bt_api_okx.containers.accounts.okx_account import OkxAccountData
 from bt_api_okx.containers.assets.okx_asset import (
     OkxDepositInfoData,
@@ -55,16 +56,20 @@ class OkxWssData(MyWebsocketApp):
 
     def __init__(self, data_queue: Any, **kwargs: Any) -> None:
         """__init__ method"""
+        self._credential_binding = OkxCredentialBinding(
+            api_key=kwargs.get("public_key") or kwargs.get("api_key"),
+            api_secret=(
+                kwargs.get("private_key")
+                or kwargs.get("secret_key")
+                or kwargs.get("api_secret")
+            ),
+            passphrase=kwargs.get("passphrase"),
+        )
         params = configure_environment(kwargs.get("exchange_data") or OkxExchangeDataSwap(), kwargs)
         kwargs["exchange_data"] = params
         kwargs.setdefault("wss_url", params.wss_url)
         super().__init__(data_queue, **kwargs)
         self.topics = kwargs.get("topics", {})
-        self.public_key = kwargs.get("public_key") or kwargs.get("api_key")
-        self.private_key = (
-            kwargs.get("private_key") or kwargs.get("secret_key") or kwargs.get("api_secret")
-        )
-        self.passphrase = kwargs.get("passphrase")
         self.wss_url = kwargs.get("wss_url")
         self.asset_type = kwargs.get("asset_type", "SWAP")
         self.exchange_name = kwargs.get("exchange_name", params.exchange_name)
@@ -76,6 +81,75 @@ class OkxWssData(MyWebsocketApp):
         self._depth_lock = threading.RLock()
         self._depth_stale_emitted: set[tuple[str, str]] = set()
         self._depth_reseed_requested: set[tuple[str, str]] = set()
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if name == "_credential_binding" and name in self.__dict__:
+            raise AttributeError(
+                "OKX WSS credentials are fixed for this feed; create a new feed to rotate them"
+            )
+        object.__setattr__(self, name, value)
+
+    def __delattr__(self, name: str) -> None:
+        if name == "_credential_binding":
+            raise AttributeError(
+                "OKX WSS credentials are fixed for this feed; create a new feed to rotate them"
+            )
+        object.__delattr__(self, name)
+
+    def _capture_credential_binding(self) -> OkxCredentialBinding:
+        binding = getattr(self, "_credential_binding", None)
+        if binding is not None:
+            return binding
+        return OkxCredentialBinding(
+            api_key=self.public_key,
+            api_secret=self.private_key,
+            passphrase=self.passphrase,
+        )
+
+    @property
+    def public_key(self) -> str | None:
+        binding = getattr(self, "_credential_binding", None)
+        if binding is not None:
+            return binding.api_key
+        return getattr(self, "_legacy_public_key", None)
+
+    @public_key.setter
+    def public_key(self, value: str | None) -> None:
+        if hasattr(self, "_credential_binding"):
+            raise AttributeError(
+                "OKX WSS credentials are fixed for this feed; create a new feed to rotate them"
+            )
+        object.__setattr__(self, "_legacy_public_key", value)
+
+    @property
+    def private_key(self) -> str | None:
+        binding = getattr(self, "_credential_binding", None)
+        if binding is not None:
+            return binding.api_secret
+        return getattr(self, "_legacy_private_key", None)
+
+    @private_key.setter
+    def private_key(self, value: str | None) -> None:
+        if hasattr(self, "_credential_binding"):
+            raise AttributeError(
+                "OKX WSS credentials are fixed for this feed; create a new feed to rotate them"
+            )
+        object.__setattr__(self, "_legacy_private_key", value)
+
+    @property
+    def passphrase(self) -> str | None:
+        binding = getattr(self, "_credential_binding", None)
+        if binding is not None:
+            return binding.passphrase
+        return getattr(self, "_legacy_passphrase", None)
+
+    @passphrase.setter
+    def passphrase(self, value: str | None) -> None:
+        if hasattr(self, "_credential_binding"):
+            raise AttributeError(
+                "OKX WSS credentials are fixed for this feed; create a new feed to rotate them"
+            )
+        object.__setattr__(self, "_legacy_passphrase", value)
 
     @staticmethod
     def _subscription_key(argument: dict[str, Any]) -> str:
@@ -116,32 +190,36 @@ class OkxWssData(MyWebsocketApp):
         """
         Args: content (TYPE): Description
         """
-        sign = base64.b64encode(
+        credentials = self._capture_credential_binding()
+        return self._sign_with_binding(content, credentials)
+
+    @staticmethod
+    def _sign_with_binding(content: Any, credentials: OkxCredentialBinding) -> str:
+        return base64.b64encode(
             hmac.new(
-                self.private_key.encode("utf-8"),
+                credentials.api_secret.encode("utf-8"),
                 content.encode("utf-8"),
                 digestmod="sha256",
             ).digest()
         ).decode()
-
-        return sign
 
     def author(self) -> None:
         """author method"""
         if not self._uses_private_wss():
             self.wss_logger.info("Skipping auth on non-private OKX websocket endpoint")
             return
-        if not all((self.public_key, self.private_key, self.passphrase)):
+        credentials = self._capture_credential_binding()
+        if not all((credentials.api_key, credentials.api_secret, credentials.passphrase)):
             raise ValueError("OKX private websocket requires API key, secret and passphrase")
         timestamp = str(int(time.time()))
         sign_content = f"{timestamp}GET/users/self/verify"
-        sign = self.sign(sign_content)
+        sign = self._sign_with_binding(sign_content, credentials)
         auth = {
             "op": "login",
             "args": [
                 {
-                    "apiKey": self.public_key,
-                    "passphrase": self.passphrase,
+                    "apiKey": credentials.api_key,
+                    "passphrase": credentials.passphrase,
                     "timestamp": timestamp,
                     "sign": sign,
                 }

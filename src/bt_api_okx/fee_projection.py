@@ -183,7 +183,7 @@ def create_fee_projection(dependencies):
             maker_rate=maker_rate,
             taker_rate=taker_rate,
             currency=pick(
-                row, "currency", "feeCcy", "commissionAsset", "settleCcy", default=metadata_currency
+                row, "currency", "feeCcy", "settleCcy", default=metadata_currency
             ),
             source=f"{venue.lower()}_get_fee",
             freshness=_freshness(row),

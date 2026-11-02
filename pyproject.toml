@@ -18,6 +18,30 @@ dependencies = [
 [project.entry-points."bt_api.plugins"]
 okx = "bt_api_okx.plugin:register_plugin"
 
+[project.entry-points."bt_api.provider_configurations"]
+OKX___SWAP = "bt_api_okx.provider_configuration_registration:register_okx_provider_configuration"
+
+[project.entry-points."bt_api.managed_runtime_providers"]
+OKX___SWAP = "bt_api_okx.managed_runtime_provider:register_okx_managed_runtime_provider"
+
+[project.entry-points."bt_api.read_only_route_owners"]
+OKX___SWAP = "bt_api_okx.managed_runtime_provider:register_okx_read_only_route_owner"
+
+[project.entry-points."bt_api.execution_identity_assurance_providers"]
+OKX___SWAP = "bt_api_okx.execution_identity_assurance_provider:register_okx_execution_identity_assurance_provider"
+
+[project.entry-points."bt_api.query_providers"]
+OKX___SWAP = "bt_api_okx.query_registration:register_okx_query_provider"
+
+[project.entry-points."bt_api.account_session_providers"]
+OKX___SWAP = "bt_api_okx.account_session_registration:register_okx_account_session_provider"
+
+[project.entry-points."bt_api.market_stream_providers"]
+OKX___SWAP = "bt_api_okx.market_stream_provider:register_okx_market_stream_provider"
+
+[project.entry-points."bt_api.market_history_providers"]
+OKX___SWAP = "bt_api_okx.market_history_provider:register_okx_market_history_provider"
+
 [project.entry-points."bt_api.order_identity_projections"]
 OKX___SPOT = "bt_api_okx.order_identity_projection:project_order_identity"
 OKX___SWAP = "bt_api_okx.order_identity_projection:project_order_identity"
@@ -35,6 +59,10 @@ OKX___SWAP = "bt_api_okx.position_mode_projection:write_position_mode"
 [project.entry-points."bt_api.position_mode_read_aliases"]
 OKX___SPOT = "bt_api_okx.position_mode_projection:position_mode_read_aliases"
 OKX___SWAP = "bt_api_okx.position_mode_projection:position_mode_read_aliases"
+
+[project.entry-points."bt_api.account_config_read_aliases"]
+OKX___SPOT = "bt_api_okx.account_config_projection:account_config_read_aliases"
+OKX___SWAP = "bt_api_okx.account_config_projection:account_config_read_aliases"
 
 [project.entry-points."bt_api.order_quantity_unit_validators"]
 OKX___SPOT = "bt_api_base.order_quantity_units:validate_generic_order_quantity_units"
@@ -64,9 +92,19 @@ OKX___SWAP = "bt_api_okx.instrument_rules_projection:project_instrument_rules"
 OKX = "bt_api_okx.error_classification:classify_error"
 
 [project.entry-points."bt_api.order_side_projections"]
-OKX___SPOT = "bt_api_base.order_side_projection:legacy_order_side_candidates"
-OKX___SWAP = "bt_api_base.order_side_projection:legacy_order_side_candidates"
+OKX___SPOT = "bt_api_okx.order_side_projection:order_side_candidates"
+OKX___SWAP = "bt_api_okx.order_side_projection:order_side_candidates"
 
 [project.entry-points."bt_api.normalization_policies"]
 OKX___SPOT = "bt_api_okx.normalization_policy:normalization_policy"
 OKX___SWAP = "bt_api_okx.normalization_policy:normalization_policy"
+
+[project.entry-points."bt_api.execution_configuration_policies"]
+OKX___SPOT = "bt_api_okx.execution_configuration_policy:execution_configuration_policy"
+OKX___SWAP = "bt_api_okx.execution_configuration_policy:execution_configuration_policy"
+
+[project.entry-points."bt_api.execution_ledger_identity_policies"]
+OKX = "bt_api_base.execution_ledger_identity_policy:credential_bound_ledger_policy"
+
+[project.entry-points."bt_api.account_risk_source_policies"]
+OKX = "bt_api_base.account_risk_source_policy:legacy_account_risk_source_policy"
