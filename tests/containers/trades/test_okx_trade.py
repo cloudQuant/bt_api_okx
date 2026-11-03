@@ -80,7 +80,8 @@ def test_okx_req_order():
     assert bo.get_trade_type() == "maker"
     assert bo.get_trade_time() == 1597026383084.0
     assert bo.get_trade_fee() is None
-    assert bo.get_trade_fee_symbol() == ""
+    # Empty feeCcy falls back to fillFeeCcy; neither supplies a currency here.
+    assert bo.get_trade_fee_symbol() is None
 
 
 def test_okx_wss_trade():
@@ -246,6 +247,8 @@ def test_direct_trade_projection_keeps_fee_aliases_and_liquidity_from_fill_field
             "fillPx": "30000",
             "fillSz": "0.2",
             "execType": "M",
+            "fee": "",
+            "feeCcy": "",
             "fillFee": "-0.006",
             "fillFeeCcy": "USDT",
             "fillTime": "1597026383084",
