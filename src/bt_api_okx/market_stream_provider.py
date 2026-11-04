@@ -13,6 +13,7 @@ import math
 import threading
 import time
 from collections import deque
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
@@ -43,6 +44,7 @@ from bt_api_base.market_tick_protocol import (
 from bt_api_okx.environment import configure_environment
 from bt_api_okx.exchange_data import OkxExchangeDataSwap
 from bt_api_okx.feeds.live_okx.swap import OkxMarketWssDataSwap, OkxRequestDataSwap
+from bt_api_base.containers.auto_init_mixin import container_class
 from bt_api_okx.containers.orderbooks.okx_l2_orderbook import OkxL2OrderBookData
 
 
@@ -544,7 +546,8 @@ class OkxMarketStreamSession:
             self._mark_all_stale(reason)
             return
         try:
-            if type(raw) is not OkxL2OrderBookData:
+            # Exact class, also for a published (frozen) container.
+            if container_class(raw) is not OkxL2OrderBookData:
                 raise ValueError
             book = _project_book_state(raw, record.connection_generation)
         except Exception:
@@ -762,7 +765,9 @@ def _project_book_state(raw: OkxL2OrderBookData, generation: int) -> _BookState:
     if type(generation) is not int or generation <= 0:
         raise ValueError("INVALID_CONNECTION_GENERATION")
     row = getattr(raw, "order_book_data", None)
-    if not isinstance(row, dict):
+    # A published (frozen) container holds read-only views: a Mapping row and
+    # tuple levels. Both are only read here.
+    if not isinstance(row, Mapping):
         raise ValueError("INVALID_ORDERBOOK_ROW")
     provider_sequence = _provider_sequence(row.get("seqId"), positive=True)
     native_action = row.get("native_action")
@@ -816,7 +821,7 @@ def _project_book_state(raw: OkxL2OrderBookData, generation: int) -> _BookState:
 
 
 def _project_levels(rows: object, *, reverse: bool) -> tuple[MarketOrderBookLevel, ...]:
-    if type(rows) is not list or not rows:
+    if type(rows) not in (list, tuple) or not rows:
         raise ValueError("EMPTY_ORDERBOOK_SIDE")
     levels: list[MarketOrderBookLevel] = []
     for row in rows:
