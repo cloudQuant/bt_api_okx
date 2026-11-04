@@ -1023,44 +1023,52 @@ class OkxWssData(MyWebsocketApp):
         bar_data = OkxBarData(bar_info, symbol, self.asset_type, True)
         self.data_queue.put(bar_data)
 
+    @staticmethod
+    def _push_rows(content: Any) -> list:
+        """Every row of one push (OKX batches rows in ``data``; none may be dropped)."""
+        data = content.get("data") if isinstance(content, dict) else None
+        return [row for row in data if isinstance(row, dict)] if isinstance(data, list) else []
+
+    @staticmethod
+    def _row_symbol(content: Any, row: dict, default: str = "ANY") -> str:
+        """The row's own ``instId``; an ``instType`` subscription has none in ``arg``."""
+        symbol = row.get("instId")
+        if not symbol:
+            arg = content.get("arg") if isinstance(content, dict) else None
+            symbol = arg.get("instId") if isinstance(arg, dict) else None
+        return symbol or default
+
     def push_account(self, content: Any) -> None:
         """push_account method"""
-        account_info = content["data"][0]
-        symbol = "ANY"
-        account_data = OkxAccountData(account_info, symbol, self.asset_type, True)
-        self.data_queue.put(account_data)
+        for account_info in self._push_rows(content):
+            account_data = OkxAccountData(account_info, "ANY", self.asset_type, True)
+            self.data_queue.put(account_data)
 
     def push_order(self, content: Any) -> None:
-        """push_order method"""
-        self.logger.info("order")
-        order_info = content["data"][0]
-        symbol = content["arg"]["instId"]
-        order_data = OkxOrderData(order_info, symbol, self.asset_type, True)
-        self.data_queue.put(order_data)
-        self.logger.info("order，order_status ：", order_data.get_order_status())
+        """Every order row of a push (iteration 60: was ``data[0]`` only)."""
+        for order_info in self._push_rows(content):
+            symbol = self._row_symbol(content, order_info)
+            order_data = OkxOrderData(order_info, symbol, self.asset_type, True)
+            self.data_queue.put(order_data)
 
     def push_trade(self, content: Any) -> None:
-        """push_trade method"""
-        trade_info = content["data"][0]
-        symbol = content["arg"]["instId"]
-        trade_data = OkxWssTradeData(trade_info, symbol, self.asset_type, True)
-        self.data_queue.put(trade_data)
+        """Every public trade row of a push (iteration 60: was ``data[0]`` only)."""
+        for trade_info in self._push_rows(content):
+            symbol = self._row_symbol(content, trade_info)
+            trade_data = OkxWssTradeData(trade_info, symbol, self.asset_type, True)
+            self.data_queue.put(trade_data)
 
     def push_position(self, content: Any) -> None:
-        """push_position method"""
-        data = content["data"]
-        if len(data) > 0:
-            position_info = data[0]
-            symbol = content["arg"]["instId"]
+        """Every position row of a push, including a multi-row initial snapshot."""
+        for position_info in self._push_rows(content):
+            symbol = self._row_symbol(content, position_info)
             position_data = OkxPositionData(position_info, symbol, self.asset_type, True)
             self.data_queue.put(position_data)
 
     def push_fills(self, content: Any) -> None:
-        """Handle fills channel data."""
-        data = content.get("data", [])
-        if len(data) > 0:
-            fills_info = data[0]
-            symbol = content["arg"].get("instId", "ANY")
+        """Every fill row of a push (iteration 60: was ``data[0]`` only)."""
+        for fills_info in self._push_rows(content):
+            symbol = self._row_symbol(content, fills_info)
             fills_data = OkxWssFillsData(fills_info, symbol, self.asset_type, True)
             self.data_queue.put(fills_data)
 
