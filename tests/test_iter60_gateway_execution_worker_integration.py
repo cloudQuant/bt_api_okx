@@ -16,6 +16,7 @@ pytest.importorskip("bt_api_gateway")
 
 from bt_api_base.execution_row_observation_protocol import (  # noqa: E402
     execution_observation_from_event,
+    strategy_client_order_id,
     strategy_client_order_prefix,
 )
 from test_iter60_gateway_execution_observations import (  # noqa: E402
@@ -112,7 +113,10 @@ def test_okx_fills_route_by_strategy_prefix_with_fee_corrections_and_restarts(tm
     clock = Clock()
     venue = FakeOkxVenue(clock=clock)
     prefix = strategy_client_order_prefix("strategy-a")
-    venue.add_order(order_row(1001, sz="1", client=prefix + "0001"))
+    # The id a prefixed order-entry owner sends: venue grammar-valid (Base v2).
+    strategy_id = strategy_client_order_id("strategy-a", "ab" * 32)
+    assert strategy_id.isalnum() and len(strategy_id) <= 32
+    venue.add_order(order_row(1001, sz="1", client=strategy_id))
     venue.fills.append(fill_row(9001, 1001, fee="-0.02"))
     venue.add_order(order_row(1002, sz="1", client="manual1"))
     venue.fills.append(fill_row(9002, 1002, fee="-0.01"))
@@ -122,7 +126,7 @@ def test_okx_fills_route_by_strategy_prefix_with_fee_corrections_and_restarts(tm
     result = worker.publish_execution_events()
     assert (result.appended, result.duplicates, result.unattributed_dropped) == (4, 0, 0)
     order_a, fill_a = gateway.events(EXEC_A)
-    assert order_a.order.client_order_id == prefix + "0001"
+    assert order_a.order.client_order_id == strategy_id
     assert fill_a.trade.order_id == order_a.order.order_id and fill_a.fee == "0.02"
     assert len(gateway.events(UNATTRIBUTED)) == 2
     assert worker.publish_execution_events().appended == 0
