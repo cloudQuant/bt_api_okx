@@ -1,10 +1,12 @@
 """Unified neutral market-stream provider backed by the OKX public WSS.
 
 The provider owns one WSS connection for the exact selected OKX SWAP route
-and instrument. OKX's existing depth callback validates ``seqId`` /
-``prevSeqId``, the provider checksum, and reseeds after a gap. This adapter
-projects only complete post-application L2 books; it does not qualify clock
-quality or freshness.
+and instrument. Iteration 62 advertises the ``tick`` channel (public
+``tickers`` push, see :mod:`bt_api_okx.market_tick_stream`). The ``orderbook``
+session below stays implemented but unadvertised: OKX's existing depth
+callback validates ``seqId`` / ``prevSeqId`` and a CRC32 checksum that the
+current books-l2-tbt channel no longer provides. Neither channel qualifies
+clock quality or freshness.
 """
 
 from __future__ import annotations
@@ -68,6 +70,9 @@ class _IngressRecord:
     kind: str
     connection_generation: int
     value: object | None = None
+    # Wall-clock / monotonic nanoseconds when the WSS frame was received.
+    received_ns: int | None = None
+    received_monotonic_ns: int | None = None
 
 
 class _BoundedOkxIngressQueue:
@@ -108,7 +113,11 @@ class _BoundedOkxIngressQueue:
                     self._wake_failed = True
                     self._condition.notify_all()
             return
-        self._append(_IngressRecord("data", generation, value))
+        receipt = getattr(stream, "_message_receipt", None)
+        if type(receipt) is tuple and len(receipt) == 2:
+            self._append(_IngressRecord("data", generation, value, receipt[0], receipt[1]))
+        else:
+            self._append(_IngressRecord("data", generation, value))
 
     def lifecycle(self, kind: str, generation: int) -> None:
         if kind not in {"opened", "closed"} or type(generation) is not int or generation <= 0:
@@ -163,6 +172,22 @@ class _BoundedOkxIngressQueue:
 class _OwnedOkxMarketWssDataSwap(OkxMarketWssDataSwap):
     """Existing OKX WSS depth processor with bounded lifecycle receipts."""
 
+    def on_message(self, ws: Any, message: Any) -> None:
+        # Receipt time of the frame, before parsing; read by the ingress queue
+        # on this same WSS callback thread.
+        self._message_receipt = (time.time_ns(), time.monotonic_ns())
+        super().on_message(ws, message)
+
+    def push_market_trades(self, content: Any) -> None:
+        # Hand the rows of one push over in tradeId order, so trade-id
+        # continuity is judged in venue order.
+        data = content.get("data") if isinstance(content, dict) else None
+        if isinstance(data, list) and all(
+            isinstance(row, dict) and str(row.get("tradeId", "")).isdigit() for row in data
+        ):
+            content = dict(content, data=sorted(data, key=lambda row: int(row["tradeId"])))
+        super().push_market_trades(content)
+
     def on_open(self, ws: Any) -> None:
         super().on_open(ws)
         queue = self.data_queue
@@ -210,22 +235,26 @@ class OkxMarketStreamAdapter:
         self._route = route
 
     def capabilities(self) -> tuple[MarketStreamChannelCapability, ...]:
-        """Declare no live channel while the shared source validator is incompatible."""
-        # Current OKX public guidance fixes books-l2-tbt checksum to zero and
-        # requires seqId/prevSeqId continuity instead. The inherited WSS depth
-        # validator still compares that zero with a CRC32 checksum. Do not
-        # advertise a channel until the separately accepted WSS repair lands.
-        return ()
+        """Declare the public ``tickers`` tick channel only (no I/O).
+
+        ``orderbook`` stays unadvertised: current OKX public guidance fixes the
+        books-l2-tbt checksum to zero and requires seqId/prevSeqId continuity,
+        while the inherited WSS depth validator still compares that zero with
+        a CRC32 checksum. It returns once the separately accepted repair lands.
+        """
+        return (MarketStreamChannelCapability(channel="tick", max_depth=None),)
 
     def open_session(
         self,
         *,
         wake_callback: Callable[[], None],
-    ) -> "OkxMarketStreamSession":
-        """Create an unstarted session shell; the accepted request starts WSS."""
+    ) -> Any:
+        """Create an unstarted tick session shell; the first subscribe starts WSS."""
+        from bt_api_okx.market_tick_stream import OkxTickMarketStreamSession
+
         if not callable(wake_callback):
             raise MarketStreamProviderContractError("MARKET_STREAM_PROVIDER_SESSION_INVALID")
-        return OkxMarketStreamSession(self._route, wake_callback=wake_callback)
+        return OkxTickMarketStreamSession(self._route, wake_callback=wake_callback)
 
 
 class OkxMarketStreamSession:
