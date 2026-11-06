@@ -18,17 +18,30 @@ Facts and their provenance:
   resync is the baseline (delta 0, ``volume_quality="baseline"``,
   ``volume_complete=False``).  A row whose ``tradeId`` equals the previous
   ``tradeId`` plus its ``count`` (OKX: ``tradeId`` is the last id of ``count``
-  aggregated trades) is ``continuous``/complete; a larger jump is
-  ``discontinuous``/incomplete (the row's own ``sz`` is still reported); a
-  repeated or older ``tradeId`` is ignored.  Quote ticks are complete once the
-  accounting is anchored, otherwise ``baseline``.
+  aggregated trades) is ``continuous``/complete.  Any other forward
+  ``tradeId`` is a trade-id jump: that row alone is ``discontinuous``/
+  incomplete (its own ``sz`` is still reported, nothing is invented for the
+  ids in between) and the accounting continues from it.  A repeated or older
+  ``tradeId`` is ignored.  Quote ticks are complete once the accounting is
+  anchored, otherwise ``baseline``.
+* Trade-id jumps are counted per binding (:meth:`OkxTickMarketStreamSession.
+  trade_id_jumps`) and per session (``counters["trade_id_jump"]``), counts
+  only.  The first jump of an instrument is logged as a warning with the
+  instrument and the jump size (``tradeId - (previous + count)``); later ones
+  at most once a minute per instrument, with the number suppressed.
 * ``provider_event_time_utc`` is each push's ``ts`` (venue milliseconds,
   ``provider_reported``); ``received_at_utc``/``received_monotonic_ns`` are
   taken when the WSS frame is received, before parsing.
 * Clock qualities stay UNKNOWN and freshness UNAVAILABLE; the SDK qualifies
   ticks separately (venue clock cross-check via ``server_time_observation``).
-* ``continuity_status`` is ``gap`` for the first tick of a binding, after a
-  dropped/malformed frame and on a trade-id gap, otherwise ``continuous``.
+* ``continuity_status`` is ``gap`` for the first tick of a binding and after a
+  dropped/malformed frame, otherwise ``continuous``.  An uninterrupted
+  connection is continuous: a trade-id jump on it does not make the tick a
+  gap (user decision 2026-11-06, iteration 62).  OKX ``trades`` ids are not
+  proven gapless on an uninterrupted connection, so a jump is no evidence of a
+  lost push; treating it as a gap made the SDK clock qualification mark those
+  ticks not execution-eligible (OKX demo, 2026-11-05).  Connection loss and
+  ingress overflow (below) remain the continuity signals.
 
 A reconnect (new WSS generation), a disconnect or an ingress overflow marks
 the channel recovery-required: ``poll`` raises once so the SDK owner moves the
@@ -74,6 +87,8 @@ _FRESHNESS_REASONS = ("OKX_SOURCE_CLOCK_UNCALIBRATED", "OKX_RECEIVE_CLOCK_UNQUAL
 _CONNECT_TIMEOUT_SECONDS = 30.0
 _MAX_PROVIDER_BATCH = 4096
 _MAX_POLL_TIMEOUT_MS = 60_000
+_LOGGER_NAME = "okx_market_tick"
+_TRADE_ID_JUMP_LOG_INTERVAL_SECONDS = 60.0
 
 
 def _invalid(code: str = "MARKET_STREAM_PROVIDER_SESSION_INVALID") -> MarketStreamProviderContractError:
@@ -130,24 +145,33 @@ class _TickChannel:
     quote: Optional[tuple[Optional[float], Optional[float], Optional[float], Optional[float]]] = None
     # tradeId anchoring the delta-volume accounting of this epoch.
     trade_anchor: Optional[int] = None
+    # Trade-id jumps seen on this binding, and the size of the latest one.
+    trade_id_jumps: int = 0
+    last_trade_id_jump: int = 0
 
 
 def trade_volume(channel: _TickChannel, trade_id: int, count: int, quantity: float):
     """Delta-volume facts of one trade row, or ``None`` for a repeated/older id.
 
-    Returns ``(delta, complete, volume_quality, gap)``.
+    Returns ``(delta, complete, volume_quality, jump)``.  ``jump`` is 0 unless
+    the row is a forward ``tradeId`` other than the previous one plus
+    ``count``; then it is ``tradeId - (previous + count)`` (positive: ids
+    skipped, negative: the aggregate overlaps ids already seen) and that row's
+    volume is incomplete.  A jump is not a continuity gap.
     """
 
     anchor = channel.trade_anchor
     if anchor is None:
         channel.trade_anchor = trade_id
-        return 0.0, False, "baseline", False
+        return 0.0, False, "baseline", 0
     if trade_id <= anchor:
         return None
     channel.trade_anchor = trade_id
-    if trade_id == anchor + count:
-        return quantity, True, "continuous", False
-    return quantity, False, "discontinuous", True
+    jump = trade_id - (anchor + count)
+    if jump == 0:
+        return quantity, True, "continuous", 0
+    channel.last_trade_id_jump = jump
+    return quantity, False, "discontinuous", jump
 
 
 def _payload(
@@ -282,7 +306,7 @@ def project_okx_trade(
     volume = trade_volume(channel, int(trade_id), int(count), quantity)
     if volume is None:
         return None
-    delta, complete, quality, gap = volume
+    delta, complete, quality, _jump = volume
     return _payload(
         source,
         channel,
@@ -292,7 +316,9 @@ def project_okx_trade(
         delta_volume=delta,
         volume_complete=complete,
         volume_quality=quality,
-        continuity_status="gap" if channel.gap_pending or gap else "continuous",
+        # Only a lost push or a new binding breaks continuity; a trade-id jump
+        # on an uninterrupted connection does not (user decision 2026-11-06).
+        continuity_status="gap" if channel.gap_pending else "continuous",
         sequence=sequence,
         received_ns=received_ns,
         received_monotonic_ns=received_monotonic_ns,
@@ -328,6 +354,11 @@ class OkxTickMarketStreamSession:
         self._closed = False
         self._cleanup_unverified = False
         self.counters: dict[str, int] = {}
+        # Trade-id jump warnings: logger created on the first jump; per
+        # instrument (next allowed monotonic time, warnings suppressed since).
+        self._logger: Any = None
+        self._log_clock: Callable[[], float] = time.monotonic
+        self._jump_log_state: dict[str, tuple[float, int]] = {}
 
     # -- MarketStreamProviderSession ----------------------------------------
     def subscribe(self, request: MarketStreamRequest, /) -> MarketStreamProviderChannelBinding:
@@ -426,6 +457,12 @@ class OkxTickMarketStreamSession:
             return True
         return self._stop_stream()
 
+    def trade_id_jumps(self, binding: MarketStreamProviderChannelBinding, /) -> int:
+        """Trade-id jumps counted on ``binding`` (a count; no ids, prices or sizes)."""
+
+        self._check_owner()
+        return self._channel_for(binding).trade_id_jumps
+
     def close(self) -> bool:
         self._check_owner()
         self._channels.clear()
@@ -440,6 +477,35 @@ class OkxTickMarketStreamSession:
     # -- internals ----------------------------------------------------------
     def _bump(self, name: str) -> None:
         self.counters[name] = self.counters.get(name, 0) + 1
+
+    def _record_trade_id_jump(self, channel: _TickChannel) -> None:
+        """Count one trade-id jump; warn on the first, then once a minute per instrument."""
+
+        channel.trade_id_jumps += 1
+        self._bump("trade_id_jump")
+        try:
+            instrument = channel.binding.source.key.instrument.native_symbol
+            now = self._log_clock()
+            next_at, suppressed = self._jump_log_state.get(instrument, (None, 0))
+            if next_at is not None and now < next_at:
+                self._jump_log_state[instrument] = (next_at, suppressed + 1)
+                return
+            self._jump_log_state[instrument] = (now + _TRADE_ID_JUMP_LOG_INTERVAL_SECONDS, 0)
+            if self._logger is None:
+                from bt_api_base.logging_factory import get_logger
+
+                self._logger = get_logger(_LOGGER_NAME)
+            self._logger.warning(
+                "OKX trades tradeId jump on an uninterrupted connection: instrument=%s "
+                "jump=%d binding_jumps=%d suppressed=%d; continuity kept, row volume incomplete",
+                instrument,
+                channel.last_trade_id_jump,
+                channel.trade_id_jumps,
+                suppressed,
+            )
+        except Exception:
+            # Diagnostics must never stop the stream; the count above stands.
+            self._bump("trade_id_jump_log_failed")
 
     def _raise_if_pending(self) -> None:
         if self._raise_pending:
@@ -522,7 +588,7 @@ class OkxTickMarketStreamSession:
                 self._bump("trade_repeated_or_out_of_order")
                 continue
             if payload.volume_quality == "discontinuous":
-                self._bump("trade_id_gap")
+                self._record_trade_id_jump(channel)
             self._ingest_sequence += 1
             channel.cursor += 1
             channel.gap_pending = False
